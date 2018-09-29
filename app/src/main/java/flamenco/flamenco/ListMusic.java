@@ -16,6 +16,14 @@ import android.util.Log;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
+import android.os.IBinder;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.view.MenuItem;
+import android.view.View;
+import flamenco.flamenco.MusicService.MusicBinder;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +33,10 @@ public class ListMusic extends AppCompatActivity {
 
     private ArrayList<Song> songList;
     private ListView songView;
+    private MusicService musicSrv;
+    private Intent playIntent;
+    private boolean musicBound=false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,9 +47,43 @@ public class ListMusic extends AppCompatActivity {
 
         ActivityCompat.requestPermissions(ListMusic.this,
                 new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},1);
-
-
     }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(playIntent==null){
+            playIntent = new Intent(this, MusicService.class);
+            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
+            startService(playIntent);
+        }
+    }
+
+
+    public void songPicked(View view){
+        musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
+        musicSrv.playSong();
+    }
+
+
+    private ServiceConnection musicConnection = new ServiceConnection(){
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MusicBinder binder = (MusicBinder)service;
+            //get service
+            musicSrv = binder.getService();
+            //pass list
+            musicSrv.setList(songList);
+            musicBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            musicBound = false;
+        }
+    };
 
 
     @Override
@@ -59,6 +105,7 @@ public class ListMusic extends AppCompatActivity {
             // add other cases for more permissions
         }
     }
+
 
     public void getSongList() {
         ContentResolver musicResolver = getContentResolver();
