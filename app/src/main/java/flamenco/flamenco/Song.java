@@ -1,19 +1,27 @@
 package flamenco.flamenco;
 
+import android.content.ContentUris;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 
 public class Song {
 
     private long id;
+    private Uri albumArt;
+    private long albumId;
     private String title;
     private String artist;
-    private Uri art;
+    private String year;
 
-    public Song(long songID, String songTitle, String songArtist, Uri songArt) {
+    public Song(long songID, String songTitle, String songArtist, long songAlbumId, String songYear ) {
         id=songID;
         title=songTitle;
         artist=songArtist;
-        art=songArt;
+        albumId=songAlbumId;
+        year=songYear;
+
+        Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
+        albumArt = ContentUris.withAppendedId(sArtworkUri, albumId);
     }
 
     public long getID() {
@@ -25,6 +33,8 @@ public class Song {
     public String getArtist(){
         return artist;
     }
-    public Uri getArt() { return art;}
+    public long getAlbumId() {return albumId;}
+    public Uri getAlbumArt() {return albumArt;}
+    public String getYear(){return year;}
 
 }

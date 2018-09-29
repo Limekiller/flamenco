@@ -2,8 +2,10 @@ package flamenco.flamenco;
 
 import android.Manifest;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,6 +13,7 @@ import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -52,7 +55,6 @@ public class ListMusic extends AppCompatActivity {
                     // functionality that depends on this permission.
                     Toast.makeText(ListMusic.this, "Permission denied to read your External storage", Toast.LENGTH_SHORT).show();
                 }
-                return;
             }
             // add other cases for more permissions
         }
@@ -60,7 +62,6 @@ public class ListMusic extends AppCompatActivity {
 
     public void getSongList() {
         ContentResolver musicResolver = getContentResolver();
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
         if (musicCursor != null && musicCursor.moveToFirst()) {
@@ -70,14 +71,21 @@ public class ListMusic extends AppCompatActivity {
                     (MediaStore.Audio.Media._ID);
             int artistColumn = musicCursor.getColumnIndex
                     (MediaStore.Audio.Media.ARTIST);
+            int yearColumn = musicCursor.getColumnIndex
+                    (MediaStore.Audio.Media.YEAR);
+            int albumIdColumn = musicCursor.getColumnIndex
+                    (MediaStore.Audio.Media.ALBUM_ID);
             do {
-                //SOMEHOW USE MEDIA METADATA RETRIEVER TO GET SHIT
                 String thisTitle = musicCursor.getString(titleColumn);
                 String thisArtist = musicCursor.getString(artistColumn);
-                songList.add(new Song(thisId, thisTitle, thisArtist, albumIDColumn));
+                String thisYear = musicCursor.getString(yearColumn);
+                long thisId = musicCursor.getLong(idColumn);
+                long thisAlbumId = musicCursor.getLong(albumIdColumn);
+                songList.add(new Song(thisId, thisTitle, thisArtist, thisAlbumId, thisYear));
             }
             while (musicCursor.moveToNext());
         }
+        musicCursor.close();
 
         Collections.sort(songList, new Comparator<Song>() {
             @Override

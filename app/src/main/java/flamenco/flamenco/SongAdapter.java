@@ -1,6 +1,8 @@
 package flamenco.flamenco;
 
+import android.content.ContentUris;
 import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +13,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class SongAdapter extends BaseAdapter {
@@ -52,14 +55,17 @@ public class SongAdapter extends BaseAdapter {
         //get title and artist views
         TextView songView = (TextView)songLay.findViewById(R.id.song_title);
         TextView artistView = (TextView)songLay.findViewById(R.id.song_artist);
+        TextView yearView = songLay.findViewById(R.id.song_year);
         ImageView artView = (ImageView)songLay.findViewById(R.id.song_art);
         //get song using position
         Song currSong = songs.get(position);
         //get title and artist strings
         songView.setText(currSong.getTitle());
         artistView.setText(currSong.getArtist());
-        Glide.with(context).load(currSong.getArt()).error(R.drawable.placeholder)
-                .crossFade().centerCrop().dontAnimate().into(artView);
+        yearView.setText(currSong.getYear());
+
+        Glide.with(context).load(currSong.getAlbumArt()).error(R.drawable.placeholder)
+                .crossFade().dontAnimate().centerCrop().into(artView);
 
         //set position as tag
         songLay.setTag(position);
