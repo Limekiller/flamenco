@@ -4,11 +4,13 @@ import android.Manifest;
 import android.content.ContentResolver;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -58,6 +60,7 @@ public class ListMusic extends AppCompatActivity {
 
     public void getSongList() {
         ContentResolver musicResolver = getContentResolver();
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
         if (musicCursor != null && musicCursor.moveToFirst()) {
@@ -68,10 +71,10 @@ public class ListMusic extends AppCompatActivity {
             int artistColumn = musicCursor.getColumnIndex
                     (MediaStore.Audio.Media.ARTIST);
             do {
-                long thisId = musicCursor.getLong(idColumn);
+                //SOMEHOW USE MEDIA METADATA RETRIEVER TO GET SHIT
                 String thisTitle = musicCursor.getString(titleColumn);
                 String thisArtist = musicCursor.getString(artistColumn);
-                songList.add(new Song(thisId, thisTitle, thisArtist));
+                songList.add(new Song(thisId, thisTitle, thisArtist, albumIDColumn));
             }
             while (musicCursor.moveToNext());
         }
