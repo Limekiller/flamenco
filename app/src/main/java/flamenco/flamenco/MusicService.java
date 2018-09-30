@@ -1,6 +1,7 @@
 package flamenco.flamenco;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.IBinder;
@@ -8,13 +9,12 @@ import android.os.IBinder;
 import java.util.ArrayList;
 import android.content.ContentUris;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.PowerManager;
 import android.provider.MediaStore;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-
 
 public class MusicService extends Service implements
         MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
@@ -24,6 +24,7 @@ public class MusicService extends Service implements
     private ArrayList<Song> songs;
     private int songPosn;
     private final IBinder musicBind = new MusicBinder();
+
 
     public MusicService() {
     }
@@ -83,6 +84,10 @@ public class MusicService extends Service implements
         songPosn=songIndex;
     }
 
+    public Song getSong() {
+        return songs.get(songPosn);
+    }
+
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -100,6 +105,10 @@ public class MusicService extends Service implements
 
     @Override
     public void onCompletion(MediaPlayer mp) {
+        if(player.getCurrentPosition()>0){
+            mp.reset();
+            playNext();
+        }
     }
 
 
@@ -111,6 +120,52 @@ public class MusicService extends Service implements
 
     @Override
     public void onPrepared(MediaPlayer mp) {
+        Intent onPreparedIntent = new Intent("MEDIA_PLAYER_PREPARED");
+        LocalBroadcastManager.getInstance(this).sendBroadcast(onPreparedIntent);
         mp.start();
+    }
+
+
+    public int getPosn(){
+        return player.getCurrentPosition();
+    }
+
+
+    public int getDur(){
+        return player.getDuration();
+    }
+
+
+    public boolean isPng(){
+        return player.isPlaying();
+    }
+
+
+    public void pausePlayer(){
+        player.pause();
+    }
+
+
+    public void seek(int posn){
+        player.seekTo(posn);
+    }
+
+
+    public void go(){
+        player.start();
+    }
+
+
+    public void playPrev(){
+        songPosn--;
+        if(songPosn < 0) songPosn=songs.size()-1;
+        playSong();
+    }
+
+
+    public void playNext(){
+        songPosn++;
+        if(songPosn >= songs.size()) songPosn=0;
+        playSong();
     }
 }
