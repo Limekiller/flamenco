@@ -32,15 +32,16 @@
         android:id="@+id/audioController"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
+        android:background="@color/colorPrimary"
+        android:paddingLeft="10dp"
+        android:paddingTop="10dp"
         android:layout_weight="0.15"
         android:orientation="horizontal">
 
         <ImageView
             android:id="@+id/currSongArt"
-            android:layout_width="100dp"
-            android:layout_height="95dp"
+            android:layout_width="80dp"
+            android:layout_height="75dp"
             tools:srcCompat="@tools:sample/avatars[0]" />
 
         <LinearLayout
@@ -54,6 +55,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:textColor="@android:color/white"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -63,33 +65,52 @@
                 android:layout_weight="1"
                 android:orientation="horizontal">
 
-                <Button
+                <ImageButton
                     android:id="@+id/rewindBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Button" />
+                    android:background="@android:color/transparent"
+                    app:srcCompat="@drawable/exo_icon_previous" />
 
-                <Button
+                <ImageButton
                     android:id="@+id/playBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Button" />
+                    android:background="@android:color/transparent"
+                    app:srcCompat="@drawable/exo_controls_pause" />
 
-                <Button
+                <ImageButton
                     android:id="@+id/ffBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Button" />
+                    android:background="@android:color/transparent"
+                    app:srcCompat="@drawable/exo_controls_next" />
             </LinearLayout>
 
-            <SeekBar
-                android:id="@+id/seekBar"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/currTime"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="0:00"
+                    android:textColor="@android:color/white" />
+
+                <SeekBar
+                    android:id="@+id/seekBar"
+                    style="@android:style/Widget.Material.Light.SeekBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+            </LinearLayout>
         </LinearLayout>
 
     </LinearLayout>

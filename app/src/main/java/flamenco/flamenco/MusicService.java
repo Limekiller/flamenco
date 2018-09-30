@@ -4,9 +4,12 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.media.MediaTimestamp;
 import android.os.IBinder;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import android.content.ContentUris;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -15,6 +18,7 @@ import android.os.PowerManager;
 import android.provider.MediaStore;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import flamenco.flamenco.ListMusic;
 
 public class MusicService extends Service implements
         MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
@@ -108,6 +112,7 @@ public class MusicService extends Service implements
         if(player.getCurrentPosition()>0){
             mp.reset();
             playNext();
+
         }
     }
 

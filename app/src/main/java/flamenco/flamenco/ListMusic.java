@@ -3,12 +3,9 @@ package flamenco.flamenco;
 import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.drawable.Drawable;
-import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,8 +13,7 @@ import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SeekBar;
@@ -49,9 +45,10 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
     private ImageView currSongArt;
     private TextView currSongInfo;
     private SeekBar seekBar;
-    private Button rewindBtn;
-    private Button playBtn;
-    private Button ffBtn;
+    private TextView currTime;
+    private ImageButton rewindBtn;
+    private ImageButton playBtn;
+    private ImageButton ffBtn;
     private Handler handler;
 
 
@@ -62,25 +59,32 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_music);
-        songView = (ListView)findViewById(R.id.song_list);
+        songView = findViewById(R.id.song_list);
         songList = new ArrayList<Song>();
         currSongArt = findViewById(R.id.currSongArt);
         currSongInfo = findViewById(R.id.currSongInfo);
         seekBar = findViewById(R.id.seekBar);
-        rewindBtn = (Button) findViewById(R.id.rewindBtn);
+        rewindBtn = findViewById(R.id.rewindBtn);
         playBtn = findViewById(R.id.playBtn);
         ffBtn = findViewById(R.id.ffBtn);
+        currTime = findViewById(R.id.currTime);
         handler = new Handler();
+
+        Glide.with(this).load(R.drawable.placeholder)
+                .crossFade().centerCrop().into(currSongArt);
 
         playBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (playbackPaused) {
                     musicSrv.go();
+                    playBtn.setImageResource(R.drawable.exo_controls_pause);
                     playbackPaused = false;
                 } else {
                     musicSrv.pausePlayer();
                     playbackPaused = true;
+                    playBtn.setImageResource(R.drawable.exo_controls_play);
+
                 }
                 updateSong();
             }
@@ -125,7 +129,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
         Song currSong = musicSrv.getSong();
         currSongInfo.setText(currSong.getArtist()+" — "+currSong.getTitle());
         Glide.with(this).load(currSong.getAlbumArt()).error(R.drawable.placeholder)
-                .crossFade().dontAnimate().centerCrop().into(currSongArt);
+                .crossFade().centerCrop().into(currSongArt);
 
         int mediaPos = musicSrv.getPosn();
         int mediaMax = musicSrv.getDur();
@@ -228,27 +232,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
 
         SongAdapter songAdt = new SongAdapter(this, songList);
         songView.setAdapter(songAdt);
-    }
-
-
-    private void playNext(){
-        musicSrv.playNext();
-        if(playbackPaused){
-            //setController();
-            playbackPaused=false;
-        }
-        //controller.show(0);
-    }
-
-
-    //play previous
-    private void playPrev(){
-        musicSrv.playPrev();
-        if(playbackPaused){
-            //setController();
-            playbackPaused=false;
-        }
-       //controller.show(0);
     }
 
 
@@ -358,9 +341,40 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
                 int songDur = musicSrv.getDur();
                 seekBar.setMax(songDur);
                 seekBar.setProgress(songPos);
+                currTime.setText(""+milliSecondsToTimer(songPos));
 
                 handler.postDelayed(this, 100);
             }
         }
     };
+
+
+    public String milliSecondsToTimer(long milliseconds){
+        String finalTimerString = "";
+        String secondsString = "";
+
+        // Convert total duration into time
+        int hours = (int)( milliseconds / (1000*60*60));
+        int minutes = (int)(milliseconds % (1000*60*60)) / (1000*60);
+        int seconds = (int) ((milliseconds % (1000*60*60)) % (1000*60) / 1000);
+        // Add hours if there
+        if(hours > 0){
+            finalTimerString = hours + ":";
+        }
+
+        // Prepending 0 to seconds if it is one digit
+        if (seconds == 0) {
+            updateSong();
+        }
+
+        if(seconds < 10){
+            secondsString = "0" + seconds;
+        }else{
+            secondsString = "" + seconds;}
+
+        finalTimerString = finalTimerString + minutes + ":" + secondsString;
+
+        // return timer string
+        return finalTimerString;
+    }
 }
