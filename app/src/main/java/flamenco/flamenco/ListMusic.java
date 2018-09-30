@@ -94,6 +94,8 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
             @Override
             public void onClick(View v) {
                 musicSrv.playPrev();
+                playBtn.setImageResource(R.drawable.exo_controls_pause);
+                playbackPaused = false;
                 updateSong();
             }
         });
@@ -102,7 +104,28 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
             @Override
             public void onClick(View v) {
                 musicSrv.playNext();
+                playBtn.setImageResource(R.drawable.exo_controls_pause);
+                playbackPaused = false;
                 updateSong();
+            }
+        });
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if(musicSrv != null && fromUser) {
+                    musicSrv.seek(progress);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
             }
         });
 
@@ -136,6 +159,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
 
         seekBar.setMax(mediaMax);
         seekBar.setProgress(mediaPos);
+
 
         handler.removeCallbacks(updateTime);
         handler.postDelayed(updateTime, 100);
@@ -365,6 +389,9 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
         // Prepending 0 to seconds if it is one digit
         if (seconds == 0) {
             updateSong();
+            if (!playbackPaused) {
+                playBtn.setImageResource(R.drawable.exo_controls_pause);
+            }
         }
 
         if(seconds < 10){
