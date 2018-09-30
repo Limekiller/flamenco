@@ -9,4 +9,10 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="TextAppearance.AppCompat.Widget.ActionBar.Title" parent="android:style/TextAppearance">
+        <item name="android:fontFamily">serif</item>
+        <item name="android:textSize">20dp</item>
+        <item name="android:textStyle">italic</item>
+    </style>
+
 </resources>
