@@ -73,9 +73,9 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         handler = new Handler();
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
-        tabLayout.addTab(tabLayout.newTab().setText("Tab 1"));
-        tabLayout.addTab(tabLayout.newTab().setText("Tab 2"));
-        tabLayout.addTab(tabLayout.newTab().setText("Tab 3"));
+        tabLayout.addTab(tabLayout.newTab().setText("Songs"));
+        tabLayout.addTab(tabLayout.newTab().setText("Artists"));
+        tabLayout.addTab(tabLayout.newTab().setText("Albums"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
@@ -249,45 +249,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             // add other cases for more permissions
         }
     }
-
-
-
-
-
-//    public void getSongList() {
-//        ContentResolver musicResolver = getContentResolver();
-//        Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-//        Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
-//        if (musicCursor != null && musicCursor.moveToFirst()) {
-//            int titleColumn = musicCursor.getColumnIndex
-//                    (android.provider.MediaStore.Audio.Media.TITLE);
-//            int idColumn = musicCursor.getColumnIndex
-//                    (MediaStore.Audio.Media._ID);
-//            int artistColumn = musicCursor.getColumnIndex
-//                    (MediaStore.Audio.Media.ARTIST);
-//            int yearColumn = musicCursor.getColumnIndex
-//                    (MediaStore.Audio.Media.YEAR);
-//            int albumIdColumn = musicCursor.getColumnIndex
-//                    (MediaStore.Audio.Media.ALBUM_ID);
-//            do {
-//                String thisTitle = musicCursor.getString(titleColumn);
-//                String thisArtist = musicCursor.getString(artistColumn);
-//                String thisYear = musicCursor.getString(yearColumn);
-//                long thisId = musicCursor.getLong(idColumn);
-//                long thisAlbumId = musicCursor.getLong(albumIdColumn);
-//                songList.add(new Song(thisId, thisTitle, thisArtist, thisAlbumId, thisYear));
-//            }
-//            while (musicCursor.moveToNext());
-//        }
-//        musicCursor.close();
-//
-//        Collections.sort(songList, new Comparator<Song>() {
-//            @Override
-//            public int compare(Song o1, Song o2) {
-//                return o1.getTitle().compareTo(o2.getTitle());
-//            }
-//        });
-//    }
 
 
     private BroadcastReceiver onPrepareReceiver = new BroadcastReceiver() {
