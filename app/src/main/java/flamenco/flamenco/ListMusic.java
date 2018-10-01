@@ -10,8 +10,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -33,11 +35,12 @@ import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.concurrent.TimeUnit;
 
-public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
 
-    private ArrayList<Song> songList;
-    private ListView songView;
+public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
+
+    public ArrayList<Song> songList;
     private MusicService musicSrv;
     private Intent playIntent;
     private boolean musicBound=false;
@@ -54,12 +57,11 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
 
     private boolean paused=false, playbackPaused=false;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_music);
-        songView = findViewById(R.id.song_list);
+
         songList = new ArrayList<Song>();
         currSongArt = findViewById(R.id.currSongArt);
         currSongInfo = findViewById(R.id.currSongInfo);
@@ -69,6 +71,34 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
         ffBtn = findViewById(R.id.ffBtn);
         currTime = findViewById(R.id.currTime);
         handler = new Handler();
+
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        tabLayout.addTab(tabLayout.newTab().setText("Tab 1"));
+        tabLayout.addTab(tabLayout.newTab().setText("Tab 2"));
+        tabLayout.addTab(tabLayout.newTab().setText("Tab 3"));
+        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+
+        final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
+        final MusicFragmentAdapter adapter = new MusicFragmentAdapter
+                (getSupportFragmentManager(), tabLayout.getTabCount());
+        viewPager.setAdapter(adapter);
+        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewPager.setCurrentItem(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
 
         Glide.with(this).load(R.drawable.placeholder)
                 .crossFade().centerCrop().into(currSongArt);
@@ -129,8 +159,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
             }
         });
 
-        ActivityCompat.requestPermissions(ListMusic.this,
-                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},1);
+
 
     }
 
@@ -139,6 +168,8 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
     protected void onStart() {
         super.onStart();
 
+        ActivityCompat.requestPermissions(ListMusic.this,
+                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},1);
 
         if(playIntent==null){
             playIntent = new Intent(this, MusicService.class);
@@ -207,7 +238,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission granted and now can proceed
-                    getSongList();
+                    SongsFragment songsFragment = new SongsFragment();
                 } else {
 
                     // permission denied, boo! Disable the
@@ -220,43 +251,43 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
     }
 
 
-    public void getSongList() {
-        ContentResolver musicResolver = getContentResolver();
-        Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
-        if (musicCursor != null && musicCursor.moveToFirst()) {
-            int titleColumn = musicCursor.getColumnIndex
-                    (android.provider.MediaStore.Audio.Media.TITLE);
-            int idColumn = musicCursor.getColumnIndex
-                    (MediaStore.Audio.Media._ID);
-            int artistColumn = musicCursor.getColumnIndex
-                    (MediaStore.Audio.Media.ARTIST);
-            int yearColumn = musicCursor.getColumnIndex
-                    (MediaStore.Audio.Media.YEAR);
-            int albumIdColumn = musicCursor.getColumnIndex
-                    (MediaStore.Audio.Media.ALBUM_ID);
-            do {
-                String thisTitle = musicCursor.getString(titleColumn);
-                String thisArtist = musicCursor.getString(artistColumn);
-                String thisYear = musicCursor.getString(yearColumn);
-                long thisId = musicCursor.getLong(idColumn);
-                long thisAlbumId = musicCursor.getLong(albumIdColumn);
-                songList.add(new Song(thisId, thisTitle, thisArtist, thisAlbumId, thisYear));
-            }
-            while (musicCursor.moveToNext());
-        }
-        musicCursor.close();
 
-        Collections.sort(songList, new Comparator<Song>() {
-            @Override
-            public int compare(Song o1, Song o2) {
-                return o1.getTitle().compareTo(o2.getTitle());
-            }
-        });
 
-        SongAdapter songAdt = new SongAdapter(this, songList);
-        songView.setAdapter(songAdt);
-    }
+
+//    public void getSongList() {
+//        ContentResolver musicResolver = getContentResolver();
+//        Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+//        Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
+//        if (musicCursor != null && musicCursor.moveToFirst()) {
+//            int titleColumn = musicCursor.getColumnIndex
+//                    (android.provider.MediaStore.Audio.Media.TITLE);
+//            int idColumn = musicCursor.getColumnIndex
+//                    (MediaStore.Audio.Media._ID);
+//            int artistColumn = musicCursor.getColumnIndex
+//                    (MediaStore.Audio.Media.ARTIST);
+//            int yearColumn = musicCursor.getColumnIndex
+//                    (MediaStore.Audio.Media.YEAR);
+//            int albumIdColumn = musicCursor.getColumnIndex
+//                    (MediaStore.Audio.Media.ALBUM_ID);
+//            do {
+//                String thisTitle = musicCursor.getString(titleColumn);
+//                String thisArtist = musicCursor.getString(artistColumn);
+//                String thisYear = musicCursor.getString(yearColumn);
+//                long thisId = musicCursor.getLong(idColumn);
+//                long thisAlbumId = musicCursor.getLong(albumIdColumn);
+//                songList.add(new Song(thisId, thisTitle, thisArtist, thisAlbumId, thisYear));
+//            }
+//            while (musicCursor.moveToNext());
+//        }
+//        musicCursor.close();
+//
+//        Collections.sort(songList, new Comparator<Song>() {
+//            @Override
+//            public int compare(Song o1, Song o2) {
+//                return o1.getTitle().compareTo(o2.getTitle());
+//            }
+//        });
+//    }
 
 
     private BroadcastReceiver onPrepareReceiver = new BroadcastReceiver() {
@@ -404,4 +435,5 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
         // return timer string
         return finalTimerString;
     }
+
 }
