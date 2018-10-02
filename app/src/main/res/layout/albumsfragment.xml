@@ -9,10 +9,10 @@
 
     <GridView
         android:id="@+id/album_list"
-        android:numColumns="2"
-        android:gravity="center"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />
+        android:layout_height="fill_parent"
+
+        android:numColumns="1" />
 
 
     <LinearLayout

@@ -10,6 +10,7 @@ import android.widget.BaseAdapter;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -57,17 +58,32 @@ public class AlbumAdapter extends BaseAdapter {
         TextView songView = (TextView)albumLay.findViewById(R.id.album_title);
         TextView artistView = (TextView)albumLay.findViewById(R.id.album_artist);
         ImageView artView = (ImageView)albumLay.findViewById(R.id.album_art);
+        LinearLayout songList = albumLay.findViewById(R.id.a_song_list);
+        LayoutInflater inflater = LayoutInflater.from(context);
         //get song using position
         Album currAlbum = albums.get(position);
         //get title and artist strings
         songView.setText(currAlbum.getTitle());
         artistView.setText(currAlbum.getArtist());
 
-        Glide.with(context).load(currAlbum.getAlbumArt()).error(R.drawable.placeholder)
+        for (int i=0; i<currAlbum.getAlbumSongList().size();i++) {
+            View view = inflater.inflate(R.layout.song, songList, false);
+
+            TextView sSongView = view.findViewById(R.id.song_title);
+            //TextView sArtistView = (TextView)view.findViewById(R.id.song_artist);
+            //TextView sYearView = view.findViewById(R.id.song_year);
+
+            sSongView.setText(currAlbum.getAlbumSongList().get(i).getTitle());
+            view.setTag(i);
+            songList.addView(view);
+        }
+
+        Glide.with(context).load(currAlbum.getAlbumSongList().get(0).getAlbumArt()).error(R.drawable.placeholder)
                 .crossFade().dontAnimate().centerCrop().into(artView);
 
         //set position as tag
         albumLay.setTag(position);
+        songList.setTag(position);
         return albumLay;
     }
 }

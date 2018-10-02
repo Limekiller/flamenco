@@ -15,8 +15,13 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.ViewGroup;
+import android.widget.GridLayout;
+import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -41,6 +46,7 @@ import java.util.concurrent.TimeUnit;
 public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
     public ArrayList<Song> songList;
+    public ArrayList<Album> albumList;
     private MusicService musicSrv;
     private Intent playIntent;
     private boolean musicBound=false;
@@ -199,6 +205,12 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
     public void songPicked(View view){
 
+
+        if (((ViewGroup)view.getParent()).getId() == R.id.a_song_list) {
+            musicSrv.setList(albumList.get(Integer.parseInt(((LinearLayout)view.getParent()).getTag().toString()))
+                    .getAlbumSongList());
+        }
+
         musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
         musicSrv.playSong();
         updateSong();
@@ -208,6 +220,15 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             playbackPaused=false;
         }
         //controller.show(0);
+    }
+
+    public void setAlbumVisibility(View view) {
+        View item = view.findViewById(R.id.a_song_list);
+        if (item.getVisibility() == View.VISIBLE) {
+            item.setVisibility(View.GONE);
+        } else {
+            item.setVisibility(View.VISIBLE);
+        }
     }
 
 

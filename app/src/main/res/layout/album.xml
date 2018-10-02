@@ -2,17 +2,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/album"
-    android:layout_width="wrap_content"
-    android:layout_height="250dp"
-    android:onClick="songPicked"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:onClick="setAlbumVisibility"
     android:padding="5dp">
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
         android:layout_weight="0.25"
+        android:id="@+id/albumLayout"
         android:orientation="vertical">
 
         <ImageView
@@ -24,7 +25,7 @@
 
         <TextView
             android:id="@+id/album_title"
-            android:layout_width="fill_parent"
+            android:layout_width="98dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:textColor="#000000"
@@ -33,12 +34,20 @@
 
         <TextView
             android:id="@+id/album_artist"
-            android:layout_width="fill_parent"
+            android:layout_width="97dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/album_artist"
             android:layout_marginStart="10dp"
             android:textColor="#000000"
             android:textSize="18sp" />
+
+        <LinearLayout
+            android:id="@+id/a_song_list"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:scrollbars="none" />
     </LinearLayout>
 
 </LinearLayout>
