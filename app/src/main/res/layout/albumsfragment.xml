@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
@@ -7,21 +8,58 @@
     android:background="#FFFFFF"
     tools:context=".ListMusic" >
 
+    <LinearLayout
+        android:id="@+id/albumFocus"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="0dp"
+            android:layout_height="115dp"
+            android:layout_weight="1"
+            tools:srcCompat="@tools:sample/avatars[0]" />
+
+        <ListView
+            android:id="@+id/a_song_list"
+            android:layout_width="251dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.02"
+            android:animateLayoutChanges="true"
+            android:fastScrollEnabled="true"
+            android:visibility="visible"></ListView>
+
+        <LinearLayout
+            android:id="@+id/sideIndex"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#FFF"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+        </LinearLayout>
+
+    </LinearLayout>
+
     <GridView
         android:id="@+id/album_list"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-
-        android:numColumns="1" />
+        android:numColumns="2"
+        android:visibility="visible" />
 
 
     <LinearLayout
-        android:id="@+id/sideIndex"
+        android:id="@+id/a_sideIndex"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:background="#FFF"
         android:gravity="center_horizontal"
-        android:orientation="vertical"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent">
+        android:orientation="vertical">
 
     </LinearLayout>
 

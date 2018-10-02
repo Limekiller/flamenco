@@ -24,37 +24,40 @@
         android:id="@+id/pager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_below="@id/tab_layout" />
-
+        android:layout_below="@id/tab_layout"
+        android:layout_weight="1" />
 
 
     <LinearLayout
         android:id="@+id/audioController"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_weight="0"
+        android:animateLayoutChanges="true"
         android:background="@color/colorPrimary"
+        android:orientation="horizontal"
         android:paddingLeft="10dp"
-        android:paddingTop="10dp"
-        android:layout_weight="0.15"
-        android:orientation="horizontal">
+        android:paddingTop="10dp">
 
         <ImageView
             android:id="@+id/currSongArt"
             android:layout_width="80dp"
+            android:animateLayoutChanges="true"
             android:layout_height="75dp"
             tools:srcCompat="@tools:sample/avatars[0]" />
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_marginStart="10dp"
             android:layout_height="match_parent"
+            android:layout_marginStart="10dp"
+            android:animateLayoutChanges="true"
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/currSongInfo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:animateLayoutChanges="true"
                 android:layout_weight="1"
                 android:textColor="@android:color/white"
                 android:textSize="18sp"
@@ -63,6 +66,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:animateLayoutChanges="true"
                 android:layout_weight="1"
                 android:orientation="horizontal">
 

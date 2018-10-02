@@ -58,7 +58,6 @@ public class AlbumAdapter extends BaseAdapter {
         TextView songView = (TextView)albumLay.findViewById(R.id.album_title);
         TextView artistView = (TextView)albumLay.findViewById(R.id.album_artist);
         ImageView artView = (ImageView)albumLay.findViewById(R.id.album_art);
-        LinearLayout songList = albumLay.findViewById(R.id.a_song_list);
         LayoutInflater inflater = LayoutInflater.from(context);
         //get song using position
         Album currAlbum = albums.get(position);
@@ -66,24 +65,11 @@ public class AlbumAdapter extends BaseAdapter {
         songView.setText(currAlbum.getTitle());
         artistView.setText(currAlbum.getArtist());
 
-        for (int i=0; i<currAlbum.getAlbumSongList().size();i++) {
-            View view = inflater.inflate(R.layout.song, songList, false);
-
-            TextView sSongView = view.findViewById(R.id.song_title);
-            //TextView sArtistView = (TextView)view.findViewById(R.id.song_artist);
-            //TextView sYearView = view.findViewById(R.id.song_year);
-
-            sSongView.setText(currAlbum.getAlbumSongList().get(i).getTitle());
-            view.setTag(i);
-            songList.addView(view);
-        }
-
         Glide.with(context).load(currAlbum.getAlbumSongList().get(0).getAlbumArt()).error(R.drawable.placeholder)
                 .crossFade().dontAnimate().centerCrop().into(artView);
 
         //set position as tag
         albumLay.setTag(position);
-        songList.setTag(position);
         return albumLay;
     }
 }
