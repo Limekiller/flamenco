@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:animateLayoutChanges="true"
+    android:layout_marginStart="20dp"
     android:onClick="setAlbumVisibility"
     android:padding="5dp">
 
@@ -26,20 +27,20 @@
 
         <TextView
             android:id="@+id/album_title"
-            android:layout_width="98dp"
+            android:layout_width="144dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:textColor="#000000"
-            android:textSize="20sp"
+            android:textSize="14sp"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/album_artist"
-            android:layout_width="97dp"
+            android:layout_width="144dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:textColor="#000000"
-            android:textSize="18sp" />
+            android:textSize="8sp" />
 
     </LinearLayout>
 

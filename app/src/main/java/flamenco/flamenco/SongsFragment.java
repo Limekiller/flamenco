@@ -39,7 +39,7 @@ public class SongsFragment extends Fragment{
         listMusic = (ListMusic) getActivity();
 
         songList = listMusic.songList;
-        SongAdapter songAdt = new SongAdapter(getActivity(), songList);
+        SongAdapter songAdt = new SongAdapter(getActivity(), songList, "song");
         songView.setAdapter(songAdt);
 
         return  view;

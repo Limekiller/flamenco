@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -254,11 +255,33 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             }
         }
 
-        tempAlbumList.setTag(view.getTag());
-        albumParent.findViewById(R.id.album_list).setVisibility(View.GONE);
-        albumParent.findViewById(R.id.albumFocus).setVisibility(View.VISIBLE);
+        Glide.with(albumParent.getContext()).load(tempList.get(0).getAlbumArt())
+                .error(R.drawable.placeholder).crossFade().centerCrop()
+                .into((ImageView) albumParent.findViewById(R.id.albumFocusImage));
 
-        SongAdapter songAdt = new SongAdapter(albumParent.getContext(), tempList);
+        tempAlbumList.setTag(view.getTag());
+
+        ViewGroup.MarginLayoutParams marginParams = (ViewGroup.MarginLayoutParams)
+                albumParent.findViewById(R.id.album_list).getLayoutParams();
+        ((ViewGroup) albumParent.findViewById(R.id.album_list)).getLayoutTransition()
+                .enableTransitionType(LayoutTransition.CHANGING);
+        marginParams.setMargins(marginParams.leftMargin,
+                Resources.getSystem().getDisplayMetrics().heightPixels,
+                marginParams.rightMargin,
+                marginParams.bottomMargin);
+
+        marginParams = (ViewGroup.MarginLayoutParams)
+                albumParent.findViewById(R.id.albumFocus).getLayoutParams();
+        ((ViewGroup) findViewById(R.id.albumFocus)).getLayoutTransition()
+                .enableTransitionType(LayoutTransition.CHANGING);
+        findViewById(R.id.albumFocusImage).setTag("aC");
+
+        marginParams.setMargins(marginParams.leftMargin,
+                0,
+                marginParams.rightMargin,
+                marginParams.bottomMargin);
+
+        SongAdapter songAdt = new SongAdapter(albumParent.getContext(), tempList, "album");
         tempAlbumList.setAdapter(songAdt);
 
     }
