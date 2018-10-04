@@ -255,6 +255,8 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             }
         }
 
+        ((TextView)albumParent.findViewById(R.id.albumFocusTitle)).setText(albumTitle);
+        ((TextView)albumParent.findViewById(R.id.albumFocusArtist)).setText(tempList.get(0).getArtist());
         Glide.with(albumParent.getContext()).load(tempList.get(0).getAlbumArt())
                 .error(R.drawable.placeholder).crossFade().centerCrop()
                 .into((ImageView) albumParent.findViewById(R.id.albumFocusImage));
@@ -274,7 +276,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                 albumParent.findViewById(R.id.albumFocus).getLayoutParams();
         ((ViewGroup) findViewById(R.id.albumFocus)).getLayoutTransition()
                 .enableTransitionType(LayoutTransition.CHANGING);
-        findViewById(R.id.albumFocusImage).setTag("aC");
+        //findViewById(R.id.albumFocusImage).setTag("aC");
 
         marginParams.setMargins(marginParams.leftMargin,
                 0,
@@ -515,7 +517,11 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             }
             while (musicCursor.moveToNext());
         }
-        albumList.get(albumList.size() -1).setAlbumSongList(albumSongList);
+        try {
+            albumList.get(albumList.size() - 1).setAlbumSongList(albumSongList);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            Toast.makeText(ListMusic.this, "No audio found!", Toast.LENGTH_SHORT).show();
+        }
         musicCursor.close();
 
         Collections.sort(songList, new Comparator<Song>() {
