@@ -21,11 +21,13 @@ import java.util.ArrayList;
 public class AlbumAdapter extends BaseAdapter {
 
     private Context context;
-    private ArrayList<Album> albums;
+    private ArrayList<Song> albums;
     private LayoutInflater songInf;
+    private String area;
 
-    public AlbumAdapter(Context context, ArrayList<Album> theAlbums) {
+    public AlbumAdapter(Context context, ArrayList<Song> theAlbums, String Area) {
 
+        area=Area;
         this.context = context;
         albums=theAlbums;
         songInf=LayoutInflater.from(context);
@@ -52,21 +54,34 @@ public class AlbumAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         //map to song layout
-        LinearLayout albumLay = (LinearLayout) songInf.inflate
-                (R.layout.album, parent, false);
+        LinearLayout albumLay;
+
+        if (area.equals("albums")) {
+            albumLay = (LinearLayout) songInf.inflate
+                    (R.layout.album, parent, false);
+        } else {
+            albumLay = (LinearLayout) songInf.inflate
+                    (R.layout.artist, parent, false);
+        }
         //get title and artist views
         TextView songView = (TextView)albumLay.findViewById(R.id.album_title);
         TextView artistView = (TextView)albumLay.findViewById(R.id.album_artist);
         ImageView artView = (ImageView)albumLay.findViewById(R.id.album_art);
         LayoutInflater inflater = LayoutInflater.from(context);
         //get song using position
-        Album currAlbum = albums.get(position);
+        Song currAlbum = albums.get(position);
         //get title and artist strings
-        songView.setText(currAlbum.getTitle());
         artistView.setText(currAlbum.getArtist());
 
-        Glide.with(context).load(currAlbum.getAlbumSongList().get(0).getAlbumArt()).error(R.drawable.placeholder)
-                .crossFade().dontAnimate().centerCrop().into(artView);
+        if (area.equals("albums")) {
+            Glide.with(context).load(currAlbum.getAlbumSongList().get(0).getAlbumArt()).error(R.drawable.placeholder)
+                    .crossFade().dontAnimate().centerCrop().into(artView);
+            songView.setText(currAlbum.getTitle());
+
+        } else {
+            Glide.with(context).load(currAlbum.getAlbumArt()).error(R.drawable.placeholder)
+                    .crossFade().dontAnimate().centerCrop().into(artView);
+        }
 
         //set position as tag
         albumLay.setTag(position);

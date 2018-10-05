@@ -4,6 +4,8 @@ import android.content.ContentUris;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 
+import java.util.ArrayList;
+
 public class Song {
 
     private long id;
@@ -12,6 +14,8 @@ public class Song {
     private String title;
     private String artist;
     private String year;
+    private ArrayList<Song> albumSongList;
+
 
     public Song(long songID, String songTitle, String songArtist, long songAlbumId, String songYear ) {
         id=songID;
@@ -22,6 +26,10 @@ public class Song {
 
         Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
         albumArt = ContentUris.withAppendedId(sArtworkUri, albumId);
+    }
+
+    public void setAlbumSongList (ArrayList<Song> songList) {
+        albumSongList=new ArrayList<>(songList);
     }
 
     public long getID() {
@@ -36,5 +44,6 @@ public class Song {
     public long getAlbumId() {return albumId;}
     public Uri getAlbumArt() {return albumArt;}
     public String getYear(){return year;}
+    public ArrayList<Song> getAlbumSongList() {return albumSongList;}
 
 }

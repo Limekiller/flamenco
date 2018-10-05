@@ -19,6 +19,8 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.GridLayout;
 import android.widget.GridView;
 import android.widget.ImageButton;
@@ -50,7 +52,8 @@ import java.util.concurrent.TimeUnit;
 public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
     public ArrayList<Song> songList;
-    public ArrayList<Album> albumList;
+    public ArrayList<Song> artistList;
+    public ArrayList<Song> albumList;
     private MusicService musicSrv;
     private Intent playIntent;
     private boolean musicBound=false;
@@ -82,7 +85,8 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             e.printStackTrace();
         }
         songList = new ArrayList<Song>();
-        albumList = new ArrayList<Album>();
+        artistList = new ArrayList<Song>();
+        albumList = new ArrayList<Song>();
         currSongArt = findViewById(R.id.currSongArt);
         currSongInfo = findViewById(R.id.currSongInfo);
         seekBar = findViewById(R.id.seekBar);
@@ -249,7 +253,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         ListView tempAlbumList = albumParent.findViewById(R.id.a_song_list);
 
         tempList = albumList.get(0).getAlbumSongList();
-        for (Album dog : albumList) {
+        for (Song dog : albumList) {
             if (dog.getTitle().equals(albumTitle)) {
                 tempList = dog.getAlbumSongList();
             }
@@ -261,27 +265,11 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                 .error(R.drawable.placeholder).crossFade().centerCrop()
                 .into((ImageView) albumParent.findViewById(R.id.albumFocusImage));
 
+        hideView((View)albumParent.findViewById(R.id.album_list));
+
         tempAlbumList.setTag(view.getTag());
 
-        ViewGroup.MarginLayoutParams marginParams = (ViewGroup.MarginLayoutParams)
-                albumParent.findViewById(R.id.album_list).getLayoutParams();
-        ((ViewGroup) albumParent.findViewById(R.id.album_list)).getLayoutTransition()
-                .enableTransitionType(LayoutTransition.CHANGING);
-        marginParams.setMargins(marginParams.leftMargin,
-                Resources.getSystem().getDisplayMetrics().heightPixels,
-                marginParams.rightMargin,
-                marginParams.bottomMargin);
-
-        marginParams = (ViewGroup.MarginLayoutParams)
-                albumParent.findViewById(R.id.albumFocus).getLayoutParams();
-        ((ViewGroup) findViewById(R.id.albumFocus)).getLayoutTransition()
-                .enableTransitionType(LayoutTransition.CHANGING);
-        //findViewById(R.id.albumFocusImage).setTag("aC");
-
-        marginParams.setMargins(marginParams.leftMargin,
-                0,
-                marginParams.rightMargin,
-                marginParams.bottomMargin);
+        showView((albumParent.findViewById(R.id.albumFocus)));
 
         SongAdapter songAdt = new SongAdapter(albumParent.getContext(), tempList, "album");
         tempAlbumList.setAdapter(songAdt);
@@ -504,15 +492,16 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
                 if (thisIsMusic > 0) {
                     if (albumList.size() == 0) {
-                        albumList.add(new Album(thisTitle, thisArtist, thisArt, thisYear));
+                        albumList.add(new Song(thisId, thisTitle, thisArtist, thisAlbumId, thisYear));
+                        artistList.add(new Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear));
                     } else if (!albumList.get(albumList.size()-1).getTitle().equals(thisTitle)) {
                         albumList.get(albumList.size() -1).setAlbumSongList(albumSongList);
-                        albumList.add(new Album(thisTitle, thisArtist, thisArt, thisYear));
+                        albumList.add(new Song(thisId, thisTitle, thisArtist, thisAlbumId, thisYear));
+                        artistList.add(new Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear));
                         albumSongList.clear();
                     }
                     albumSongList.add(new Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear));
                     songList.add(new Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear));
-
                 }
             }
             while (musicCursor.moveToNext());
@@ -530,12 +519,58 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                 return o1.getTitle().compareTo(o2.getTitle());
             }
         });
-        Collections.sort(albumList, new Comparator<Album>() {
+        Collections.sort(albumList, new Comparator<Song>() {
             @Override
-            public int compare(Album o1, Album o2) {
+            public int compare(Song o1, Song o2) {
                 return o1.getTitle().compareTo(o2.getTitle());
+            }
+        });
+        Collections.sort(artistList, new Comparator<Song>() {
+            @Override
+            public int compare(Song o1, Song o2) {
+                return o1.getArtist().compareTo(o2.getArtist());
             }
         });
     }
 
+    private void hideView(final View view) {
+        Animation animation = AnimationUtils.loadAnimation(this, R.anim.slide_out_down);
+        animation.setDuration(250);
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                view.setVisibility(View.GONE);
+            }
+        });
+        view.startAnimation(animation);
+    }
+
+    private void showView(final View view) {
+        Animation animation = AnimationUtils.loadAnimation(this, R.anim.slide_in_down);
+        animation.setDuration(250);
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                view.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+
+            }
+        });
+        view.startAnimation(animation);
+    }
 }

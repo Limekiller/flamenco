@@ -18,7 +18,7 @@ import java.util.Comparator;
 
 public class AlbumsFragment extends Fragment {
 
-    private ArrayList<Album> albumList;
+    private ArrayList<Song> albumList;
     private GridView songView;
     public ListMusic listMusic;
 
@@ -26,12 +26,12 @@ public class AlbumsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.albumsfragment, container, false);
-        albumList = new ArrayList<Album>();
+        albumList = new ArrayList<Song>();
         songView = view.findViewById(R.id.album_list);
         listMusic = (ListMusic) getActivity();
 
         albumList = listMusic.albumList;
-        AlbumAdapter songAdt = new AlbumAdapter(getActivity(), albumList);
+        AlbumAdapter songAdt = new AlbumAdapter(getActivity(), albumList, "albums");
         songView.setAdapter(songAdt);
         return view;
     }
