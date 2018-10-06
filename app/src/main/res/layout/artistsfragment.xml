@@ -2,19 +2,20 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/artistView"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical"
     android:background="#FFFFFF"
-    tools:context=".ListMusic" >
+    android:orientation="vertical"
+    tools:context=".ListMusic">
 
     <LinearLayout
         android:id="@+id/albumFocus"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="-2000dp"
         android:animateLayoutChanges="true"
+        android:baselineAligned="false"
         android:orientation="horizontal"
         android:paddingTop="20dp"
         android:visibility="visible">
@@ -23,7 +24,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="visible">
 
             <ImageView
                 android:id="@+id/albumFocusImage"
@@ -64,6 +66,11 @@
         </LinearLayout>
 
     </LinearLayout>
+
+    <GridView
+        android:id="@+id/album_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <GridView
         android:id="@+id/artist_list"

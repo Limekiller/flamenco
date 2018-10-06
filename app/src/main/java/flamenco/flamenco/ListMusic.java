@@ -192,9 +192,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     @Override
     protected void onStart() {
         super.onStart();
-
-
-
         if(playIntent==null){
             playIntent = new Intent(this, MusicService.class);
             bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
@@ -223,10 +220,20 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
     public void songPicked(View view){
 
-
         if (((ViewGroup)view.getParent()).getId() == R.id.a_song_list) {
-            musicSrv.setList(albumList.get(Integer.parseInt(((ListView)view.getParent()).getTag().toString()))
-                    .getAlbumSongList());
+            if (((ViewGroup)view.getParent().getParent().getParent()).getId() == R.id.artistView) {
+                String albumTitle = (String) ((TextView)((ViewGroup)view.getParent().getParent())
+                        .findViewById(R.id.albumFocusTitle)).getText();
+                for (Song dog : albumList) {
+                    if (dog.getTitle().equals(albumTitle)) {
+                        musicSrv.setList(dog.getAlbumSongList());
+                        break;
+                    }
+                }
+            } else {
+                musicSrv.setList(albumList.get(Integer.parseInt(((ListView) view.getParent()).getTag().toString()))
+                        .getAlbumSongList());
+            }
         } else if (((ViewGroup)view.getParent()).getId() == R.id.song_list) {
             musicSrv.setList(songList);
         }
@@ -256,6 +263,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         for (Song dog : albumList) {
             if (dog.getTitle().equals(albumTitle)) {
                 tempList = dog.getAlbumSongList();
+                break;
             }
         }
 
@@ -265,14 +273,37 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                 .error(R.drawable.placeholder).crossFade().centerCrop()
                 .into((ImageView) albumParent.findViewById(R.id.albumFocusImage));
 
-        hideView((View)albumParent.findViewById(R.id.album_list));
-
+        animations.hideViewDown((View)albumParent.findViewById(R.id.album_list), this);
+        albumParent.findViewById(R.id.album_list).setVisibility(View.GONE);
         tempAlbumList.setTag(view.getTag());
-
-        showView((albumParent.findViewById(R.id.albumFocus)));
+        albumParent.findViewById(R.id.albumFocus).setVisibility(View.VISIBLE);
+        animations.showViewDown((albumParent.findViewById(R.id.albumFocus)), this);
 
         SongAdapter songAdt = new SongAdapter(albumParent.getContext(), tempList, "album");
         tempAlbumList.setAdapter(songAdt);
+
+    }
+
+    public void showAlbums(View view) {
+        ArrayList<Song> tempAlbumList = new ArrayList<Song>();
+        TextView title = view.findViewById(R.id.album_artist);
+        String artistName = (String) title.getText();
+        View parentView = (View) view.getParent().getParent();
+
+        for (Song dog : albumList) {
+            if (dog.getArtist().equals(artistName)) {
+                tempAlbumList.add(dog);
+            }
+        }
+
+        animations.hideViewDown(parentView.findViewById(R.id.artist_list), this);
+        parentView.findViewById(R.id.artist_list).setVisibility(View.GONE);
+        parentView.findViewById(R.id.album_list).setVisibility(View.VISIBLE);
+        animations.showViewDown(parentView.findViewById(R.id.album_list), this);
+        GridView albumView = parentView.findViewById(R.id.album_list);
+
+        AlbumAdapter songAdt = new AlbumAdapter(view.getContext(), tempAlbumList, "albums");
+        albumView.setAdapter(songAdt);
 
     }
 
@@ -533,44 +564,4 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         });
     }
 
-    private void hideView(final View view) {
-        Animation animation = AnimationUtils.loadAnimation(this, R.anim.slide_out_down);
-        animation.setDuration(250);
-        animation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                view.setVisibility(View.GONE);
-            }
-        });
-        view.startAnimation(animation);
-    }
-
-    private void showView(final View view) {
-        Animation animation = AnimationUtils.loadAnimation(this, R.anim.slide_in_down);
-        animation.setDuration(250);
-        animation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                view.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-
-            }
-        });
-        view.startAnimation(animation);
-    }
 }

@@ -4,15 +4,17 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.net.Uri;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-
+import flamenco.flamenco.ListMusic;
 import com.bumptech.glide.Glide;
 
 import java.io.File;
@@ -24,6 +26,7 @@ public class AlbumAdapter extends BaseAdapter {
     private ArrayList<Song> albums;
     private LayoutInflater songInf;
     private String area;
+    public ListMusic listMusic;
 
     public AlbumAdapter(Context context, ArrayList<Song> theAlbums, String Area) {
 
@@ -54,7 +57,7 @@ public class AlbumAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         //map to song layout
-        LinearLayout albumLay;
+        final LinearLayout albumLay;
 
         if (area.equals("albums")) {
             albumLay = (LinearLayout) songInf.inflate
@@ -63,6 +66,7 @@ public class AlbumAdapter extends BaseAdapter {
             albumLay = (LinearLayout) songInf.inflate
                     (R.layout.artist, parent, false);
         }
+
         //get title and artist views
         TextView songView = (TextView)albumLay.findViewById(R.id.album_title);
         TextView artistView = (TextView)albumLay.findViewById(R.id.album_artist);
@@ -82,7 +86,6 @@ public class AlbumAdapter extends BaseAdapter {
             Glide.with(context).load(currAlbum.getAlbumArt()).error(R.drawable.placeholder)
                     .crossFade().dontAnimate().centerCrop().into(artView);
         }
-
         //set position as tag
         albumLay.setTag(position);
         return albumLay;
