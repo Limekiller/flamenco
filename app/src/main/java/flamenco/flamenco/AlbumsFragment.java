@@ -54,7 +54,6 @@ public class AlbumsFragment extends Fragment {
                     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
                                            float velocityY) {
 
-
                         if (e1.getY() - e2.getY() > 0) {
                             animations.hideViewUp(albumFocus, view.getContext());
                             albumFocus.setVisibility(View.GONE);

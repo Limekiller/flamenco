@@ -296,6 +296,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             }
         }
 
+
         animations.hideViewDown(parentView.findViewById(R.id.artist_list), this);
         parentView.findViewById(R.id.artist_list).setVisibility(View.GONE);
         parentView.findViewById(R.id.album_list).setVisibility(View.VISIBLE);
