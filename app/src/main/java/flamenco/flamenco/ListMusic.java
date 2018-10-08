@@ -529,7 +529,9 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                     } else if (!albumList.get(albumList.size()-1).getTitle().equals(thisTitle)) {
                         albumList.get(albumList.size() -1).setAlbumSongList(albumSongList);
                         albumList.add(new Song(thisId, thisTitle, thisArtist, thisAlbumId, thisYear));
-                        artistList.add(new Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear));
+                        if (!albumList.get(albumList.size()-1).getArtist().equals(thisArtist)) {
+                            artistList.add(new Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear));
+                        }
                         albumSongList.clear();
                     }
                     albumSongList.add(new Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear));

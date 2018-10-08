@@ -4,15 +4,14 @@
     android:id="@+id/album"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:layout_marginStart="20dp"
-    android:onClick="setAlbumVisibility"
-    android:padding="5dp">
+    android:layout_marginStart="40dp"
+    android:layout_marginTop="20dp"
+    android:onClick="setAlbumVisibility">
 
     <LinearLayout
         android:id="@+id/albumLayout"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
         android:layout_weight="0.25"
         android:orientation="vertical">
@@ -21,14 +20,12 @@
             android:id="@+id/album_art"
             android:layout_width="144dp"
             android:layout_height="145dp"
-            android:layout_marginStart="10dp"
             tools:srcCompat="@tools:sample/avatars[0]" />
 
         <TextView
             android:id="@+id/album_title"
             android:layout_width="144dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
             android:textColor="#000000"
             android:textSize="14sp"
             android:textStyle="bold" />
@@ -37,7 +34,6 @@
             android:id="@+id/album_artist"
             android:layout_width="144dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
             android:textColor="#000000"
             android:textSize="8sp" />
 
