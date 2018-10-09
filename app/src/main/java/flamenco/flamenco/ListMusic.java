@@ -51,9 +51,9 @@ import java.util.concurrent.TimeUnit;
 
 public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
-    public ArrayList<Song> songList;
-    public ArrayList<Song> artistList;
-    public ArrayList<Song> albumList;
+    public ArrayList<flamenco.flamenco.Song> songList;
+    public ArrayList<flamenco.flamenco.Song> artistList;
+    public ArrayList<flamenco.flamenco.Song> albumList;
     private MusicService musicSrv;
     private Intent playIntent;
     private boolean musicBound=false;
@@ -80,13 +80,13 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                 new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},1);
 
         try {
-            TimeUnit.SECONDS.sleep(1 );
+            TimeUnit.MILLISECONDS.sleep(2000 );
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        songList = new ArrayList<Song>();
-        artistList = new ArrayList<Song>();
-        albumList = new ArrayList<Song>();
+        songList = new ArrayList<flamenco.flamenco.Song>();
+        artistList = new ArrayList<flamenco.flamenco.Song>();
+        albumList = new ArrayList<flamenco.flamenco.Song>();
         currSongArt = findViewById(R.id.currSongArt);
         currSongInfo = findViewById(R.id.currSongInfo);
         seekBar = findViewById(R.id.seekBar);
@@ -97,33 +97,38 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         handler = new Handler();
         audioController = findViewById(R.id.audioController);
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
-        tabLayout.addTab(tabLayout.newTab().setText("Songs"));
-        tabLayout.addTab(tabLayout.newTab().setText("Artists"));
-        tabLayout.addTab(tabLayout.newTab().setText("Albums"));
-        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+//        TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+//        tabLayout.addTab(tabLayout.newTab().setText("Songs"));
+//        tabLayout.addTab(tabLayout.newTab().setText("Artists"));
+//        tabLayout.addTab(tabLayout.newTab().setText("Albums"));
+//        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+//
+//        final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
+//        final flamenco.flamenco.MusicFragmentAdapter adapter = new flamenco.flamenco.MusicFragmentAdapter
+//                (getSupportFragmentManager(), tabLayout.getTabCount());
+//        viewPager.setAdapter(adapter);
+//        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+//        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+//            @Override
+//            public void onTabSelected(TabLayout.Tab tab) {
+//                viewPager.setCurrentItem(tab.getPosition());
+//            }
+//
+//            @Override
+//            public void onTabUnselected(TabLayout.Tab tab) {
+//
+//            }
+//
+//            @Override
+//            public void onTabReselected(TabLayout.Tab tab) {
+//
+//            }
+//        });
 
         final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
-        final MusicFragmentAdapter adapter = new MusicFragmentAdapter
-                (getSupportFragmentManager(), tabLayout.getTabCount());
+        final flamenco.flamenco.MainFragmentAdapter adapter = new flamenco.flamenco.MainFragmentAdapter(
+                getSupportFragmentManager(), 2);
         viewPager.setAdapter(adapter);
-        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                viewPager.setCurrentItem(tab.getPosition());
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
-        });
 
         Glide.with(this).load(R.drawable.placeholder)
                 .crossFade().centerCrop().into(currSongArt);
@@ -201,7 +206,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
 
     public void updateSong() {
-        Song currSong = musicSrv.getSong();
+        flamenco.flamenco.Song currSong = musicSrv.getSong();
         currSongInfo.setText(currSong.getArtist()+" — "+currSong.getTitle());
         Glide.with(this).load(currSong.getAlbumArt()).error(R.drawable.placeholder)
                 .crossFade().centerCrop().into(currSongArt);
@@ -224,7 +229,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             if (((ViewGroup)view.getParent().getParent().getParent()).getId() == R.id.artistView) {
                 String albumTitle = (String) ((TextView)((ViewGroup)view.getParent().getParent())
                         .findViewById(R.id.albumFocusTitle)).getText();
-                for (Song dog : albumList) {
+                for (flamenco.flamenco.Song dog : albumList) {
                     if (dog.getTitle().equals(albumTitle)) {
                         musicSrv.setList(dog.getAlbumSongList());
                         break;
@@ -254,13 +259,13 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
     public void setAlbumVisibility(View view) {
         TextView title = view.findViewById(R.id.album_title);
-        ArrayList<Song> tempList;
+        ArrayList<flamenco.flamenco.Song> tempList;
         String albumTitle = (String)title.getText();
         RelativeLayout albumParent = (RelativeLayout) view.getParent().getParent();
         ListView tempAlbumList = albumParent.findViewById(R.id.a_song_list);
 
         tempList = albumList.get(0).getAlbumSongList();
-        for (Song dog : albumList) {
+        for (flamenco.flamenco.Song dog : albumList) {
             if (dog.getTitle().equals(albumTitle)) {
                 tempList = dog.getAlbumSongList();
                 break;
@@ -279,18 +284,18 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         albumParent.findViewById(R.id.albumFocus).setVisibility(View.VISIBLE);
         animations.showViewDown((albumParent.findViewById(R.id.albumFocus)), this);
 
-        SongAdapter songAdt = new SongAdapter(albumParent.getContext(), tempList, "album");
+        flamenco.flamenco.SongAdapter songAdt = new flamenco.flamenco.SongAdapter(albumParent.getContext(), tempList, "album");
         tempAlbumList.setAdapter(songAdt);
 
     }
 
     public void showAlbums(View view) {
-        ArrayList<Song> tempAlbumList = new ArrayList<Song>();
+        ArrayList<flamenco.flamenco.Song> tempAlbumList = new ArrayList<flamenco.flamenco.Song>();
         TextView title = view.findViewById(R.id.album_artist);
         String artistName = (String) title.getText();
         View parentView = (View) view.getParent().getParent();
 
-        for (Song dog : albumList) {
+        for (flamenco.flamenco.Song dog : albumList) {
             if (dog.getArtist().equals(artistName)) {
                 tempAlbumList.add(dog);
             }
@@ -303,7 +308,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         animations.showViewDown(parentView.findViewById(R.id.album_list), this);
         GridView albumView = parentView.findViewById(R.id.album_list);
 
-        AlbumAdapter songAdt = new AlbumAdapter(view.getContext(), tempAlbumList, "albums");
+        flamenco.flamenco.AlbumAdapter songAdt = new flamenco.flamenco.AlbumAdapter(view.getContext(), tempAlbumList, "albums");
         albumView.setAdapter(songAdt);
 
     }
@@ -486,7 +491,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     }
 
     public void getSongList() {
-        ArrayList<Song> albumSongList = new ArrayList<Song>();
+        ArrayList<flamenco.flamenco.Song> albumSongList = new ArrayList<flamenco.flamenco.Song>();
         ContentResolver musicResolver = getContentResolver();
         Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
@@ -524,18 +529,18 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
                 if (thisIsMusic > 0) {
                     if (albumList.size() == 0) {
-                        albumList.add(new Song(thisId, thisTitle, thisArtist, thisAlbumId, thisYear));
-                        artistList.add(new Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear));
+                        albumList.add(new flamenco.flamenco.Song(thisId, thisTitle, thisArtist, thisAlbumId, thisYear));
+                        artistList.add(new flamenco.flamenco.Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear));
                     } else if (!albumList.get(albumList.size()-1).getTitle().equals(thisTitle)) {
                         albumList.get(albumList.size() -1).setAlbumSongList(albumSongList);
-                        albumList.add(new Song(thisId, thisTitle, thisArtist, thisAlbumId, thisYear));
-                        if (!albumList.get(albumList.size()-1).getArtist().equals(thisArtist)) {
-                            artistList.add(new Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear));
+                        albumList.add(new flamenco.flamenco.Song(thisId, thisTitle, thisArtist, thisAlbumId, thisYear));
+                        if (!artistList.get(artistList.size()-1).getArtist().equals(thisArtist)) {
+                            artistList.add(new flamenco.flamenco.Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear));
                         }
                         albumSongList.clear();
                     }
-                    albumSongList.add(new Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear));
-                    songList.add(new Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear));
+                    albumSongList.add(new flamenco.flamenco.Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear));
+                    songList.add(new flamenco.flamenco.Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear));
                 }
             }
             while (musicCursor.moveToNext());
@@ -547,21 +552,21 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         }
         musicCursor.close();
 
-        Collections.sort(songList, new Comparator<Song>() {
+        Collections.sort(songList, new Comparator<flamenco.flamenco.Song>() {
             @Override
-            public int compare(Song o1, Song o2) {
+            public int compare(flamenco.flamenco.Song o1, flamenco.flamenco.Song o2) {
                 return o1.getTitle().compareTo(o2.getTitle());
             }
         });
-        Collections.sort(albumList, new Comparator<Song>() {
+        Collections.sort(albumList, new Comparator<flamenco.flamenco.Song>() {
             @Override
-            public int compare(Song o1, Song o2) {
+            public int compare(flamenco.flamenco.Song o1, flamenco.flamenco.Song o2) {
                 return o1.getTitle().compareTo(o2.getTitle());
             }
         });
-        Collections.sort(artistList, new Comparator<Song>() {
+        Collections.sort(artistList, new Comparator<flamenco.flamenco.Song>() {
             @Override
-            public int compare(Song o1, Song o2) {
+            public int compare(flamenco.flamenco.Song o1, flamenco.flamenco.Song o2) {
                 return o1.getArtist().compareTo(o2.getArtist());
             }
         });
