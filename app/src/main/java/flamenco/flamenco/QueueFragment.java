@@ -25,13 +25,14 @@ import java.util.concurrent.TimeUnit;
 
 import javax.security.auth.callback.Callback;
 
-public class PlaylistsFragment extends Fragment{
+public class QueueFragment extends Fragment{
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View view =  inflater.inflate(R.layout.playlistsfragment, container, false);
+        View view =  inflater.inflate(R.layout.queuefragment, container, false);
+
 
         return  view;
     }
