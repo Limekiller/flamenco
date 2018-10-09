@@ -9,17 +9,6 @@
     android:background="#FFFFFF"
     tools:context=".ListMusic" >
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="131dp"
-        android:layout_marginBottom="137dp"
-        android:layout_weight="1"
-        android:text="Aahhhhh" />
-
     <LinearLayout
         android:id="@+id/albumFocus"
         android:layout_width="match_parent"

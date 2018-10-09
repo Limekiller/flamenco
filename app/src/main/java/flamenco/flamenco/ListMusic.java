@@ -80,7 +80,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                 new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},1);
 
         try {
-            TimeUnit.MILLISECONDS.sleep(2000 );
+            TimeUnit.MILLISECONDS.sleep(1000 );
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -96,34 +96,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         currTime = findViewById(R.id.currTime);
         handler = new Handler();
         audioController = findViewById(R.id.audioController);
-
-//        TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
-//        tabLayout.addTab(tabLayout.newTab().setText("Songs"));
-//        tabLayout.addTab(tabLayout.newTab().setText("Artists"));
-//        tabLayout.addTab(tabLayout.newTab().setText("Albums"));
-//        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
-//
-//        final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
-//        final flamenco.flamenco.MusicFragmentAdapter adapter = new flamenco.flamenco.MusicFragmentAdapter
-//                (getSupportFragmentManager(), tabLayout.getTabCount());
-//        viewPager.setAdapter(adapter);
-//        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-//        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-//            @Override
-//            public void onTabSelected(TabLayout.Tab tab) {
-//                viewPager.setCurrentItem(tab.getPosition());
-//            }
-//
-//            @Override
-//            public void onTabUnselected(TabLayout.Tab tab) {
-//
-//            }
-//
-//            @Override
-//            public void onTabReselected(TabLayout.Tab tab) {
-//
-//            }
-//        });
 
         final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
         final flamenco.flamenco.MainFragmentAdapter adapter = new flamenco.flamenco.MainFragmentAdapter(
