@@ -2,26 +2,17 @@ package flamenco.flamenco;
 
 import android.Manifest;
 import android.animation.LayoutTransition;
-import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.GridLayout;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -40,9 +31,7 @@ import android.content.ServiceConnection;
 import android.view.View;
 import flamenco.flamenco.MusicService.MusicBinder;
 import android.widget.MediaController.MediaPlayerControl;
-
 import com.bumptech.glide.Glide;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -68,7 +57,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     private ImageButton ffBtn;
     private Handler handler;
 
-
     private boolean paused=false, playbackPaused=false;
 
     @Override
@@ -79,11 +67,14 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         ActivityCompat.requestPermissions(ListMusic.this,
                 new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},1);
 
+        // Wait for list view fragments to populate
+        // TODO: Continue as soon as views are ready rather than waiting an arbitrary amount of time
         try {
             TimeUnit.MILLISECONDS.sleep(1000 );
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
         songList = new ArrayList<flamenco.flamenco.Song>();
         artistList = new ArrayList<flamenco.flamenco.Song>();
         albumList = new ArrayList<flamenco.flamenco.Song>();
@@ -97,13 +88,11 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         handler = new Handler();
         audioController = findViewById(R.id.audioController);
 
+        // Instantiate parent fragments
         final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
         final flamenco.flamenco.MainFragmentAdapter adapter = new flamenco.flamenco.MainFragmentAdapter(
                 getSupportFragmentManager(), 2);
         viewPager.setAdapter(adapter);
-
-        Glide.with(this).load(R.drawable.placeholder)
-                .crossFade().centerCrop().into(currSongArt);
 
         playBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -177,6 +166,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     }
 
 
+    // This method handles moving from one song to the next automatically.
     public void updateSong() {
         flamenco.flamenco.Song currSong = musicSrv.getSong();
         currSongInfo.setText(currSong.getArtist()+" — "+currSong.getTitle());
@@ -189,14 +179,18 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         seekBar.setMax(mediaMax);
         seekBar.setProgress(mediaPos);
 
-
         handler.removeCallbacks(updateTime);
         handler.postDelayed(updateTime, 100);
     }
 
 
+    // This method handles moving from one song to another based on user input
     public void songPicked(View view){
 
+        Integer pos;
+        Integer oldPos = musicSrv.getSongPosn();
+
+        // Check which list choice is coming from
         if (((ViewGroup)view.getParent()).getId() == R.id.a_song_list) {
             if (((ViewGroup)view.getParent().getParent().getParent()).getId() == R.id.artistView) {
                 String albumTitle = (String) ((TextView)((ViewGroup)view.getParent().getParent())
@@ -215,20 +209,28 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             musicSrv.setList(songList);
         }
 
+        // Show audio controller (only affects on first pick)
         audioController.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
         audioController.setLayoutParams(new TableLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, 0.025f));
 
-        musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
+        pos = Integer.parseInt(view.getTag().toString());
+        musicSrv.setSong(pos);
         musicSrv.playSong();
         updateSong();
 
         if(playbackPaused){
-            //setController();
             playbackPaused=false;
         }
-        //controller.show(0);
+
+        // Update Queue
+        QueueFragment queueFragment = (QueueFragment) getSupportFragmentManager().getFragments()
+                .get(1).getChildFragmentManager().getFragments().get(1);
+        queueFragment.refreshQueue();
+
     }
 
+
+    // This method shows the Album Focus page when selecting an album
     public void setAlbumVisibility(View view) {
         TextView title = view.findViewById(R.id.album_title);
         ArrayList<flamenco.flamenco.Song> tempList;
@@ -261,6 +263,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
     }
 
+    // This method shows the albums belonging to an artist
     public void showAlbums(View view) {
         ArrayList<flamenco.flamenco.Song> tempAlbumList = new ArrayList<flamenco.flamenco.Song>();
         TextView title = view.findViewById(R.id.album_artist);
@@ -273,7 +276,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             }
         }
 
-
         animations.hideViewDown(parentView.findViewById(R.id.artist_list), this);
         parentView.findViewById(R.id.artist_list).setVisibility(View.GONE);
         parentView.findViewById(R.id.album_list).setVisibility(View.VISIBLE);
@@ -282,18 +284,14 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
         flamenco.flamenco.AlbumAdapter songAdt = new flamenco.flamenco.AlbumAdapter(view.getContext(), tempAlbumList, "albums");
         albumView.setAdapter(songAdt);
-
     }
 
 
     private ServiceConnection musicConnection = new ServiceConnection(){
-
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             MusicBinder binder = (MusicBinder)service;
-            //get service
             musicSrv = binder.getService();
-            //pass list
             musicSrv.setList(songList);
             musicBound = true;
         }
@@ -305,6 +303,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     };
 
 
+    // This method handles the storage permissions
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
@@ -324,7 +323,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             // add other cases for more permissions
         }
     }
-
 
 
     @Override
@@ -389,13 +387,11 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         return 0;
     }
 
-
     @Override
     protected void onPause(){
         super.onPause();
         paused=true;
     }
-
 
     @Override
     protected void onResume(){
@@ -406,7 +402,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         }
     }
 
-
     @Override
     protected void onStop() {
         //controller.hide();
@@ -414,6 +409,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     }
 
 
+    // This method runs continually and updates the seekbar
     private Runnable updateTime = new Runnable() {
         @Override
         public void run() {
@@ -430,20 +426,18 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     };
 
 
+    // This method assists the above, converting song position to human readable form
     public String milliSecondsToTimer(long milliseconds){
         String finalTimerString = "";
         String secondsString = "";
 
-        // Convert total duration into time
         int hours = (int)( milliseconds / (1000*60*60));
         int minutes = (int)(milliseconds % (1000*60*60)) / (1000*60);
         int seconds = (int) ((milliseconds % (1000*60*60)) % (1000*60) / 1000);
-        // Add hours if there
         if(hours > 0){
             finalTimerString = hours + ":";
         }
 
-        // Prepending 0 to seconds if it is one digit
         if (seconds == 0) {
             updateSong();
             if (!playbackPaused) {
@@ -453,15 +447,30 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
         if(seconds < 10){
             secondsString = "0" + seconds;
-        }else{
+        } else {
             secondsString = "" + seconds;}
 
         finalTimerString = finalTimerString + minutes + ":" + secondsString;
 
-        // return timer string
         return finalTimerString;
     }
 
+
+    // This is a helper method for fragments that need to access the currently playing song list
+    public ArrayList<Song> getServiceList() {
+        return musicSrv.getList();
+    }
+
+    public Integer getCurrSong() {
+        try {
+            Integer currSongPosn = musicSrv.getSongPosn();
+            return currSongPosn;
+        } catch (NullPointerException e) {
+            return 0;
+        }
+    }
+
+    // This method runs on startup, constructing a list of songs, artists, and albums
     public void getSongList() {
         ArrayList<flamenco.flamenco.Song> albumSongList = new ArrayList<flamenco.flamenco.Song>();
         ContentResolver musicResolver = getContentResolver();

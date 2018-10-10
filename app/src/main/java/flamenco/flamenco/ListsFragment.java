@@ -41,7 +41,7 @@ public class ListsFragment extends Fragment {
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         final ViewPager viewPager = (ViewPager) view.findViewById(R.id.pager);
-        final flamenco.flamenco.MusicFragmentAdapter adapter = new flamenco.flamenco.MusicFragmentAdapter
+        final flamenco.flamenco.ListsFragmentAdapter adapter = new flamenco.flamenco.ListsFragmentAdapter
                 (getChildFragmentManager(), tabLayout.getTabCount());
         viewPager.setAdapter(adapter);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));

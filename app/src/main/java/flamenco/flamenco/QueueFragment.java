@@ -27,14 +27,24 @@ import javax.security.auth.callback.Callback;
 
 public class QueueFragment extends Fragment{
 
+    private ArrayList<Song> songList;
+    private ListView songView;
+    public ListMusic listMusic;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
+        super.onCreate(savedInstanceState);
         View view =  inflater.inflate(R.layout.queuefragment, container, false);
-
-
+        songView = view.findViewById(R.id.queueList);
+        listMusic = (ListMusic) getActivity();
         return  view;
+    }
+
+    public void refreshQueue() {
+        songList = listMusic.getServiceList();
+        SongAdapter songAdt = new SongAdapter(getActivity(), songList, "song");
+        songView.setAdapter(songAdt);
     }
 
 }

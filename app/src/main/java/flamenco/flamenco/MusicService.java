@@ -52,6 +52,10 @@ public class MusicService extends Service implements
         player.setOnErrorListener(this);
     }
 
+    public ArrayList<Song> getList(){
+        return songs;
+    }
+
 
     public void setList(ArrayList<Song> theSongs){
         songs=theSongs;
@@ -91,6 +95,8 @@ public class MusicService extends Service implements
     public Song getSong() {
         return songs.get(songPosn);
     }
+
+    public Integer getSongPosn() {return songPosn;}
 
 
     @Override

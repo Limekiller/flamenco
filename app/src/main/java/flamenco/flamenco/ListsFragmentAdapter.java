@@ -8,9 +8,7 @@ import android.view.ViewGroup;
 public class ListsFragmentAdapter extends FragmentStatePagerAdapter{
 
     int mNumOfTabs;
-    private SongsFragment songsFragment;
-    private ArtistsFragment artistsFragment;
-    private AlbumsFragment albumsFragment;
+
 
     public ListsFragmentAdapter(FragmentManager fm, int NumOfTabs) {
         super(fm);
