@@ -1,7 +1,10 @@
 package flamenco.flamenco;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.net.sip.SipSession;
 import android.provider.SyncStateContract;
 import android.support.v4.app.Fragment;
@@ -43,8 +46,33 @@ public class QueueFragment extends Fragment{
 
     public void refreshQueue() {
         songList = listMusic.getServiceList();
-        SongAdapter songAdt = new SongAdapter(getActivity(), songList, "song");
-        songView.setAdapter(songAdt);
+        updateCurrentSong();
+    }
+
+    public void updateCurrentSong() {
+
+        int index = songView.getFirstVisiblePosition();
+        View v = songView.getChildAt(0);
+        int top = (v == null) ? 0 : v.getTop();
+
+        songView.setAdapter(new SongAdapter(getActivity(), songList, "song") {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View row = super.getView(position, convertView, parent);
+
+                if(position == ((ListMusic) getActivity()).getCurrSong()) {
+                    ObjectAnimator.ofObject(row, "backgroundColor", new ArgbEvaluator(),
+                            Color.WHITE, R.color.colorAccentLight).setDuration(150).start();
+                    //row.setBackgroundColor (getResources().getColor(R.color.colorAccentLight));
+                }
+                else {
+                    row.setBackgroundColor (Color.WHITE);
+                }
+                return row;
+            }
+        });
+
+        songView.setSelectionFromTop(index, top);
     }
 
 }

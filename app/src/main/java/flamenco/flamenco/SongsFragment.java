@@ -1,5 +1,7 @@
 package flamenco.flamenco;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
@@ -43,14 +45,30 @@ public class SongsFragment extends Fragment{
         songList = listMusic.songList;
 
         SongAdapter songAdt = new SongAdapter(getActivity(), songList, "song");
-        //songView.setAdapter(songAdt);
+        updateCurrentSong(false);
+        return  view;
+    }
+
+
+    public void updateCurrentSong(final Boolean selected) {
+
+        int index = songView.getFirstVisiblePosition();
+        View v = songView.getChildAt(0);
+        int top = (v == null) ? 0 : v.getTop();
+
         songView.setAdapter(new SongAdapter(getActivity(), songList, "song") {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 View row = super.getView(position, convertView, parent);
 
                 if(position == ((ListMusic) getActivity()).getCurrSong()) {
-                    row.setBackgroundColor (Color.RED);
+                    if (selected == true) {
+                        ObjectAnimator.ofObject(row, "backgroundColor", new ArgbEvaluator(),
+                                Color.WHITE, getResources().getColor(R.color.colorAccentLight))
+                                .setDuration(150).start();
+                    } else {
+                        row.setBackgroundColor (getResources().getColor(R.color.colorAccentLight));
+                    }
                 }
                 else {
                     row.setBackgroundColor (Color.WHITE);
@@ -58,14 +76,8 @@ public class SongsFragment extends Fragment{
                 return row;
             }
         });
-        return  view;
-    }
 
-
-
-
-    public void updateCurrentSong(Integer pos, Integer oldPos) {
-
+        songView.setSelectionFromTop(index, top);
     }
 
 }

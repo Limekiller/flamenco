@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ViewGroup;
@@ -35,6 +36,7 @@ import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
@@ -57,6 +59,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     private ImageButton ffBtn;
     private Handler handler;
 
+    private boolean hasUpdated=false;
     private boolean paused=false, playbackPaused=false;
 
     @Override
@@ -107,7 +110,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                     playBtn.setImageResource(R.drawable.exo_controls_play);
 
                 }
-                updateSong();
+                updateSong(false);
             }
         });
 
@@ -117,7 +120,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                 musicSrv.playPrev();
                 playBtn.setImageResource(R.drawable.exo_controls_pause);
                 playbackPaused = false;
-                updateSong();
+                updateSong(true);
             }
         });
 
@@ -127,7 +130,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                 musicSrv.playNext();
                 playBtn.setImageResource(R.drawable.exo_controls_pause);
                 playbackPaused = false;
-                updateSong();
+                updateSong(true);
             }
         });
 
@@ -167,9 +170,10 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
 
     // This method handles moving from one song to the next automatically.
-    public void updateSong() {
+    public void updateSong(boolean selected) {
         flamenco.flamenco.Song currSong = musicSrv.getSong();
         currSongInfo.setText(currSong.getArtist()+" — "+currSong.getTitle());
+        updateCurrSong(selected);
         Glide.with(this).load(currSong.getAlbumArt()).error(R.drawable.placeholder)
                 .crossFade().centerCrop().into(currSongArt);
 
@@ -216,7 +220,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         pos = Integer.parseInt(view.getTag().toString());
         musicSrv.setSong(pos);
         musicSrv.playSong();
-        updateSong();
+        updateSong(true);
 
         if(playbackPaused){
             playbackPaused=false;
@@ -227,6 +231,18 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                 .get(1).getChildFragmentManager().getFragments().get(1);
         queueFragment.refreshQueue();
 
+    }
+
+
+    public void updateCurrSong(boolean selected) {
+        List<Fragment> allFragments = getSupportFragmentManager().getFragments();
+        for (Fragment fragment: allFragments) {
+            for (Fragment child: fragment.getChildFragmentManager().getFragments()) {
+                if (child instanceof  SongsFragment) {
+                    ((SongsFragment) child).updateCurrentSong(selected);
+                }
+            }
+        }
     }
 
 
@@ -438,11 +454,16 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             finalTimerString = hours + ":";
         }
 
-        if (seconds == 0) {
-            updateSong();
+        if (seconds == 0 && !hasUpdated) {
+            hasUpdated = true;
+            updateSong(false);
             if (!playbackPaused) {
                 playBtn.setImageResource(R.drawable.exo_controls_pause);
             }
+        }
+
+        if (seconds > 0) {
+            hasUpdated = false;
         }
 
         if(seconds < 10){
@@ -451,7 +472,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             secondsString = "" + seconds;}
 
         finalTimerString = finalTimerString + minutes + ":" + secondsString;
-
         return finalTimerString;
     }
 
