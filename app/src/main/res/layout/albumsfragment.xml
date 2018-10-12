@@ -71,8 +71,6 @@
         android:id="@+id/album_list"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
         android:animateLayoutChanges="true"
         android:numColumns="2"
         android:visibility="visible" />

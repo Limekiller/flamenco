@@ -5,7 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:onClick="showAlbums"
-    android:layout_marginStart="20dp">
+    android:paddingStart="20dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="20dp">
 
     <LinearLayout
         android:layout_width="match_parent"

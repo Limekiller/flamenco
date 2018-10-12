@@ -62,7 +62,7 @@ public class QueueFragment extends Fragment{
 
                 if(position == ((ListMusic) getActivity()).getCurrSong()) {
                     ObjectAnimator.ofObject(row, "backgroundColor", new ArgbEvaluator(),
-                            Color.WHITE, R.color.colorAccentLight).setDuration(150).start();
+                            Color.WHITE, getResources().getColor(R.color.colorAccentLight)).setDuration(150).start();
                     //row.setBackgroundColor (getResources().getColor(R.color.colorAccentLight));
                 }
                 else {

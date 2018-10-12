@@ -4,9 +4,10 @@
     android:id="@+id/album"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:layout_marginStart="40dp"
-    android:layout_marginTop="20dp"
-    android:onClick="setAlbumVisibility">
+    android:onClick="setAlbumVisibility"
+    android:paddingStart="20dp"
+    android:paddingTop="20dp"
+    android:paddingBottom="20dp">
 
     <LinearLayout
         android:id="@+id/albumLayout"
