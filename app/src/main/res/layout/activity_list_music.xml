@@ -21,7 +21,7 @@
     <LinearLayout
         android:id="@+id/audioController"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="75dp"
         android:layout_weight="0"
         android:animateLayoutChanges="true"
         android:background="@color/colorPrimary"
@@ -32,8 +32,8 @@
         <ImageView
             android:id="@+id/currSongArt"
             android:layout_width="80dp"
-            android:animateLayoutChanges="true"
             android:layout_height="75dp"
+            android:animateLayoutChanges="true"
             tools:srcCompat="@tools:sample/avatars[0]" />
 
         <LinearLayout
@@ -47,8 +47,8 @@
                 android:id="@+id/currSongInfo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:animateLayoutChanges="true"
                 android:layout_weight="1"
+                android:animateLayoutChanges="true"
                 android:textColor="@android:color/white"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -56,8 +56,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:animateLayoutChanges="true"
                 android:layout_weight="1"
+                android:animateLayoutChanges="true"
                 android:orientation="horizontal">
 
                 <ImageButton
@@ -83,6 +83,14 @@
                     android:layout_weight="1"
                     android:background="@android:color/transparent"
                     app:srcCompat="@drawable/exo_controls_next" />
+
+                <ImageButton
+                    android:id="@+id/shuffButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    app:srcCompat="@drawable/exo_controls_shuffle" />
             </LinearLayout>
 
             <LinearLayout

@@ -56,6 +56,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     private TextView currTime;
     private ImageButton rewindBtn;
     private ImageButton playBtn;
+    private ImageButton shuffBtn;
     private ImageButton ffBtn;
     private Handler handler;
 
@@ -87,6 +88,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         rewindBtn = findViewById(R.id.rewindBtn);
         playBtn = findViewById(R.id.playBtn);
         ffBtn = findViewById(R.id.ffBtn);
+        shuffBtn = findViewById(R.id.shuffButton);
         currTime = findViewById(R.id.currTime);
         handler = new Handler();
         audioController = findViewById(R.id.audioController);
@@ -131,6 +133,17 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                 playBtn.setImageResource(R.drawable.exo_controls_pause);
                 playbackPaused = false;
                 updateSong(true);
+            }
+        });
+
+        shuffBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //TODO: add shuffling stuff
+//                ArrayList<Song> shuffledList = new ArrayList<Song>();
+//                shuffledList = songList;
+//                Collections.shuffle(shuffledList);
+//                musicSrv.setList(shuffledList);
             }
         });
 
@@ -226,10 +239,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             playbackPaused=false;
         }
 
-        // Update Queue
-//        QueueFragment queueFragment = (QueueFragment) getSupportFragmentManager().getFragments()
-//                .get(1).getChildFragmentManager().getFragments().get(1);
-//        queueFragment.refreshQueue();
 
     }
 
