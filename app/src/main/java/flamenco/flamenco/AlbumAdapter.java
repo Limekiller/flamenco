@@ -78,12 +78,12 @@ public class AlbumAdapter extends BaseAdapter {
         artistView.setText(currAlbum.getArtist());
 
         if (area.equals("albums")) {
-            Glide.with(context).load(currAlbum.getAlbumSongList().get(0).getAlbumArt()).error(R.drawable.placeholder)
+            Glide.with(context).load(currAlbum.getAlbumSongList().get(0).getAlbumArt()).error(R.drawable.bg_default)
                     .crossFade().dontAnimate().centerCrop().into(artView);
             songView.setText(currAlbum.getTitle());
 
         } else {
-            Glide.with(context).load(currAlbum.getAlbumArt()).error(R.drawable.placeholder)
+            Glide.with(context).load(currAlbum.getAlbumArt()).error(R.drawable.bg_default)
                     .crossFade().dontAnimate().centerCrop().into(artView);
         }
         //set position as tag

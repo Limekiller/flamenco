@@ -70,7 +70,7 @@ public class SongAdapter extends BaseAdapter {
         if (area.equals("song")) {
             artistView.setText(currSong.getArtist());
             yearView.setText(currSong.getYear());
-            Glide.with(context).load(currSong.getAlbumArt()).error(R.drawable.placeholder)
+            Glide.with(context).load(currSong.getAlbumArt()).error(R.drawable.bg_default)
                     .crossFade().centerCrop().into(artView);
         } else {
             artistView.setVisibility(View.GONE);

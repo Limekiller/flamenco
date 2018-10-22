@@ -187,7 +187,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         flamenco.flamenco.Song currSong = musicSrv.getSong();
         currSongInfo.setText(currSong.getArtist()+" — "+currSong.getTitle());
         updateCurrSong(selected);
-        Glide.with(this).load(currSong.getAlbumArt()).error(R.drawable.placeholder)
+        Glide.with(this).load(currSong.getAlbumArt()).error(R.drawable.bg_default)
                 .crossFade().centerCrop().into(currSongArt);
 
         int mediaPos = musicSrv.getPosn();
@@ -277,7 +277,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         ((TextView)albumParent.findViewById(R.id.albumFocusTitle)).setText(albumTitle);
         ((TextView)albumParent.findViewById(R.id.albumFocusArtist)).setText(tempList.get(0).getArtist());
         Glide.with(albumParent.getContext()).load(tempList.get(0).getAlbumArt())
-                .error(R.drawable.placeholder).crossFade().centerCrop()
+                .error(R.drawable.bg_default).crossFade().centerCrop()
                 .into((ImageView) albumParent.findViewById(R.id.albumFocusImage));
 
         animations.hideViewDown((View)albumParent.findViewById(R.id.album_list), this);
