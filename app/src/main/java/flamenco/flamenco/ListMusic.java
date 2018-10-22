@@ -45,6 +45,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     public ArrayList<flamenco.flamenco.Song> songList;
     public ArrayList<flamenco.flamenco.Song> artistList;
     public ArrayList<flamenco.flamenco.Song> albumList;
+    private ArrayList<Song> shuffledList;
     private MusicService musicSrv;
     private Intent playIntent;
     private boolean musicBound=false;
@@ -79,6 +80,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             e.printStackTrace();
         }
 
+        shuffledList = new ArrayList<>();
         songList = new ArrayList<flamenco.flamenco.Song>();
         artistList = new ArrayList<flamenco.flamenco.Song>();
         albumList = new ArrayList<flamenco.flamenco.Song>();
@@ -139,11 +141,11 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         shuffBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: add shuffling stuff
-//                ArrayList<Song> shuffledList = new ArrayList<Song>();
-//                shuffledList = songList;
-//                Collections.shuffle(shuffledList);
-//                musicSrv.setList(shuffledList);
+                //Collections.copy(shuffledList, songList);
+                shuffledList = new ArrayList<>(songList);
+                Collections.shuffle(shuffledList);
+                musicSrv.setList(shuffledList);
+                refreshQueue();
             }
         });
 
@@ -201,6 +203,13 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     }
 
 
+    public void refreshQueue(){
+        QueueFragment queueFragment = (QueueFragment) getSupportFragmentManager().getFragments()
+                .get(1).getChildFragmentManager().getFragments().get(1);
+        queueFragment.refreshQueue();
+    }
+
+
     // This method handles moving from one song to another based on user input
     public void songPicked(View view){
 
@@ -226,6 +235,10 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             musicSrv.setList(songList);
         }
 
+        if (((ViewGroup)view.getParent()).getId() != R.id.queueList) {
+            refreshQueue();
+        }
+
         // Show audio controller (only affects on first pick)
         audioController.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
         audioController.setLayoutParams(new TableLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, 0.025f));
@@ -238,7 +251,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         if(playbackPaused){
             playbackPaused=false;
         }
-
 
     }
 
