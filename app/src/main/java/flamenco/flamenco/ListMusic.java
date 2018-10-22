@@ -227,9 +227,9 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         }
 
         // Update Queue
-        QueueFragment queueFragment = (QueueFragment) getSupportFragmentManager().getFragments()
-                .get(1).getChildFragmentManager().getFragments().get(1);
-        queueFragment.refreshQueue();
+//        QueueFragment queueFragment = (QueueFragment) getSupportFragmentManager().getFragments()
+//                .get(1).getChildFragmentManager().getFragments().get(1);
+//        queueFragment.refreshQueue();
 
     }
 
@@ -240,6 +240,9 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             for (Fragment child: fragment.getChildFragmentManager().getFragments()) {
                 if (child instanceof  SongsFragment) {
                     ((SongsFragment) child).updateCurrentSong(selected);
+                }
+                if (child instanceof  QueueFragment) {
+                    ((QueueFragment) child).updateCurrentSong(selected);
                 }
             }
         }
