@@ -142,7 +142,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             @Override
             public void onClick(View v) {
                 //Collections.copy(shuffledList, songList);
-                shuffledList = new ArrayList<>(songList);
+                shuffledList = new ArrayList<>(musicSrv.getList());
                 Collections.shuffle(shuffledList);
                 musicSrv.setList(shuffledList);
                 refreshQueue();
