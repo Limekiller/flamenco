@@ -61,6 +61,8 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     private ArrayList<Song> shuffledList;
     private MusicService musicSrv;
     private Intent playIntent;
+    private SharedPreferences prefs;
+    private SharedPreferences.Editor prefsEditor;
     private boolean musicBound=false;
 
     private LinearLayout audioController;
@@ -82,8 +84,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_music);
-        final SharedPreferences prefs = PreferenceManager
-                .getDefaultSharedPreferences(this);
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
         ActivityCompat.requestPermissions(ListMusic.this,
                 new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},1);
 
@@ -159,7 +160,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             @Override
             public void onClick(View v) {
 
-                SharedPreferences.Editor prefsEditor;
                 Gson gson = new Gson();
                 String json = gson.toJson(shuffledList);
                 Type type = new TypeToken<ArrayList<Song>>(){}.getType();
@@ -171,7 +171,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                     shuffledList = new ArrayList<>(musicSrv.getList());
                     Collections.shuffle(shuffledList);
                     prefsEditor = prefs.edit();
-                    prefsEditor.remove("shuffledList").apply();
+                    //prefsEditor.remove("shuffledList").apply();
                     prefsEditor.putString("shuffledList", json);
                     prefsEditor.commit();
                 }
@@ -272,7 +272,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
         // Show audio controller (only affects on first pick)
         audioController.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
-        audioController.setLayoutParams(new TableLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, 0.045f));
+        audioController.setLayoutParams(new TableLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, 0.06f));
 
         pos = Integer.parseInt(view.getTag().toString());
         musicSrv.setSong(pos);
@@ -288,10 +288,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     public void clearShuffle(View view) {
         shuffledList.clear();
         musicSrv.setList(songList);
-        
-        SharedPreferences.Editor prefsEditor;
-        final SharedPreferences prefs = PreferenceManager
-                .getDefaultSharedPreferences(this);
+
         Gson gson = new Gson();
         String json = gson.toJson(shuffledList);
 
@@ -299,6 +296,8 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         prefsEditor.remove("shuffledList").apply();
         prefsEditor.putString("shuffledList", json);
         prefsEditor.commit();
+
+        refreshQueue();
     }
 
 
