@@ -21,7 +21,7 @@
     <LinearLayout
         android:id="@+id/audioController"
         android:layout_width="match_parent"
-        android:layout_height="75dp"
+        android:layout_height="0dp"
         android:layout_weight="0"
         android:animateLayoutChanges="true"
         android:background="@color/colorPrimary"

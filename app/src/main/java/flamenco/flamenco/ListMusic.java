@@ -3,11 +3,15 @@ package flamenco.flamenco;
 import android.Manifest;
 import android.animation.LayoutTransition;
 import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -33,10 +37,19 @@ import android.view.View;
 import flamenco.flamenco.MusicService.MusicBinder;
 import android.widget.MediaController.MediaPlayerControl;
 import com.bumptech.glide.Glide;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.nostra13.universalimageloader.core.ImageLoader;
+
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 
@@ -60,6 +73,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     private ImageButton shuffBtn;
     private ImageButton ffBtn;
     private Handler handler;
+    private ImageLoader imageLoader;
 
     private boolean hasUpdated=false;
     private boolean paused=false, playbackPaused=false;
@@ -68,7 +82,8 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_music);
-
+        final SharedPreferences prefs = PreferenceManager
+                .getDefaultSharedPreferences(this);
         ActivityCompat.requestPermissions(ListMusic.this,
                 new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},1);
 
@@ -80,10 +95,12 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             e.printStackTrace();
         }
 
+
+        imageLoader = ImageLoader.getInstance();
         shuffledList = new ArrayList<>();
-        songList = new ArrayList<flamenco.flamenco.Song>();
-        artistList = new ArrayList<flamenco.flamenco.Song>();
-        albumList = new ArrayList<flamenco.flamenco.Song>();
+        songList = new ArrayList<>();
+        artistList = new ArrayList<>();
+        albumList = new ArrayList<>();
         currSongArt = findViewById(R.id.currSongArt);
         currSongInfo = findViewById(R.id.currSongInfo);
         seekBar = findViewById(R.id.seekBar);
@@ -96,7 +113,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         audioController = findViewById(R.id.audioController);
 
         // Instantiate parent fragments
-        final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
+        final ViewPager viewPager = findViewById(R.id.pager);
         final flamenco.flamenco.MainFragmentAdapter adapter = new flamenco.flamenco.MainFragmentAdapter(
                 getSupportFragmentManager(), 2);
         viewPager.setAdapter(adapter);
@@ -141,9 +158,24 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         shuffBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Collections.copy(shuffledList, songList);
-                shuffledList = new ArrayList<>(musicSrv.getList());
-                Collections.shuffle(shuffledList);
+
+                SharedPreferences.Editor prefsEditor;
+                Gson gson = new Gson();
+                String json = gson.toJson(shuffledList);
+                Type type = new TypeToken<ArrayList<Song>>(){}.getType();
+                shuffledList = gson.fromJson(json, type);
+                String response = prefs.getString("shuffledList", "");
+                shuffledList = gson.fromJson(response, new TypeToken<ArrayList<Song>>(){}.getType());
+
+                if (shuffledList == null || shuffledList.size() == 0) {
+                    shuffledList = new ArrayList<>(musicSrv.getList());
+                    Collections.shuffle(shuffledList);
+                    prefsEditor = prefs.edit();
+                    prefsEditor.remove("shuffledList").apply();
+                    prefsEditor.putString("shuffledList", json);
+                    prefsEditor.commit();
+                }
+
                 musicSrv.setList(shuffledList);
                 refreshQueue();
             }
@@ -168,8 +200,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             }
         });
 
-
-
     }
 
 
@@ -182,6 +212,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             startService(playIntent);
         }
     }
+
 
 
     // This method handles moving from one song to the next automatically.
@@ -214,7 +245,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     public void songPicked(View view){
 
         Integer pos;
-        Integer oldPos = musicSrv.getSongPosn();
+        //Integer oldPos = musicSrv.getSongPosn();
 
         // Check which list choice is coming from
         if (((ViewGroup)view.getParent()).getId() == R.id.a_song_list) {
@@ -241,7 +272,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
         // Show audio controller (only affects on first pick)
         audioController.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
-        audioController.setLayoutParams(new TableLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, 0.025f));
+        audioController.setLayoutParams(new TableLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, 0.045f));
 
         pos = Integer.parseInt(view.getTag().toString());
         musicSrv.setSong(pos);
@@ -252,6 +283,22 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             playbackPaused=false;
         }
 
+    }
+
+    public void clearShuffle(View view) {
+        shuffledList.clear();
+        musicSrv.setList(songList);
+        
+        SharedPreferences.Editor prefsEditor;
+        final SharedPreferences prefs = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        Gson gson = new Gson();
+        String json = gson.toJson(shuffledList);
+
+        prefsEditor = prefs.edit();
+        prefsEditor.remove("shuffledList").apply();
+        prefsEditor.putString("shuffledList", json);
+        prefsEditor.commit();
     }
 
 
@@ -292,7 +339,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                 .error(R.drawable.placeholder).crossFade().centerCrop()
                 .into((ImageView) albumParent.findViewById(R.id.albumFocusImage));
 
-        animations.hideViewDown((View)albumParent.findViewById(R.id.album_list), this);
+        animations.hideViewDown(albumParent.findViewById(R.id.album_list), this);
         albumParent.findViewById(R.id.album_list).setVisibility(View.GONE);
         tempAlbumList.setTag(view.getTag());
         albumParent.findViewById(R.id.albumFocus).setVisibility(View.VISIBLE);
@@ -305,7 +352,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
     // This method shows the albums belonging to an artist
     public void showAlbums(View view) {
-        ArrayList<flamenco.flamenco.Song> tempAlbumList = new ArrayList<flamenco.flamenco.Song>();
+        ArrayList<flamenco.flamenco.Song> tempAlbumList = new ArrayList<>();
         TextView title = view.findViewById(R.id.album_artist);
         String artistName = (String) title.getText();
         View parentView = (View) view.getParent().getParent();
@@ -469,7 +516,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     // This method assists the above, converting song position to human readable form
     public String milliSecondsToTimer(long milliseconds){
         String finalTimerString = "";
-        String secondsString = "";
+        String secondsString;
 
         int hours = (int)( milliseconds / (1000*60*60));
         int minutes = (int)(milliseconds % (1000*60*60)) / (1000*60);
@@ -505,18 +552,25 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         return musicSrv.getList();
     }
 
-    public Integer getCurrSong() {
+    public Integer getCurrSongPosn() {
         try {
-            Integer currSongPosn = musicSrv.getSongPosn();
-            return currSongPosn;
+            return musicSrv.getSongPosn();
         } catch (NullPointerException e) {
             return 0;
         }
     }
 
+    public Song getCurrSong() {
+        try {
+            return musicSrv.getSong();
+        } catch (NullPointerException e) {
+            return null;
+        }
+    }
+
     // This method runs on startup, constructing a list of songs, artists, and albums
     public void getSongList() {
-        ArrayList<flamenco.flamenco.Song> albumSongList = new ArrayList<flamenco.flamenco.Song>();
+        ArrayList<flamenco.flamenco.Song> albumSongList = new ArrayList<>();
         ContentResolver musicResolver = getContentResolver();
         Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
@@ -527,8 +581,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                     (MediaStore.Audio.Albums.ARTIST);
             int yearColumn = musicCursor.getColumnIndex
                     (MediaStore.Audio.Media.YEAR);
-            int artColumn = musicCursor.getColumnIndex
-                    (MediaStore.Audio.Albums.ALBUM_ART);
             int isMusic = musicCursor.getColumnIndex
                     (MediaStore.Audio.Media.IS_MUSIC);
             int songTitleColumn = musicCursor.getColumnIndex
@@ -539,11 +591,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                     (MediaStore.Audio.Media.ALBUM_ID);
             do {
 
-                String thisArt = null;
-                if (artColumn > -1) {
-                    thisArt = musicCursor.getString(artColumn);
-                }
-
                 String thisYear = musicCursor.getString(yearColumn);
                 int thisIsMusic = musicCursor.getInt(isMusic);
                 String thisArtist = musicCursor.getString(artistColumn);
@@ -551,21 +598,23 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                 String thisSongTitle = musicCursor.getString(songTitleColumn);
                 long thisId = musicCursor.getLong(idColumn);
                 long thisAlbumId = musicCursor.getLong(albumIdColumn);
+                Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
+                Uri albumArt = ContentUris.withAppendedId(sArtworkUri, thisAlbumId);
 
                 if (thisIsMusic > 0) {
                     if (albumList.size() == 0) {
-                        albumList.add(new flamenco.flamenco.Song(thisId, thisTitle, thisArtist, thisAlbumId, thisYear));
-                        artistList.add(new flamenco.flamenco.Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear));
+                        albumList.add(new flamenco.flamenco.Song(thisId, thisTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));
+                        artistList.add(new flamenco.flamenco.Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));
                     } else if (!albumList.get(albumList.size()-1).getTitle().equals(thisTitle)) {
                         albumList.get(albumList.size() -1).setAlbumSongList(albumSongList);
-                        albumList.add(new flamenco.flamenco.Song(thisId, thisTitle, thisArtist, thisAlbumId, thisYear));
+                        albumList.add(new flamenco.flamenco.Song(thisId, thisTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));
                         if (!artistList.get(artistList.size()-1).getArtist().equals(thisArtist)) {
-                            artistList.add(new flamenco.flamenco.Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear));
+                            artistList.add(new flamenco.flamenco.Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));
                         }
                         albumSongList.clear();
                     }
-                    albumSongList.add(new flamenco.flamenco.Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear));
-                    songList.add(new flamenco.flamenco.Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear));
+                    albumSongList.add(new flamenco.flamenco.Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));
+                    songList.add(new flamenco.flamenco.Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));
                 }
             }
             while (musicCursor.moveToNext());

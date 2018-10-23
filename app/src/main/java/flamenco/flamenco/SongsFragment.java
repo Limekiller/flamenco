@@ -61,7 +61,7 @@ public class SongsFragment extends Fragment{
             public View getView(int position, View convertView, ViewGroup parent) {
                 View row = super.getView(position, convertView, parent);
 
-                if(position == ((ListMusic) getActivity()).getCurrSong()) {
+                if (songList.get(position) == ((ListMusic) getActivity()).getCurrSong()) {
                     if (selected == true) {
                         ObjectAnimator.ofObject(row, "backgroundColor", new ArgbEvaluator(),
                                 Color.WHITE, getResources().getColor(R.color.colorAccentLight))
@@ -73,6 +73,20 @@ public class SongsFragment extends Fragment{
                 else {
                     row.setBackgroundColor (Color.WHITE);
                 }
+
+//                if(position == ((ListMusic) getActivity()).getCurrSongPosn()) {
+//                    if (selected == true) {
+//                        ObjectAnimator.ofObject(row, "backgroundColor", new ArgbEvaluator(),
+//                                Color.WHITE, getResources().getColor(R.color.colorAccentLight))
+//                                .setDuration(150).start();
+//                    } else {
+//                        row.setBackgroundColor (getResources().getColor(R.color.colorAccentLight));
+//                    }
+//                }
+//                else {
+//                    row.setBackgroundColor (Color.WHITE);
+//                }
+
                 return row;
             }
         });
