@@ -57,6 +57,7 @@ public class QueueFragment extends Fragment{
         View v = songView.getChildAt(0);
         int top = (v == null) ? 0 : v.getTop();
 
+
         songView.setAdapter(new SongAdapter(getActivity(), songList, "song") {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {

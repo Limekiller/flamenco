@@ -85,6 +85,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_music);
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefsEditor = prefs.edit();
         ActivityCompat.requestPermissions(ListMusic.this,
                 new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},1);
 
@@ -170,8 +171,8 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                 if (shuffledList == null || shuffledList.size() == 0) {
                     shuffledList = new ArrayList<>(musicSrv.getList());
                     Collections.shuffle(shuffledList);
-                    prefsEditor = prefs.edit();
-                    //prefsEditor.remove("shuffledList").apply();
+                    json = gson.toJson(shuffledList);
+                    prefsEditor.remove("shuffledList").apply();
                     prefsEditor.putString("shuffledList", json);
                     prefsEditor.commit();
                 }
@@ -292,7 +293,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         Gson gson = new Gson();
         String json = gson.toJson(shuffledList);
 
-        prefsEditor = prefs.edit();
         prefsEditor.remove("shuffledList").apply();
         prefsEditor.putString("shuffledList", json);
         prefsEditor.commit();
