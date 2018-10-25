@@ -1,4 +1,4 @@
-package flamenco.flamenco;
+package flamenco.flamenco.MainFragment;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -20,6 +20,9 @@ import com.bumptech.glide.Glide;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import flamenco.flamenco.R;
+import flamenco.flamenco.Song;
 
 public class SongAdapter extends BaseAdapter {
 

@@ -1,25 +1,20 @@
-package flamenco.flamenco;
+package flamenco.flamenco.MainFragment;
 
-import android.content.ContentResolver;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.provider.SyncStateContract;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+
+import flamenco.flamenco.ListMusic;
+import flamenco.flamenco.R;
+import flamenco.flamenco.Song;
+import flamenco.flamenco.animations;
 
 public class AlbumsFragment extends Fragment {
 

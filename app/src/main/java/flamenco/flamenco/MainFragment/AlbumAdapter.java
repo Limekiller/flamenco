@@ -1,4 +1,4 @@
-package flamenco.flamenco;
+package flamenco.flamenco.MainFragment;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -15,6 +15,9 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import flamenco.flamenco.ListMusic;
+import flamenco.flamenco.R;
+import flamenco.flamenco.Song;
+
 import com.bumptech.glide.Glide;
 
 import java.io.File;

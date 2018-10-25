@@ -1,4 +1,4 @@
-package flamenco.flamenco;
+package flamenco.flamenco.MainFragment;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,6 +10,12 @@ import android.view.ViewGroup;
 import android.widget.GridView;
 
 import java.util.ArrayList;
+
+import flamenco.flamenco.ListMusic;
+import flamenco.flamenco.MainFragment.AlbumAdapter;
+import flamenco.flamenco.R;
+import flamenco.flamenco.Song;
+import flamenco.flamenco.animations;
 
 public class ArtistsFragment extends Fragment {
 

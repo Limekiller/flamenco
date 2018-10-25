@@ -1,29 +1,21 @@
-package flamenco.flamenco;
+package flamenco.flamenco.MainFragment;
 
-import android.content.ContentResolver;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.provider.SyncStateContract;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
-public class ListsFragment extends Fragment {
+import flamenco.flamenco.ListMusic;
+import flamenco.flamenco.R;
+import flamenco.flamenco.Song;
+
+public class MusicFragment extends Fragment {
 
     private ArrayList<Song> albumList;
     private GridView songView;
@@ -33,15 +25,16 @@ public class ListsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        view = inflater.inflate(R.layout.listsfragment, container, false);
+        view = inflater.inflate(R.layout.fragment_list_music, container, false);
 
         TabLayout tabLayout = (TabLayout) view.findViewById(R.id.tab_layout);
-        tabLayout.addTab(tabLayout.newTab().setText("Playlists"));
-        tabLayout.addTab(tabLayout.newTab().setText("Queue"));
+        tabLayout.addTab(tabLayout.newTab().setText("Songs"));
+        tabLayout.addTab(tabLayout.newTab().setText("Artists"));
+        tabLayout.addTab(tabLayout.newTab().setText("Albums"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         final ViewPager viewPager = (ViewPager) view.findViewById(R.id.pager);
-        final flamenco.flamenco.ListsFragmentAdapter adapter = new flamenco.flamenco.ListsFragmentAdapter
+        final MusicFragmentAdapter adapter = new MusicFragmentAdapter
                 (getChildFragmentManager(), tabLayout.getTabCount());
         viewPager.setAdapter(adapter);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));

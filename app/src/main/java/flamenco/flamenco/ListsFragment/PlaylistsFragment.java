@@ -1,4 +1,4 @@
-package flamenco.flamenco;
+package flamenco.flamenco.ListsFragment;
 
 import android.app.Activity;
 import android.content.Context;
@@ -24,6 +24,8 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import javax.security.auth.callback.Callback;
+
+import flamenco.flamenco.R;
 
 public class PlaylistsFragment extends Fragment{
 

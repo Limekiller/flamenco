@@ -7,7 +7,6 @@ import android.content.ContentUris;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -34,6 +33,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.view.View;
+
+import flamenco.flamenco.ListsFragment.QueueFragment;
+import flamenco.flamenco.MainFragment.AlbumAdapter;
+import flamenco.flamenco.MainFragment.MainFragmentAdapter;
+import flamenco.flamenco.MainFragment.SongAdapter;
+import flamenco.flamenco.MainFragment.SongsFragment;
 import flamenco.flamenco.MusicService.MusicBinder;
 import android.widget.MediaController.MediaPlayerControl;
 import com.bumptech.glide.Glide;
@@ -41,15 +46,12 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
-import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 
@@ -58,6 +60,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     public ArrayList<flamenco.flamenco.Song> songList;
     public ArrayList<flamenco.flamenco.Song> artistList;
     public ArrayList<flamenco.flamenco.Song> albumList;
+    public ArrayList<flamenco.flamenco.Folder> folderList;
     private ArrayList<Song> shuffledList;
     private MusicService musicSrv;
     private Intent playIntent;
@@ -104,6 +107,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         songList = new ArrayList<>();
         artistList = new ArrayList<>();
         albumList = new ArrayList<>();
+        folderList = new ArrayList<>();
         currSongArt = findViewById(R.id.currSongArt);
         currSongInfo = findViewById(R.id.currSongInfo);
         seekBar = findViewById(R.id.seekBar);
@@ -117,7 +121,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
         // Instantiate parent fragments
         final ViewPager viewPager = findViewById(R.id.pager);
-        final flamenco.flamenco.MainFragmentAdapter adapter = new flamenco.flamenco.MainFragmentAdapter(
+        final MainFragmentAdapter adapter = new MainFragmentAdapter(
                 getSupportFragmentManager(), 2);
         viewPager.setAdapter(adapter);
 
@@ -342,7 +346,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         List<Fragment> allFragments = getSupportFragmentManager().getFragments();
         for (Fragment fragment: allFragments) {
             for (Fragment child: fragment.getChildFragmentManager().getFragments()) {
-                if (child instanceof  SongsFragment) {
+                if (child instanceof SongsFragment) {
                     ((SongsFragment) child).updateCurrentSong(selected);
                 }
                 if (child instanceof  QueueFragment) {
@@ -381,7 +385,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         albumParent.findViewById(R.id.albumFocus).setVisibility(View.VISIBLE);
         animations.showViewDown((albumParent.findViewById(R.id.albumFocus)), this);
 
-        flamenco.flamenco.SongAdapter songAdt = new flamenco.flamenco.SongAdapter(albumParent.getContext(), tempList, "album");
+        SongAdapter songAdt = new SongAdapter(albumParent.getContext(), tempList, "album");
         tempAlbumList.setAdapter(songAdt);
 
     }
@@ -405,7 +409,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         animations.showViewDown(parentView.findViewById(R.id.album_list), this);
         GridView albumView = parentView.findViewById(R.id.album_list);
 
-        flamenco.flamenco.AlbumAdapter songAdt = new flamenco.flamenco.AlbumAdapter(view.getContext(), tempAlbumList, "albums");
+        AlbumAdapter songAdt = new AlbumAdapter(view.getContext(), tempAlbumList, "albums");
         albumView.setAdapter(songAdt);
     }
 
@@ -625,6 +629,8 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                     (MediaStore.Audio.Media._ID);
             int albumIdColumn = musicCursor.getColumnIndex
                     (MediaStore.Audio.Media.ALBUM_ID);
+            int pathColumn = musicCursor.getColumnIndex
+                    (MediaStore.Audio.Media.DATA);
             do {
 
                 String thisYear = musicCursor.getString(yearColumn);
@@ -632,12 +638,30 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                 String thisArtist = musicCursor.getString(artistColumn);
                 String thisTitle = musicCursor.getString(titleColumn);
                 String thisSongTitle = musicCursor.getString(songTitleColumn);
+                String thisPath = musicCursor.getString(pathColumn);
                 long thisId = musicCursor.getLong(idColumn);
                 long thisAlbumId = musicCursor.getLong(albumIdColumn);
                 Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
                 Uri albumArt = ContentUris.withAppendedId(sArtworkUri, thisAlbumId);
 
                 if (thisIsMusic > 0) {
+
+                    String path = thisPath.substring(0, thisPath.lastIndexOf("/"));
+                    Boolean pathFound = false;
+                    for (Folder folder : folderList) {
+                        if(folder.getPath().equals(path)) {
+                            pathFound = true;
+                            folder.addToList(new flamenco.flamenco.Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));
+                            break;
+                        }
+                    }
+                    if (!pathFound) {
+                        ArrayList<Song> newSongList = new ArrayList<>();
+                        newSongList.add(new flamenco.flamenco.Song(thisId, thisTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));
+                        folderList.add(new Folder(path, newSongList,
+                                new ArrayList<Folder>()));
+                    }
+
                     if (albumList.size() == 0) {
                         albumList.add(new flamenco.flamenco.Song(thisId, thisTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));
                         artistList.add(new flamenco.flamenco.Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));

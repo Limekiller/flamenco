@@ -1,16 +1,16 @@
-package flamenco.flamenco;
+package flamenco.flamenco.MainFragment;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.view.ViewGroup;
 
-public class ListsFragmentAdapter extends FragmentStatePagerAdapter{
+import flamenco.flamenco.ListsFragment.ListsFragment;
+
+public class MainFragmentAdapter extends FragmentStatePagerAdapter{
 
     int mNumOfTabs;
 
-
-    public ListsFragmentAdapter(FragmentManager fm, int NumOfTabs) {
+    public MainFragmentAdapter (FragmentManager fm, int NumOfTabs) {
         super(fm);
         this.mNumOfTabs = NumOfTabs;
     }
@@ -18,13 +18,12 @@ public class ListsFragmentAdapter extends FragmentStatePagerAdapter{
     @Override
     public Fragment getItem(int position) {
 
-
         switch (position) {
             case 0:
-                PlaylistsFragment tab1 = new PlaylistsFragment();
+                MusicFragment tab1 = new MusicFragment();
                 return tab1;
             case 1:
-                QueueFragment tab2 = new QueueFragment();
+                ListsFragment tab2 = new ListsFragment();
                 return tab2;
             default:
                 return null;

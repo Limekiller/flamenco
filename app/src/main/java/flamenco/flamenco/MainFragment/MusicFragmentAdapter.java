@@ -1,9 +1,12 @@
-package flamenco.flamenco;
+package flamenco.flamenco.MainFragment;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.view.ViewGroup;
+
+import flamenco.flamenco.MainFragment.AlbumsFragment;
+import flamenco.flamenco.MainFragment.ArtistsFragment;
+import flamenco.flamenco.MainFragment.SongsFragment;
 
 public class MusicFragmentAdapter extends FragmentStatePagerAdapter{
 
