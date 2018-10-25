@@ -64,6 +64,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     private SharedPreferences prefs;
     private SharedPreferences.Editor prefsEditor;
     private boolean musicBound=false;
+    private boolean isShuffled = false;
 
     private LinearLayout audioController;
     private ImageView currSongArt;
@@ -161,24 +162,51 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             @Override
             public void onClick(View v) {
 
-                Gson gson = new Gson();
-                String json = gson.toJson(shuffledList);
-                Type type = new TypeToken<ArrayList<Song>>(){}.getType();
-                shuffledList = gson.fromJson(json, type);
-                String response = prefs.getString("shuffledList", "");
-                shuffledList = gson.fromJson(response, new TypeToken<ArrayList<Song>>(){}.getType());
+                if (!isShuffled) {
+                    isShuffled = true;
+                    Gson gson = new Gson();
+                    String json = gson.toJson(shuffledList);
+                    Type type = new TypeToken<ArrayList<Song>>() {
+                    }.getType();
+                    shuffledList = gson.fromJson(json, type);
+                    String response = prefs.getString("shuffledList", "");
+                    shuffledList = gson.fromJson(response, new TypeToken<ArrayList<Song>>() {
+                    }.getType());
 
-                if (shuffledList == null || shuffledList.size() == 0) {
-                    shuffledList = new ArrayList<>(musicSrv.getList());
-                    Collections.shuffle(shuffledList);
-                    json = gson.toJson(shuffledList);
-                    prefsEditor.remove("shuffledList").apply();
-                    prefsEditor.putString("shuffledList", json);
-                    prefsEditor.commit();
+                    int savedIndex = prefs.getInt("shuffleIndex", 0);
+                    if (shuffledList == null || shuffledList.size() == 0) {
+                        shuffledList = new ArrayList<>(musicSrv.getList());
+                        Collections.shuffle(shuffledList);
+
+                        for (int i = 0; i < shuffledList.size(); i++) {
+                            if (shuffledList.get(i) == getCurrSong()) {
+                                shuffledList.add(0, getCurrSong());
+                                shuffledList.remove(i);
+                            }
+                        }
+
+                        json = gson.toJson(shuffledList);
+                        prefsEditor.remove("shuffledList").apply();
+                        prefsEditor.putString("shuffledList", json);
+                        prefsEditor.commit();
+                    } else {
+                        int i = 0;
+                        while (i < savedIndex) {
+                            shuffledList.remove(0);
+                            i++;
+                        }
+
+                        shuffledList.add(0, musicSrv.getSong());
+                        json = gson.toJson(shuffledList);
+                        prefsEditor.remove("shuffledList").apply();
+                        prefsEditor.putString("shuffledList", json);
+                        prefsEditor.commit();
+                    }
+
+                    musicSrv.setList(shuffledList);
+                    musicSrv.setSong(0);
+                    refreshQueue();
                 }
-
-                musicSrv.setList(shuffledList);
-                refreshQueue();
             }
         });
 
@@ -224,6 +252,12 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         Glide.with(this).load(currSong.getAlbumArt()).error(R.drawable.placeholder)
                 .crossFade().centerCrop().into(currSongArt);
 
+        if (isShuffled) {
+            prefsEditor.remove("shuffleIndex");
+            prefsEditor.putInt("shuffleIndex", getCurrSongPosn());
+            prefsEditor.commit();
+        }
+
         int mediaPos = musicSrv.getPosn();
         int mediaMax = musicSrv.getDur();
 
@@ -268,6 +302,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         }
 
         if (((ViewGroup)view.getParent()).getId() != R.id.queueList) {
+            isShuffled = false;
             refreshQueue();
         }
 
@@ -289,10 +324,12 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     public void clearShuffle(View view) {
         shuffledList.clear();
         musicSrv.setList(songList);
+        isShuffled = false;
 
         Gson gson = new Gson();
         String json = gson.toJson(shuffledList);
 
+        prefsEditor.putInt("shuffleIndex", 0);
         prefsEditor.remove("shuffledList").apply();
         prefsEditor.putString("shuffledList", json);
         prefsEditor.commit();
