@@ -405,8 +405,13 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
         if (lastFolder == null) {
             tempSearchFolderList = folderList;
+            animations.hideViewDown(parentView.findViewById(R.id.folder_list), this);
+            parentView.findViewById(R.id.folder_list).setVisibility(View.GONE);
+            parentView.findViewById(R.id.folderFocus).setVisibility(View.VISIBLE);
+            animations.showViewDown(parentView.findViewById(R.id.folderFocus), this);
         } else {
             tempSearchFolderList = lastFolder.getFolderList();
+            animations.showViewDown(parentView.findViewById(R.id.folderFocus), this);
         }
 
         for (Folder folder : tempSearchFolderList) {
@@ -417,11 +422,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                 break;
             }
         }
-
-        animations.hideViewDown(parentView.findViewById(R.id.folder_list), this);
-        parentView.findViewById(R.id.folder_list).setVisibility(View.GONE);
-        parentView.findViewById(R.id.folderFocus).setVisibility(View.VISIBLE);
-        animations.showViewDown(parentView.findViewById(R.id.folderFocus), this);
 
         FoldersAdapter foldersAdapter = new FoldersAdapter(view.getContext(), tempFolderList);
         tempFolderView.setAdapter(foldersAdapter);

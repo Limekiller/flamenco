@@ -37,6 +37,7 @@ public class FoldersFragment extends Fragment {
         listMusic = (ListMusic) getActivity();
 
         folderList = listMusic.folderList;
+        listMusic.lastFolder = null;
         FoldersAdapter folderAdt = new FoldersAdapter(getActivity(), folderList);
         folderView.setAdapter(folderAdt);
 
