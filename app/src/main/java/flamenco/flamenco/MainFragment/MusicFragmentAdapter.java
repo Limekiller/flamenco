@@ -11,9 +11,6 @@ import flamenco.flamenco.MainFragment.SongsFragment;
 public class MusicFragmentAdapter extends FragmentStatePagerAdapter{
 
     int mNumOfTabs;
-    private SongsFragment songsFragment;
-    private ArtistsFragment artistsFragment;
-    private AlbumsFragment albumsFragment;
 
     public MusicFragmentAdapter(FragmentManager fm, int NumOfTabs) {
         super(fm);
@@ -26,14 +23,13 @@ public class MusicFragmentAdapter extends FragmentStatePagerAdapter{
 
         switch (position) {
             case 0:
-                SongsFragment tab1 = new SongsFragment();
-                return tab1;
+                return new SongsFragment();
             case 1:
-                ArtistsFragment tab2 = new ArtistsFragment();
-                return tab2;
+                return new ArtistsFragment();
             case 2:
-                AlbumsFragment tab3 = new AlbumsFragment();
-                return tab3;
+                return new AlbumsFragment();
+            case 3:
+                return new FoldersFragment();
             default:
                 return null;
         }

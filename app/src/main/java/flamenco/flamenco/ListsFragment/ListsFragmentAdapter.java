@@ -20,11 +20,9 @@ public class ListsFragmentAdapter extends FragmentStatePagerAdapter{
 
         switch (position) {
             case 0:
-                PlaylistsFragment tab1 = new PlaylistsFragment();
-                return tab1;
+                return new PlaylistsFragment();
             case 1:
-                QueueFragment tab2 = new QueueFragment();
-                return tab2;
+                return new QueueFragment();
             default:
                 return null;
         }

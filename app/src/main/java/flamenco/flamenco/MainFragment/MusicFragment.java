@@ -31,6 +31,7 @@ public class MusicFragment extends Fragment {
         tabLayout.addTab(tabLayout.newTab().setText("Songs"));
         tabLayout.addTab(tabLayout.newTab().setText("Artists"));
         tabLayout.addTab(tabLayout.newTab().setText("Albums"));
+        tabLayout.addTab(tabLayout.newTab().setText("Folders"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         final ViewPager viewPager = (ViewPager) view.findViewById(R.id.pager);

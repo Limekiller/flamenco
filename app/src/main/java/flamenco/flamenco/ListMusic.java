@@ -36,6 +36,7 @@ import android.view.View;
 
 import flamenco.flamenco.ListsFragment.QueueFragment;
 import flamenco.flamenco.MainFragment.AlbumAdapter;
+import flamenco.flamenco.MainFragment.FoldersAdapter;
 import flamenco.flamenco.MainFragment.MainFragmentAdapter;
 import flamenco.flamenco.MainFragment.SongAdapter;
 import flamenco.flamenco.MainFragment.SongsFragment;
@@ -61,6 +62,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     public ArrayList<flamenco.flamenco.Song> artistList;
     public ArrayList<flamenco.flamenco.Song> albumList;
     public ArrayList<flamenco.flamenco.Folder> folderList;
+    public Folder lastFolder;
     private ArrayList<Song> shuffledList;
     private MusicService musicSrv;
     private Intent playIntent;
@@ -303,6 +305,8 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             }
         } else if (((ViewGroup)view.getParent()).getId() == R.id.song_list) {
             musicSrv.setList(songList);
+        } else if (((ViewGroup)view.getParent()).getId() == R.id.f_song_list) {
+            musicSrv.setList(lastFolder.getSongList());
         }
 
         if (((ViewGroup)view.getParent()).getId() != R.id.queueList) {
@@ -390,6 +394,43 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
     }
 
+    public void setFolderVisibility(View view) {
+        ArrayList<Folder> tempFolderList = new ArrayList<>();
+        ArrayList<Folder> tempSearchFolderList = new ArrayList<>();
+        ArrayList<Song> tempSongList = new ArrayList<>();
+        String path = (String)((TextView)view.findViewById(R.id.folder_path)).getText();
+        View parentView = (View) view.getRootView();
+        GridView tempFolderView = parentView.findViewById(R.id.f_folder_list);
+        ListView tempSongView = parentView.findViewById(R.id.f_song_list);
+
+        if (lastFolder == null) {
+            tempSearchFolderList = folderList;
+        } else {
+            tempSearchFolderList = lastFolder.getFolderList();
+        }
+
+        for (Folder folder : tempSearchFolderList) {
+            if (folder.getPath().equals(path)) {
+                tempFolderList = folder.getFolderList();
+                tempSongList = folder.getSongList();
+                lastFolder = folder;
+                break;
+            }
+        }
+
+        animations.hideViewDown(parentView.findViewById(R.id.folder_list), this);
+        parentView.findViewById(R.id.folder_list).setVisibility(View.GONE);
+        parentView.findViewById(R.id.folderFocus).setVisibility(View.VISIBLE);
+        animations.showViewDown(parentView.findViewById(R.id.folderFocus), this);
+
+        FoldersAdapter foldersAdapter = new FoldersAdapter(view.getContext(), tempFolderList);
+        tempFolderView.setAdapter(foldersAdapter);
+
+        SongAdapter songAdapter = new SongAdapter(view.getContext(), tempSongList, "song");
+        tempSongView.setAdapter(songAdapter);
+
+    }
+
     // This method shows the albums belonging to an artist
     public void showAlbums(View view) {
         ArrayList<flamenco.flamenco.Song> tempAlbumList = new ArrayList<>();
@@ -400,6 +441,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         for (flamenco.flamenco.Song dog : albumList) {
             if (dog.getArtist().equals(artistName)) {
                 tempAlbumList.add(dog);
+                break;
             }
         }
 
@@ -608,6 +650,32 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         }
     }
 
+    public boolean addFolders(Folder folder, Song song, String path, Boolean cont) {
+        String[] splitPath = path.split("/");
+        StringBuilder buildPath = new StringBuilder("/"+splitPath[0]);
+        for (int i = 1; i < splitPath.length; i++) {
+            buildPath.append(splitPath[i]).append('/');
+            if (buildPath.toString().equals(folder.getPath()) && !cont) {
+                if (i == splitPath.length-1) {
+                    folder.addToSongList(song);
+                    return true;
+                } else {
+                    for (Folder subFolder : folder.getFolderList()) {
+                        if (subFolder.getPath().equals(buildPath.toString())) {
+                            return addFolders(subFolder, song, path, true);
+                        }
+                    }
+                    Folder newFolder = new Folder(path, new ArrayList<Song>(), new ArrayList<Folder>(), folder);
+                    newFolder.addToSongList(song);
+                    folder.addToFolderList(newFolder);
+                    return true;
+                }
+            }
+        }
+        return false;
+
+    }
+
     // This method runs on startup, constructing a list of songs, artists, and albums
     public void getSongList() {
         ArrayList<flamenco.flamenco.Song> albumSongList = new ArrayList<>();
@@ -646,21 +714,40 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
                 if (thisIsMusic > 0) {
 
+
                     String path = thisPath.substring(0, thisPath.lastIndexOf("/"));
-                    Boolean pathFound = false;
-                    for (Folder folder : folderList) {
-                        if(folder.getPath().equals(path)) {
-                            pathFound = true;
-                            folder.addToList(new flamenco.flamenco.Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));
+//                    for (int i =0; i<folderList.size();i++) {
+////                        String path = thisPath.substring(0, thisPath.lastIndexOf("/"));
+////                        while (path.indexOf('/') >= 0) {
+////                            if (folderList.get(i).getPath().equals(path)) {
+////                                pathFound = true;
+////                                folderList.get(i).addToSongList(new flamenco.flamenco.Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));
+////                                break;
+////                            }
+////                            path = path.substring(0, path.lastIndexOf('/'));
+////                        }
+////                    }
+
+                    boolean hasBeenAdded = false;
+                    for (int i=0; i<folderList.size(); i++) {
+                        if (addFolders(folderList.get(i), new Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()), path+"/", false)) {
+                            hasBeenAdded = true;
                             break;
                         }
                     }
-                    if (!pathFound) {
-                        ArrayList<Song> newSongList = new ArrayList<>();
-                        newSongList.add(new flamenco.flamenco.Song(thisId, thisTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));
-                        folderList.add(new Folder(path, newSongList,
-                                new ArrayList<Folder>()));
+
+                    if (!hasBeenAdded) {
+                        folderList.add(new Folder(path+"/", new ArrayList<Song>(), new ArrayList<Folder>(), null));
+                        folderList.get(folderList.size()-1).addToSongList(new Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));
                     }
+
+
+//                    if (!pathFound) {
+//                        ArrayList<Song> newSongList = new ArrayList<>();
+//                        newSongList.add(new flamenco.flamenco.Song(thisId, thisTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));
+//                        folderList.add(new Folder(tempPath, newSongList,
+//                                new ArrayList<Folder>()));
+//                    }
 
                     if (albumList.size() == 0) {
                         albumList.add(new flamenco.flamenco.Song(thisId, thisTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:animateLayoutChanges="true"
+    android:background="#FFFFFF"
+    tools:context=".ListMusic" >
+
+    <LinearLayout
+        android:id="@+id/folderFocus"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:animateLayoutChanges="true"
+        android:orientation="vertical"
+        android:paddingTop="20dp"
+        android:visibility="invisible">
+
+        <GridView
+            android:id="@+id/f_folder_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:numColumns="2">
+
+        </GridView>
+
+        <ListView
+            android:id="@+id/f_song_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fastScrollEnabled="true"
+            android:visibility="visible"></ListView>
+
+        <LinearLayout
+            android:id="@+id/f_sideIndex"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#FFF"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <GridView
+        android:id="@+id/folder_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:numColumns="2">
+
+    </GridView>
+
+    <LinearLayout
+        android:id="@+id/sideIndex"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#FFF"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+    </LinearLayout>
+
+
+</RelativeLayout>
