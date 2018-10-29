@@ -95,15 +95,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         ActivityCompat.requestPermissions(ListMusic.this,
                 new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},1);
 
-        // Wait for list view fragments to populate
-        // TODO: Continue as soon as views are ready rather than waiting an arbitrary amount of time
-        try {
-            TimeUnit.MILLISECONDS.sleep(1000 );
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-
         imageLoader = ImageLoader.getInstance();
         shuffledList = new ArrayList<>();
         songList = new ArrayList<>();
@@ -120,12 +111,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         currTime = findViewById(R.id.currTime);
         handler = new Handler();
         audioController = findViewById(R.id.audioController);
-
-        // Instantiate parent fragments
-        final ViewPager viewPager = findViewById(R.id.pager);
-        final MainFragmentAdapter adapter = new MainFragmentAdapter(
-                getSupportFragmentManager(), 2);
-        viewPager.setAdapter(adapter);
 
         playBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -716,17 +701,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
 
                     String path = thisPath.substring(0, thisPath.lastIndexOf("/"));
-//                    for (int i =0; i<folderList.size();i++) {
-////                        String path = thisPath.substring(0, thisPath.lastIndexOf("/"));
-////                        while (path.indexOf('/') >= 0) {
-////                            if (folderList.get(i).getPath().equals(path)) {
-////                                pathFound = true;
-////                                folderList.get(i).addToSongList(new flamenco.flamenco.Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));
-////                                break;
-////                            }
-////                            path = path.substring(0, path.lastIndexOf('/'));
-////                        }
-////                    }
+
 
                     boolean hasBeenAdded = false;
                     for (int i=0; i<folderList.size(); i++) {
@@ -742,22 +717,27 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                     }
 
 
-//                    if (!pathFound) {
-//                        ArrayList<Song> newSongList = new ArrayList<>();
-//                        newSongList.add(new flamenco.flamenco.Song(thisId, thisTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));
-//                        folderList.add(new Folder(tempPath, newSongList,
-//                                new ArrayList<Folder>()));
-//                    }
-
                     if (albumList.size() == 0) {
                         albumList.add(new flamenco.flamenco.Song(thisId, thisTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));
                         artistList.add(new flamenco.flamenco.Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));
                     } else if (!albumList.get(albumList.size()-1).getTitle().equals(thisTitle)) {
                         albumList.get(albumList.size() -1).setAlbumSongList(albumSongList);
-                        albumList.add(new flamenco.flamenco.Song(thisId, thisTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));
-                        if (!artistList.get(artistList.size()-1).getArtist().equals(thisArtist)) {
-                            artistList.add(new flamenco.flamenco.Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));
+
+                        Song tempArtist = new Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString());
+                        boolean artistFound = false;
+                        for (int i=0;i<artistList.size();i++) {
+                            if (artistList.get(i) == tempArtist) {
+                                artistFound = true;
+                            }
                         }
+                        if (!artistFound) {
+                            artistList.add(tempArtist);
+                        }
+
+//                        albumList.add(new flamenco.flamenco.Song(thisId, thisTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));
+//                        if (!artistList.get(artistList.size()-1).getArtist().equals(thisArtist)) {
+//                            artistList.add(new flamenco.flamenco.Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));
+//                        }
                         albumSongList.clear();
                     }
                     albumSongList.add(new flamenco.flamenco.Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));
@@ -766,6 +746,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             }
             while (musicCursor.moveToNext());
         }
+
         try {
             albumList.get(albumList.size() - 1).setAlbumSongList(albumSongList);
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -791,6 +772,12 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                 return o1.getArtist().compareTo(o2.getArtist());
             }
         });
+
+        // Initiate UI after cataloguing songs
+        final ViewPager viewPager = findViewById(R.id.pager);
+        final MainFragmentAdapter adapter = new MainFragmentAdapter(
+                getSupportFragmentManager(), 2);
+        viewPager.setAdapter(adapter);
     }
 
 }

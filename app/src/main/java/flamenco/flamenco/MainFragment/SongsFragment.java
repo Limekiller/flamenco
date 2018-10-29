@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import flamenco.flamenco.ListMusic;
 import flamenco.flamenco.R;
@@ -21,6 +22,7 @@ public class SongsFragment extends Fragment{
     private ArrayList<Song> songList;
     private ListView songView;
     public ListMusic listMusic;
+    private boolean isReady = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
