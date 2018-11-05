@@ -62,6 +62,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     public ArrayList<flamenco.flamenco.Song> artistList;
     public ArrayList<flamenco.flamenco.Song> albumList;
     public ArrayList<flamenco.flamenco.Folder> folderList;
+    public ArrayList<Song> playList;
     public Folder lastFolder;
     private ArrayList<Song> shuffledList;
     private MusicService musicSrv;
@@ -101,6 +102,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         artistList = new ArrayList<>();
         albumList = new ArrayList<>();
         folderList = new ArrayList<>();
+        playList = new ArrayList<>();
         currSongArt = findViewById(R.id.currSongArt);
         currSongInfo = findViewById(R.id.currSongInfo);
         seekBar = findViewById(R.id.seekBar);
@@ -426,7 +428,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         for (flamenco.flamenco.Song dog : albumList) {
             if (dog.getArtist().equals(artistName)) {
                 tempAlbumList.add(dog);
-                break;
             }
         }
 
@@ -723,10 +724,10 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                     } else if (!albumList.get(albumList.size()-1).getTitle().equals(thisTitle)) {
                         albumList.get(albumList.size() -1).setAlbumSongList(albumSongList);
 
-                        Song tempArtist = new Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString());
+                        Song tempArtist = new Song(thisId, thisArtist, thisArtist, thisAlbumId, thisYear, albumArt.toString());
                         boolean artistFound = false;
                         for (int i=0;i<artistList.size();i++) {
-                            if (artistList.get(i) == tempArtist) {
+                            if (artistList.get(i).getArtist().equals(tempArtist.getArtist())) {
                                 artistFound = true;
                             }
                         }
@@ -734,10 +735,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                             artistList.add(tempArtist);
                         }
 
-//                        albumList.add(new flamenco.flamenco.Song(thisId, thisTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));
-//                        if (!artistList.get(artistList.size()-1).getArtist().equals(thisArtist)) {
-//                            artistList.add(new flamenco.flamenco.Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));
-//                        }
+                        albumList.add(new flamenco.flamenco.Song(thisId, thisTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));
                         albumSongList.clear();
                     }
                     albumSongList.add(new flamenco.flamenco.Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));

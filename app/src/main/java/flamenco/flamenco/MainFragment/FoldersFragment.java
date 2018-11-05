@@ -22,7 +22,7 @@ public class FoldersFragment extends Fragment {
 
     private ArrayList<Folder> folderList;
     private ArrayList<Song> songList;
-    private GridView folderView;
+    private ListView folderView;
     private Folder lastFolder;
     public ListMusic listMusic;
     private View view;

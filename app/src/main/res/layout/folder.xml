@@ -12,21 +12,21 @@
     <LinearLayout
         android:id="@+id/folderLayout"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_height="65dp"
         android:layout_marginBottom="10dp"
-        android:layout_weight="0.25"
-        android:orientation="vertical">
+        android:layout_weight="0.25">
 
         <ImageView
             android:id="@+id/album_art"
-            android:layout_width="144dp"
-            android:layout_height="145dp"
+            android:layout_width="66dp"
+            android:layout_height="match_parent"
             tools:srcCompat="@tools:sample/avatars[0]" />
 
         <TextView
             android:id="@+id/folder_path"
-            android:layout_width="144dp"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="10dp"
             android:textColor="#000000"
             android:textSize="14sp"
             android:textStyle="bold" />
