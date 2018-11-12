@@ -381,6 +381,32 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
     }
 
+    public void setPlaylistVisibility(View view) {
+        TextView title = view.findViewById(R.id.playlist_title);
+        ArrayList<flamenco.flamenco.Song> tempList;
+        String playlistTitle = (String)title.getText();
+        LinearLayout playlistParent = (LinearLayout) view.getParent().getParent().getParent();
+        ListView tempPlayList = playlistParent.findViewById(R.id.playlist_list);
+
+        tempList = playList.get(0).getAlbumSongList();
+        for (flamenco.flamenco.Song dog : playList) {
+            if (dog.getTitle().equals(playlistTitle)) {
+                tempList = dog.getAlbumSongList();
+                break;
+            }
+        }
+
+        animations.hideViewDown(playlistParent.findViewById(R.id.playlist_init), this);
+        playlistParent.findViewById(R.id.playlist_init).setVisibility(View.GONE);
+        tempPlayList.setTag(view.getTag());
+        playlistParent.findViewById(R.id.playlistFocus).setVisibility(View.VISIBLE);
+        animations.showViewDown((playlistParent.findViewById(R.id.playlistFocus)), this);
+
+        SongAdapter songAdt = new SongAdapter(playlistParent.getContext(), tempList, "song");
+        tempPlayList.setAdapter(songAdt);
+
+    }
+
     public void setFolderVisibility(View view) {
         ArrayList<Folder> tempFolderList = new ArrayList<>();
         ArrayList<Folder> tempSearchFolderList = new ArrayList<>();

@@ -27,8 +27,6 @@ public class Song {
         year=songYear;
         albumArt = songAlbumArt;
 
-        //Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
-        //albumArt = ContentUris.withAppendedId(sArtworkUri, albumId);
     }
 
     public void setAlbumSongList (ArrayList<Song> songList) {

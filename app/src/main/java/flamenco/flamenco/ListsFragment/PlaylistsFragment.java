@@ -13,11 +13,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.InputType;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import java.lang.reflect.Array;
@@ -35,6 +38,7 @@ import flamenco.flamenco.MainFragment.FoldersAdapter;
 import flamenco.flamenco.MainFragment.SongAdapter;
 import flamenco.flamenco.R;
 import flamenco.flamenco.Song;
+import flamenco.flamenco.animations;
 
 public class PlaylistsFragment extends Fragment{
 
@@ -46,14 +50,15 @@ public class PlaylistsFragment extends Fragment{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View view =  inflater.inflate(R.layout.playlistsfragment, container, false);
+        final View view =  inflater.inflate(R.layout.playlistsfragment, container, false);
         Button addNew = view.findViewById(R.id.addNew);
-        final ListView playListView = view.findViewById(R.id.playlist);
+        final ListView playListView = view.findViewById(R.id.playlist_list);
+        final LinearLayout playlistFocus = view.findViewById(R.id.playlistFocus);
 
         listMusic = (ListMusic) getActivity();
         playList = listMusic.playList;
 
-        final SongAdapter playAdt = new SongAdapter(getActivity(), playList, "song");
+        final SongAdapter playAdt = new SongAdapter(getActivity(), playList, "playlists");
         playListView.setAdapter(playAdt);
 
         addNew.setOnClickListener(new View.OnClickListener() {
@@ -77,12 +82,47 @@ public class PlaylistsFragment extends Fragment{
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         mString = input.getText().toString();
-                        playList.add(new Song(0, mString, null, 0, null, null));
-                        playAdt.notifyDataSetChanged();
+                        Song newPlaylist = new Song(0, mString, null, 0, null, null);
+                        newPlaylist.setAlbumSongList(new ArrayList<Song>());
+                        playList.add(newPlaylist);
+                        playListView.setAdapter(playAdt);
                     }
                 });
 
                 builder.show();
+            }
+        });
+
+        final GestureDetector gesture = new GestureDetector(getActivity(),
+                new GestureDetector.SimpleOnGestureListener() {
+
+                    @Override
+                    public boolean onDown(MotionEvent e) {
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+                                           float velocityY) {
+
+                        if (e1.getY() - e2.getY() > 0) {
+                            animations.hideViewUp(playlistFocus, view.getContext());
+                            playlistFocus.setVisibility(View.GONE);
+                            view.findViewById(R.id.playlist_init).setVisibility(View.VISIBLE);
+                            animations.showViewUp(view.findViewById(R.id.playlist_init),
+                                    view.getContext());
+                            playListView.setAdapter(playAdt);
+
+                        }
+
+                        return false;
+                    }
+                });
+
+        view.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return gesture.onTouchEvent(event);
             }
         });
 

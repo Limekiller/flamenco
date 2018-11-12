@@ -58,13 +58,32 @@ public class SongAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         //map to song layout
-        LinearLayout songLay = (LinearLayout) songInf.inflate
-                (R.layout.song, parent, false);
-        //get title and artist views
-        TextView songView = (TextView)songLay.findViewById(R.id.song_title);
-        TextView artistView = (TextView)songLay.findViewById(R.id.song_artist);
-        TextView yearView = songLay.findViewById(R.id.song_year);
-        ImageView artView = (ImageView)songLay.findViewById(R.id.song_art);
+        TextView songView;
+        TextView artistView;
+        TextView yearView;
+        ImageView artView;
+        LinearLayout songLay;
+
+        if (area.equals("playlists")) {
+            songLay = (LinearLayout) songInf.inflate
+                    (R.layout.playlist, parent, false);
+
+            //get title and artist views
+            songView = (TextView)songLay.findViewById(R.id.playlist_title);
+            artView = (ImageView)songLay.findViewById(R.id.playlist_art);
+            artistView = null;
+            yearView = null;
+        } else {
+            songLay = (LinearLayout) songInf.inflate
+                    (R.layout.song, parent, false);
+
+            //get title and artist views
+            songView = (TextView)songLay.findViewById(R.id.song_title);
+            artistView = (TextView)songLay.findViewById(R.id.song_artist);
+            yearView = songLay.findViewById(R.id.song_year);
+            artView = (ImageView)songLay.findViewById(R.id.song_art);
+        }
+
         //get song using position
         Song currSong = songs.get(position);
         //get title and artist strings
@@ -75,13 +94,14 @@ public class SongAdapter extends BaseAdapter {
             yearView.setText(currSong.getYear());
             Glide.with(context).load(currSong.getAlbumArt()).error(R.drawable.placeholder)
                     .crossFade().centerCrop().into(artView);
-        } else {
+        } else if (!area.equals("playlists")){
             artistView.setVisibility(View.GONE);
             yearView.setVisibility(View.GONE);
             artView.setVisibility(View.GONE);
         }
 
         //set position as tag
+
         songLay.setTag(position);
         return songLay;
     }
