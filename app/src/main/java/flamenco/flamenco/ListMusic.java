@@ -239,6 +239,10 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                 Bundle result = data.getBundleExtra("extra");
                 lastChosenPlaylist = (Song)result.getSerializable("playlist");
                 playList.set(lastPlaylistIndex, lastChosenPlaylist);
+                ListView lv = findViewById(R.id.specPlaylist);
+                SongAdapter songAdt = new SongAdapter(lv.getContext(), lastChosenPlaylist.getAlbumSongList(), "song");
+                lv.setAdapter(songAdt);
+
             }
         }
     }
@@ -300,7 +304,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             musicSrv.setList(songList);
         } else if (((ViewGroup)view.getParent()).getId() == R.id.f_song_list) {
             musicSrv.setList(lastFolder.getSongList());
-        } else {
+        } else if (((ViewGroup)view.getParent()).getId() == R.id.specPlaylist) {
             musicSrv.setList(playList.get(lastPlaylistIndex).getAlbumSongList());
         }
 

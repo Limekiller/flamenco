@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.net.sip.SipSession;
 import android.provider.SyncStateContract;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.content.ContentResolver;
 import android.database.Cursor;
@@ -22,6 +23,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -51,9 +53,9 @@ public class PlaylistsFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         final View view =  inflater.inflate(R.layout.playlistsfragment, container, false);
-        Button addNew = view.findViewById(R.id.addNew);
+        FloatingActionButton addNew = view.findViewById(R.id.addNew);
         final ListView playListView = view.findViewById(R.id.playlist_list);
-        final LinearLayout playlistFocus = view.findViewById(R.id.playlistFocus);
+        final RelativeLayout playlistFocus = view.findViewById(R.id.playlistFocus);
 
         listMusic = (ListMusic) getActivity();
         playList = listMusic.playList;
