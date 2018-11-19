@@ -29,9 +29,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginStart="20dp"
-        android:fillEnabled="true"
         android:animateLayoutChanges="true"
-        android:orientation="horizontal"
+        android:fillEnabled="true"
+        android:orientation="vertical"
         android:paddingTop="20dp"
         android:visibility="invisible">
 
@@ -39,6 +39,7 @@
             android:id="@+id/addNewSong"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:onClick="addSongToPlaylist"
             android:text="Button" />
 
         <ListView

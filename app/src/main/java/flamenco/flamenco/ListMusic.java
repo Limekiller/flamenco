@@ -34,6 +34,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.view.View;
 
+import flamenco.flamenco.ListsFragment.AddSongToPlaylist;
 import flamenco.flamenco.ListsFragment.QueueFragment;
 import flamenco.flamenco.MainFragment.AlbumAdapter;
 import flamenco.flamenco.MainFragment.FoldersAdapter;
@@ -45,15 +46,12 @@ import android.widget.MediaController.MediaPlayerControl;
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 
 public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
@@ -72,6 +70,9 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     private boolean musicBound=false;
     private boolean isShuffled = false;
 
+    private Song lastChosenPlaylist;
+    private int lastPlaylistIndex;
+
     private LinearLayout audioController;
     private ImageView currSongArt;
     private TextView currSongInfo;
@@ -82,7 +83,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     private ImageButton shuffBtn;
     private ImageButton ffBtn;
     private Handler handler;
-    private ImageLoader imageLoader;
 
     private boolean hasUpdated=false;
     private boolean paused=false, playbackPaused=false;
@@ -96,7 +96,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         ActivityCompat.requestPermissions(ListMusic.this,
                 new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},1);
 
-        imageLoader = ImageLoader.getInstance();
         shuffledList = new ArrayList<>();
         songList = new ArrayList<>();
         artistList = new ArrayList<>();
@@ -215,7 +214,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             public void onStartTrackingTouch(SeekBar seekBar) {
 
             }
-
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
 
@@ -232,6 +230,16 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             playIntent = new Intent(this, MusicService.class);
             bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
             startService(playIntent);
+        }
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 1) {
+            if (resultCode == RESULT_OK) {
+                Bundle result = data.getBundleExtra("extra");
+                lastChosenPlaylist = (Song)result.getSerializable("playlist");
+                playList.set(lastPlaylistIndex, lastChosenPlaylist);
+            }
         }
     }
 
@@ -273,8 +281,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     public void songPicked(View view){
 
         Integer pos;
-        //Integer oldPos = musicSrv.getSongPosn();
-
         // Check which list choice is coming from
         if (((ViewGroup)view.getParent()).getId() == R.id.a_song_list) {
             if (((ViewGroup)view.getParent().getParent().getParent()).getId() == R.id.artistView) {
@@ -294,6 +300,8 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             musicSrv.setList(songList);
         } else if (((ViewGroup)view.getParent()).getId() == R.id.f_song_list) {
             musicSrv.setList(lastFolder.getSongList());
+        } else {
+            musicSrv.setList(playList.get(lastPlaylistIndex).getAlbumSongList());
         }
 
         if (((ViewGroup)view.getParent()).getId() != R.id.queueList) {
@@ -386,11 +394,13 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         ArrayList<flamenco.flamenco.Song> tempList;
         String playlistTitle = (String)title.getText();
         LinearLayout playlistParent = (LinearLayout) view.getParent().getParent().getParent();
-        ListView tempPlayList = playlistParent.findViewById(R.id.playlist_list);
+        ListView tempPlayList = playlistParent.findViewById(R.id.specPlaylist);
 
         tempList = playList.get(0).getAlbumSongList();
         for (flamenco.flamenco.Song dog : playList) {
             if (dog.getTitle().equals(playlistTitle)) {
+                lastPlaylistIndex = playList.indexOf(dog);
+                lastChosenPlaylist = dog;
                 tempList = dog.getAlbumSongList();
                 break;
             }
@@ -409,10 +419,10 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
     public void setFolderVisibility(View view) {
         ArrayList<Folder> tempFolderList = new ArrayList<>();
-        ArrayList<Folder> tempSearchFolderList = new ArrayList<>();
+        ArrayList<Folder> tempSearchFolderList;
         ArrayList<Song> tempSongList = new ArrayList<>();
         String path = (String)((TextView)view.findViewById(R.id.folder_path)).getText();
-        View parentView = (View) view.getRootView();
+        View parentView = view.getRootView();
         GridView tempFolderView = parentView.findViewById(R.id.f_folder_list);
         ListView tempSongView = parentView.findViewById(R.id.f_song_list);
 
@@ -442,6 +452,17 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         SongAdapter songAdapter = new SongAdapter(view.getContext(), tempSongList, "song");
         tempSongView.setAdapter(songAdapter);
 
+    }
+
+    public void addSongToPlaylist(View view) {
+        Intent intent = new Intent(this, AddSongToPlaylist.class);
+
+        Bundle extra = new Bundle();
+        extra.putSerializable("songs", songList);
+        intent.putExtra("extra", extra);
+
+        intent.putExtra("extra2", lastChosenPlaylist);
+        startActivityForResult(intent,1);
     }
 
     // This method shows the albums belonging to an artist

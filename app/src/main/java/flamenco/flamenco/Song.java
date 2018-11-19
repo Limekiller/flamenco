@@ -5,9 +5,10 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Song {
+public class Song implements Serializable {
 
     private long id;
     //private Uri albumArt;
