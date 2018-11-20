@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical"
     android:animateLayoutChanges="true"
     android:background="#FFFFFF"
-    tools:context=".ListMusic" >
+    android:orientation="vertical"
+    tools:context=".ListMusic">
 
     <LinearLayout
         android:id="@+id/albumFocus"
@@ -15,6 +15,7 @@
         android:layout_height="match_parent"
         android:layout_marginStart="20dp"
         android:animateLayoutChanges="true"
+        android:background="@android:color/background_light"
         android:fillEnabled="true"
         android:orientation="horizontal"
         android:paddingTop="20dp"
@@ -67,14 +68,6 @@
 
     </LinearLayout>
 
-    <GridView
-        android:id="@+id/album_list"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:animateLayoutChanges="true"
-        android:numColumns="2"
-        android:visibility="visible" />
-
 
     <LinearLayout
         android:id="@+id/a_sideIndex"
@@ -85,5 +78,28 @@
         android:orientation="vertical">
 
     </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/album_list_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="-100dp">
+
+        <GridView
+            android:id="@+id/album_list"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:animateLayoutChanges="true"
+            android:background="@android:color/background_light"
+            android:numColumns="2"
+            android:paddingTop="100dp"
+            android:visibility="visible" />
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="100dp"
+            android:background="@drawable/drop_shadow"></View>
+    </RelativeLayout>
+
 
 </RelativeLayout>

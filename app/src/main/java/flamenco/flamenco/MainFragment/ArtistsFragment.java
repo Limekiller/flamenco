@@ -53,7 +53,7 @@ public class ArtistsFragment extends Fragment {
                         if (e1.getY() - e2.getY() > 0) {
 
                             if (view.findViewById(R.id.album_list).getAlpha() == 1f) {
-                                ObjectAnimator animation2 = ObjectAnimator.ofFloat(view.findViewById(R.id.album_list),
+                                ObjectAnimator animation2 = ObjectAnimator.ofFloat(view.findViewById(R.id.album_list_container),
                                         "translationY", 0, -height);
                                 animation2.setDuration(200);
                                 animation2.start();
@@ -66,7 +66,7 @@ public class ArtistsFragment extends Fragment {
                                 view.findViewById(R.id.artist_list).setAlpha(1f);
 
                             } else {
-                                ObjectAnimator animation = ObjectAnimator.ofFloat(view.findViewById(R.id.album_list),
+                                ObjectAnimator animation = ObjectAnimator.ofFloat(view.findViewById(R.id.album_list_container),
                                         "translationY", height, 0);
                                 animation.setDuration(200);
                                 animation.start();

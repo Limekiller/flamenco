@@ -372,7 +372,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         TextView title = view.findViewById(R.id.album_title);
         ArrayList<flamenco.flamenco.Song> tempList;
         String albumTitle = (String)title.getText();
-        RelativeLayout albumParent = (RelativeLayout) view.getParent().getParent();
+        RelativeLayout albumParent = (RelativeLayout) view.getParent().getParent().getParent();
         ListView tempAlbumList = albumParent.findViewById(R.id.a_song_list);
 
         tempList = albumList.get(0).getAlbumSongList();
@@ -390,18 +390,18 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                 .into((ImageView) albumParent.findViewById(R.id.albumFocusImage));
 
 
-        ObjectAnimator animation = ObjectAnimator.ofFloat(albumParent.findViewById(R.id.album_list),
+        ObjectAnimator animation = ObjectAnimator.ofFloat(albumParent.findViewById(R.id.album_list_container),
                 "translationY", 0, deviceHeight);
-        animation.setDuration(225);
-        animation.setStartDelay(50);
+        animation.setDuration(300);
+        animation.setStartDelay(75);
         animation.start();
         albumParent.findViewById(R.id.album_list).setAlpha(0.99f);
 
         tempAlbumList.setTag(view.getTag());
         animation = ObjectAnimator.ofFloat(albumParent.findViewById(R.id.albumFocus),
-                "translationY", -deviceHeight, 0);
+                "translationY", -70, 0);
         animation.setDuration(225);
-        animation.setStartDelay(50);
+        animation.setStartDelay(75);
         animation.start();
         albumParent.findViewById(R.id.albumFocus).setAlpha(1f);
 
@@ -511,7 +511,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         animation.start();
         parentView.findViewById(R.id.artist_list).setAlpha(0.99f);
 
-        animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.album_list),
+        animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.album_list_container),
                 "translationY", -deviceHeight, 0);
         animation.setDuration(200);
         animation.start();

@@ -64,11 +64,27 @@
 
     </LinearLayout>
 
-    <GridView
-        android:id="@+id/album_list"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:id="@+id/album_list_container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:numColumns="2" />
+        android:layout_marginTop="-100dp">
+
+        <GridView
+            android:id="@+id/album_list"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:animateLayoutChanges="true"
+            android:background="@android:color/background_light"
+            android:numColumns="2"
+            android:paddingTop="100dp"
+            android:visibility="visible" />
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="100dp"
+            android:background="@drawable/drop_shadow"></View>
+    </RelativeLayout>
 
     <GridView
         android:id="@+id/artist_list"

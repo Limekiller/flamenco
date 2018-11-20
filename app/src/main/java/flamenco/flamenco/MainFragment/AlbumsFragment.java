@@ -57,7 +57,7 @@ public class AlbumsFragment extends Fragment {
 
                             //animations.hideViewUp(albumFocus, view.getContext());
                             ObjectAnimator animation = ObjectAnimator.ofFloat(albumFocus,
-                                    "translationY", 0, -height);
+                                    "translationY", 0, -70);
                             animation.setDuration(225);
                             animation.start();
                             //albumFocus.setVisibility(View.GONE);
@@ -65,9 +65,9 @@ public class AlbumsFragment extends Fragment {
                             //view.findViewById(R.id.album_list).setVisibility(View.VISIBLE);
                             //animations.showViewUp(view.findViewById(R.id.album_list),
                                     //view.getContext());
-                            animation = ObjectAnimator.ofFloat(view.findViewById(R.id.album_list),
+                            animation = ObjectAnimator.ofFloat(view.findViewById(R.id.album_list_container),
                                     "translationY", height, 0);
-                            animation.setDuration(225);
+                            animation.setDuration(300);
                             animation.start();
                         }
 
