@@ -53,28 +53,28 @@ public class ArtistsFragment extends Fragment {
                         if (e1.getY() - e2.getY() > 0) {
 
                             if (view.findViewById(R.id.album_list).getAlpha() == 1f) {
-                                ObjectAnimator animation2 = ObjectAnimator.ofFloat(view.findViewById(R.id.album_list_container),
-                                        "translationY", 0, -height);
-                                animation2.setDuration(200);
+                                ObjectAnimator animation2 = ObjectAnimator.ofFloat(view.findViewById(R.id.album_list),
+                                        "translationY", 0, -70);
+                                animation2.setDuration(225);
                                 animation2.start();
                                 view.findViewById(R.id.album_list).setAlpha(0.99f);
 
                                 animation2 = ObjectAnimator.ofFloat(view.findViewById(R.id.artist_list),
                                         "translationY", height, 0);
-                                animation2.setDuration(200);
+                                animation2.setDuration(300);
                                 animation2.start();
                                 view.findViewById(R.id.artist_list).setAlpha(1f);
 
                             } else {
-                                ObjectAnimator animation = ObjectAnimator.ofFloat(view.findViewById(R.id.album_list_container),
+                                ObjectAnimator animation = ObjectAnimator.ofFloat(view.findViewById(R.id.album_list),
                                         "translationY", height, 0);
-                                animation.setDuration(200);
+                                animation.setDuration(300);
                                 animation.start();
                                 view.findViewById(R.id.album_list).setAlpha(1f);
 
                                 animation = ObjectAnimator.ofFloat(view.findViewById(R.id.albumFocus),
-                                        "translationY", 0, -height);
-                                animation.setDuration(200);
+                                        "translationY", 0, -70);
+                                animation.setDuration(300);
                                 animation.start();
                                 view.findViewById(R.id.albumFocus).setAlpha(0.99f);
                             }
@@ -83,13 +83,13 @@ public class ArtistsFragment extends Fragment {
                             if (view.findViewById(R.id.album_list).getAlpha() != 1f) {
                                 ObjectAnimator animation = ObjectAnimator.ofFloat(view.findViewById(R.id.artist_list),
                                         "translationY", -height, 0);
-                                animation.setDuration(200);
+                                animation.setDuration(300);
                                 animation.start();
                                 view.findViewById(R.id.artist_list).setAlpha(1f);
 
                                 animation = ObjectAnimator.ofFloat(view.findViewById(R.id.albumFocus),
                                         "translationY", 0, height);
-                                animation.setDuration(200);
+                                animation.setDuration(300);
                                 animation.start();
                                 view.findViewById(R.id.albumFocus).setAlpha(0.99f);
                             }

@@ -372,7 +372,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         TextView title = view.findViewById(R.id.album_title);
         ArrayList<flamenco.flamenco.Song> tempList;
         String albumTitle = (String)title.getText();
-        RelativeLayout albumParent = (RelativeLayout) view.getParent().getParent().getParent();
+        RelativeLayout albumParent = (RelativeLayout) view.getParent().getParent();
         ListView tempAlbumList = albumParent.findViewById(R.id.a_song_list);
 
         tempList = albumList.get(0).getAlbumSongList();
@@ -390,7 +390,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                 .into((ImageView) albumParent.findViewById(R.id.albumFocusImage));
 
 
-        ObjectAnimator animation = ObjectAnimator.ofFloat(albumParent.findViewById(R.id.album_list_container),
+        ObjectAnimator animation = ObjectAnimator.ofFloat(albumParent.findViewById(R.id.album_list),
                 "translationY", 0, deviceHeight);
         animation.setDuration(300);
         animation.setStartDelay(75);
@@ -507,13 +507,13 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
         ObjectAnimator animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.artist_list),
                 "translationY", 0, deviceHeight);
-        animation.setDuration(200);
+        animation.setDuration(300);
         animation.start();
         parentView.findViewById(R.id.artist_list).setAlpha(0.99f);
 
-        animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.album_list_container),
-                "translationY", -deviceHeight, 0);
-        animation.setDuration(200);
+        animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.album_list),
+                "translationY", -70, 0);
+        animation.setDuration(225);
         animation.start();
         parentView.findViewById(R.id.album_list).setAlpha(1f);
 

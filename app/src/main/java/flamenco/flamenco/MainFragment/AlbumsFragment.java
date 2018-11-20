@@ -65,7 +65,7 @@ public class AlbumsFragment extends Fragment {
                             //view.findViewById(R.id.album_list).setVisibility(View.VISIBLE);
                             //animations.showViewUp(view.findViewById(R.id.album_list),
                                     //view.getContext());
-                            animation = ObjectAnimator.ofFloat(view.findViewById(R.id.album_list_container),
+                            animation = ObjectAnimator.ofFloat(view.findViewById(R.id.album_list),
                                     "translationY", height, 0);
                             animation.setDuration(300);
                             animation.start();
