@@ -1,5 +1,6 @@
 package flamenco.flamenco.ListsFragment;
 
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -14,6 +15,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.InputType;
+import android.util.DisplayMetrics;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -55,7 +57,6 @@ public class PlaylistsFragment extends Fragment{
         final View view =  inflater.inflate(R.layout.playlistsfragment, container, false);
         FloatingActionButton addNew = view.findViewById(R.id.addNew);
         final ListView playListView = view.findViewById(R.id.playlist_list);
-        final RelativeLayout playlistFocus = view.findViewById(R.id.playlistFocus);
 
         listMusic = (ListMusic) getActivity();
         playList = listMusic.playList;
@@ -108,11 +109,23 @@ public class PlaylistsFragment extends Fragment{
                                            float velocityY) {
 
                         if (e1.getY() - e2.getY() > 0) {
-                            animations.hideViewUp(playlistFocus, view.getContext());
-                            playlistFocus.setVisibility(View.GONE);
-                            view.findViewById(R.id.playlist_init).setVisibility(View.VISIBLE);
-                            animations.showViewUp(view.findViewById(R.id.playlist_init),
-                                    view.getContext());
+                            DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+                            float height = displayMetrics.heightPixels;
+
+                            //animations.hideViewUp(playlistFocus, view.getContext());
+                            ObjectAnimator animation = ObjectAnimator.ofFloat(view.findViewById(R.id.playlistFocus),
+                                    "translationY", 0, -height);
+                            animation.setDuration(200);
+                            animation.start();
+
+                            //view.findViewById(R.id.playlist_init).setVisibility(View.VISIBLE);
+                            animation = ObjectAnimator.ofFloat(view.findViewById(R.id.playlist_init),
+                                    "translationY", height, 0);
+                            animation.setDuration(200);
+                            animation.start();
+                            //playlistFocus.setVisibility(View.GONE);
+                            //animations.showViewUp(view.findViewById(R.id.playlist_init),
+                                    //view.getContext());
                             playListView.setAdapter(playAdt);
 
                         }

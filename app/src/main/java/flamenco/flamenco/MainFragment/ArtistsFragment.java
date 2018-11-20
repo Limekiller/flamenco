@@ -1,7 +1,10 @@
 package flamenco.flamenco.MainFragment;
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.DisplayMetrics;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -45,31 +48,50 @@ public class ArtistsFragment extends Fragment {
                     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
                                            float velocityY) {
 
+                        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+                        float height = displayMetrics.heightPixels;
                         if (e1.getY() - e2.getY() > 0) {
 
-                            if (view.findViewById(R.id.album_list).getVisibility() == View.VISIBLE) {
-                                animations.hideViewUp(view.findViewById(R.id.album_list),
-                                        view.getContext());
-                                view.findViewById(R.id.album_list).setVisibility(View.GONE);
-                                view.findViewById(R.id.artist_list).setVisibility(View.VISIBLE);
-                                animations.showViewUp(view.findViewById(R.id.artist_list), view.getContext());
+                            if (view.findViewById(R.id.album_list).getAlpha() == 1f) {
+                                ObjectAnimator animation2 = ObjectAnimator.ofFloat(view.findViewById(R.id.album_list),
+                                        "translationY", 0, -height);
+                                animation2.setDuration(200);
+                                animation2.start();
+                                view.findViewById(R.id.album_list).setAlpha(0.99f);
+
+                                animation2 = ObjectAnimator.ofFloat(view.findViewById(R.id.artist_list),
+                                        "translationY", height, 0);
+                                animation2.setDuration(200);
+                                animation2.start();
+                                view.findViewById(R.id.artist_list).setAlpha(1f);
 
                             } else {
-                                view.findViewById(R.id.album_list).setVisibility(View.VISIBLE);
-                                animations.showViewUp(view.findViewById(R.id.album_list), view.getContext());
-                                view.findViewById(R.id.album_list).setVisibility(View.VISIBLE);
-                                animations.hideViewUp(view.findViewById(R.id.albumFocus),
-                                        view.getContext());
-                                view.findViewById(R.id.albumFocus).setVisibility(View.GONE);
+                                ObjectAnimator animation = ObjectAnimator.ofFloat(view.findViewById(R.id.album_list),
+                                        "translationY", height, 0);
+                                animation.setDuration(200);
+                                animation.start();
+                                view.findViewById(R.id.album_list).setAlpha(1f);
+
+                                animation = ObjectAnimator.ofFloat(view.findViewById(R.id.albumFocus),
+                                        "translationY", 0, -height);
+                                animation.setDuration(200);
+                                animation.start();
+                                view.findViewById(R.id.albumFocus).setAlpha(0.99f);
                             }
 
                         } else {
-                            if (view.findViewById(R.id.album_list).getVisibility() != View.VISIBLE) {
-                                view.findViewById(R.id.artist_list).setVisibility(View.VISIBLE);
-                                animations.showViewDown(view.findViewById(R.id.artist_list), view.getContext());
-                                animations.hideViewDown(view.findViewById(R.id.albumFocus),
-                                        view.getContext());
-                                view.findViewById(R.id.albumFocus).setVisibility(View.GONE);
+                            if (view.findViewById(R.id.album_list).getAlpha() != 1f) {
+                                ObjectAnimator animation = ObjectAnimator.ofFloat(view.findViewById(R.id.artist_list),
+                                        "translationY", -height, 0);
+                                animation.setDuration(200);
+                                animation.start();
+                                view.findViewById(R.id.artist_list).setAlpha(1f);
+
+                                animation = ObjectAnimator.ofFloat(view.findViewById(R.id.albumFocus),
+                                        "translationY", 0, height);
+                                animation.setDuration(200);
+                                animation.start();
+                                view.findViewById(R.id.albumFocus).setAlpha(0.99f);
                             }
                         }
                         return false;

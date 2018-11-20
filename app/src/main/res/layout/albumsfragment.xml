@@ -14,11 +14,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginStart="20dp"
-        android:fillEnabled="true"
         android:animateLayoutChanges="true"
+        android:fillEnabled="true"
         android:orientation="horizontal"
         android:paddingTop="20dp"
-        android:visibility="invisible">
+        android:visibility="visible">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -49,9 +49,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
-            android:fillEnabled="true"
             android:layout_weight="1"
             android:fastScrollEnabled="true"
+            android:fillEnabled="true"
             android:paddingLeft="-50dp"
             android:visibility="visible"></ListView>
 

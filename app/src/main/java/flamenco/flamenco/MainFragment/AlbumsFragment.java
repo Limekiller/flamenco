@@ -1,7 +1,9 @@
 package flamenco.flamenco.MainFragment;
 
+import android.animation.ObjectAnimator;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.DisplayMetrics;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -50,11 +52,23 @@ public class AlbumsFragment extends Fragment {
                                            float velocityY) {
 
                         if (e1.getY() - e2.getY() > 0) {
-                            animations.hideViewUp(albumFocus, view.getContext());
-                            albumFocus.setVisibility(View.GONE);
-                            view.findViewById(R.id.album_list).setVisibility(View.VISIBLE);
-                            animations.showViewUp(view.findViewById(R.id.album_list),
-                                    view.getContext());
+                            DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+                            float height = displayMetrics.heightPixels;
+
+                            //animations.hideViewUp(albumFocus, view.getContext());
+                            ObjectAnimator animation = ObjectAnimator.ofFloat(albumFocus,
+                                    "translationY", 0, -height);
+                            animation.setDuration(225);
+                            animation.start();
+                            //albumFocus.setVisibility(View.GONE);
+
+                            //view.findViewById(R.id.album_list).setVisibility(View.VISIBLE);
+                            //animations.showViewUp(view.findViewById(R.id.album_list),
+                                    //view.getContext());
+                            animation = ObjectAnimator.ofFloat(view.findViewById(R.id.album_list),
+                                    "translationY", height, 0);
+                            animation.setDuration(225);
+                            animation.start();
                         }
 
                         return false;

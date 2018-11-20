@@ -17,15 +17,13 @@
         android:animateLayoutChanges="true"
         android:baselineAligned="false"
         android:orientation="horizontal"
-        android:paddingTop="20dp"
-        android:visibility="visible">
+        android:paddingTop="20dp">
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
-            android:orientation="vertical"
-            android:visibility="visible">
+            android:orientation="vertical">
 
             <ImageView
                 android:id="@+id/albumFocusImage"
@@ -52,8 +50,7 @@
             android:layout_marginStart="20dp"
             android:layout_weight="1"
             android:fastScrollEnabled="true"
-            android:paddingLeft="-50dp"
-            android:visibility="visible"></ListView>
+            android:paddingLeft="-50dp"></ListView>
 
         <LinearLayout
             android:id="@+id/sideIndex"
@@ -78,8 +75,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:animateLayoutChanges="true"
-        android:numColumns="2"
-        android:visibility="visible" />
+        android:numColumns="2" />
 
 
     <LinearLayout

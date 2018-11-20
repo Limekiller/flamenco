@@ -1,7 +1,9 @@
 package flamenco.flamenco;
 
 import android.Manifest;
+import android.animation.Animator;
 import android.animation.LayoutTransition;
+import android.animation.ObjectAnimator;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.SharedPreferences;
@@ -16,7 +18,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -83,6 +87,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     private ImageButton shuffBtn;
     private ImageButton ffBtn;
     private Handler handler;
+    private float deviceHeight;
 
     private boolean hasUpdated=false;
     private boolean paused=false, playbackPaused=false;
@@ -227,6 +232,8 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     protected void onStart() {
         super.onStart();
         if(playIntent==null){
+            DisplayMetrics displayMetrics = getApplicationContext().getResources().getDisplayMetrics();
+            deviceHeight = displayMetrics.heightPixels;
             playIntent = new Intent(this, MusicService.class);
             bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
             startService(playIntent);
@@ -382,11 +389,22 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                 .error(R.drawable.placeholder).crossFade().centerCrop()
                 .into((ImageView) albumParent.findViewById(R.id.albumFocusImage));
 
-        animations.hideViewDown(albumParent.findViewById(R.id.album_list), this);
-        albumParent.findViewById(R.id.album_list).setVisibility(View.GONE);
+
+        ObjectAnimator animation = ObjectAnimator.ofFloat(albumParent.findViewById(R.id.album_list),
+                "translationY", 0, deviceHeight);
+        animation.setDuration(225);
+        animation.setStartDelay(50);
+        animation.start();
+        albumParent.findViewById(R.id.album_list).setAlpha(0.99f);
+
         tempAlbumList.setTag(view.getTag());
-        albumParent.findViewById(R.id.albumFocus).setVisibility(View.VISIBLE);
-        animations.showViewDown((albumParent.findViewById(R.id.albumFocus)), this);
+        animation = ObjectAnimator.ofFloat(albumParent.findViewById(R.id.albumFocus),
+                "translationY", -deviceHeight, 0);
+        animation.setDuration(225);
+        animation.setStartDelay(50);
+        animation.start();
+        albumParent.findViewById(R.id.albumFocus).setAlpha(1f);
+
 
         SongAdapter songAdt = new SongAdapter(albumParent.getContext(), tempList, "album");
         tempAlbumList.setAdapter(songAdt);
@@ -397,7 +415,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         TextView title = view.findViewById(R.id.playlist_title);
         ArrayList<flamenco.flamenco.Song> tempList;
         String playlistTitle = (String)title.getText();
-        LinearLayout playlistParent = (LinearLayout) view.getParent().getParent().getParent();
+        RelativeLayout playlistParent = (RelativeLayout) view.getParent().getParent().getParent();
         ListView tempPlayList = playlistParent.findViewById(R.id.specPlaylist);
 
         tempList = playList.get(0).getAlbumSongList();
@@ -410,11 +428,16 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             }
         }
 
-        animations.hideViewDown(playlistParent.findViewById(R.id.playlist_init), this);
-        playlistParent.findViewById(R.id.playlist_init).setVisibility(View.GONE);
-        tempPlayList.setTag(view.getTag());
-        playlistParent.findViewById(R.id.playlistFocus).setVisibility(View.VISIBLE);
-        animations.showViewDown((playlistParent.findViewById(R.id.playlistFocus)), this);
+        ObjectAnimator animation = ObjectAnimator.ofFloat(playlistParent.findViewById(R.id.playlist_init),
+                "translationY", 0, deviceHeight);
+        animation.setDuration(225);
+        animation.start();
+
+        animation = ObjectAnimator.ofFloat(playlistParent.findViewById(R.id.playlistFocus),
+                "translationY", -deviceHeight, 0);
+        animation.setDuration(225);
+        animation.start();
+
 
         SongAdapter songAdt = new SongAdapter(playlistParent.getContext(), tempList, "song");
         tempPlayList.setAdapter(songAdt);
@@ -474,7 +497,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         ArrayList<flamenco.flamenco.Song> tempAlbumList = new ArrayList<>();
         TextView title = view.findViewById(R.id.album_artist);
         String artistName = (String) title.getText();
-        View parentView = (View) view.getParent().getParent();
+        final View parentView = (View) view.getParent().getParent();
 
         for (flamenco.flamenco.Song dog : albumList) {
             if (dog.getArtist().equals(artistName)) {
@@ -482,12 +505,19 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             }
         }
 
-        animations.hideViewDown(parentView.findViewById(R.id.artist_list), this);
-        parentView.findViewById(R.id.artist_list).setVisibility(View.GONE);
-        parentView.findViewById(R.id.album_list).setVisibility(View.VISIBLE);
-        animations.showViewDown(parentView.findViewById(R.id.album_list), this);
-        GridView albumView = parentView.findViewById(R.id.album_list);
+        ObjectAnimator animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.artist_list),
+                "translationY", 0, deviceHeight);
+        animation.setDuration(200);
+        animation.start();
+        parentView.findViewById(R.id.artist_list).setAlpha(0.99f);
 
+        animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.album_list),
+                "translationY", -deviceHeight, 0);
+        animation.setDuration(200);
+        animation.start();
+        parentView.findViewById(R.id.album_list).setAlpha(1f);
+
+        GridView albumView = parentView.findViewById(R.id.album_list);
         AlbumAdapter songAdt = new AlbumAdapter(view.getContext(), tempAlbumList, "albums");
         albumView.setAdapter(songAdt);
     }

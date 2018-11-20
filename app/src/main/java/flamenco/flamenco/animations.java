@@ -10,7 +10,7 @@ public class animations {
     public static void hideViewDown(final View view, Context context) {
         Animation animation = AnimationUtils.loadAnimation(context, R.anim.slide_out_down);
         animation.setFillEnabled(false);
-        animation.setDuration(250);
+        animation.setDuration(100);
         animation.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
@@ -31,7 +31,7 @@ public class animations {
 
     public static void showViewDown(final View view, Context context) {
         Animation animation = AnimationUtils.loadAnimation(context, R.anim.slide_in_down);
-        animation.setDuration(250);
+        animation.setDuration(100);
         animation.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
@@ -55,7 +55,7 @@ public class animations {
     public static void hideViewUp(final View view, Context context) {
         Animation animation = AnimationUtils.loadAnimation(context, R.anim.slide_out_up);
         animation.setFillEnabled(false);
-        animation.setDuration(250);
+        animation.setDuration(100);
         animation.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
@@ -76,7 +76,7 @@ public class animations {
 
     public static void showViewUp(final View view, Context context) {
         Animation animation = AnimationUtils.loadAnimation(context, R.anim.slide_in_up);
-        animation.setDuration(250);
+        animation.setDuration(100);
         animation.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
