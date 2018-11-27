@@ -16,16 +16,22 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.InputType;
 import android.util.DisplayMetrics;
+import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -63,6 +69,8 @@ public class PlaylistsFragment extends Fragment{
 
         final SongAdapter playAdt = new SongAdapter(getActivity(), playList, "playlists");
         playListView.setAdapter(playAdt);
+        registerForContextMenu(playListView);
+        registerForContextMenu(view.findViewById(R.id.specPlaylist));
 
         addNew.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,6 +104,7 @@ public class PlaylistsFragment extends Fragment{
             }
         });
 
+
         final GestureDetector gesture = new GestureDetector(getActivity(),
                 new GestureDetector.SimpleOnGestureListener() {
 
@@ -112,21 +121,18 @@ public class PlaylistsFragment extends Fragment{
                             DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
                             float height = displayMetrics.heightPixels;
 
-                            //animations.hideViewUp(playlistFocus, view.getContext());
                             ObjectAnimator animation = ObjectAnimator.ofFloat(view.findViewById(R.id.playlistFocus),
-                                    "translationY", 0, -height);
-                            animation.setDuration(200);
+                                    "translationY", 0, -70);
+                            animation.setDuration(225);
                             animation.start();
 
-                            //view.findViewById(R.id.playlist_init).setVisibility(View.VISIBLE);
                             animation = ObjectAnimator.ofFloat(view.findViewById(R.id.playlist_init),
                                     "translationY", height, 0);
-                            animation.setDuration(200);
+                            animation.setDuration(300);
                             animation.start();
-                            //playlistFocus.setVisibility(View.GONE);
-                            //animations.showViewUp(view.findViewById(R.id.playlist_init),
-                                    //view.getContext());
+
                             playListView.setAdapter(playAdt);
+                            listMusic.savePlaylistList();
 
                         }
 
@@ -142,6 +148,44 @@ public class PlaylistsFragment extends Fragment{
         });
 
         return  view;
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+                                    ContextMenu.ContextMenuInfo menuInfo) {
+
+        if (v == v.getRootView().findViewById(R.id.specPlaylist)) {
+            getActivity().getMenuInflater().inflate(R.menu.menu_main, menu);
+        } else {
+            getActivity().getMenuInflater().inflate(R.menu.menu_secondary, menu);
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item){
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        int listPos = info.position;
+        if(item.getItemId()==R.id.Delete){
+            playList.remove(listPos);
+            final ListView playListView = this.getView().findViewById(R.id.playlist_list);
+            final SongAdapter playAdt = new SongAdapter(getActivity(), playList, "playlists");
+            playListView.setAdapter(playAdt);
+            listMusic.playList = playList;
+            listMusic.savePlaylistList();
+
+        } else if (item.getItemId()==R.id.Remove) {
+            playList.get(listMusic.lastPlaylistIndex).getAlbumSongList().remove(listPos);
+            final ListView playListView = this.getView().findViewById(R.id.specPlaylist);
+            final SongAdapter playAdt = new SongAdapter(getActivity(), playList.get(listMusic.lastPlaylistIndex).getAlbumSongList(), "song");
+            playListView.setAdapter(playAdt);
+
+        } else {
+            return false;
+        }
+
+        listMusic.playList = playList;
+        listMusic.savePlaylistList();
+        return true;
     }
 
 }

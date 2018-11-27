@@ -1,7 +1,9 @@
 package flamenco.flamenco.MainFragment;
 
+import android.animation.ObjectAnimator;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.DisplayMetrics;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -53,17 +55,27 @@ public class FoldersFragment extends Fragment {
                     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
                                            float velocityY) {
 
+                        DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
+                        float deviceHeight = displayMetrics.heightPixels;
                         if (e1.getY() - e2.getY() > 0) {
 
                             lastFolder = listMusic.lastFolder;
                             listMusic.lastFolder = lastFolder.getParentFolder();
 
                             if (lastFolder.getParentFolder() == null) {
-                                animations.hideViewUp(folderFocus, view.getContext());
-                                folderFocus.setVisibility(View.GONE);
-                                view.findViewById(R.id.folder_list).setVisibility(View.VISIBLE);
-                                animations.showViewUp(view.findViewById(R.id.folder_list),
-                                        view.getContext());
+
+                                ObjectAnimator animation = ObjectAnimator.ofFloat(folderFocus,
+                                        "translationY", 0, -70);
+                                animation.setDuration(300);
+                                animation.setStartDelay(75);
+                                animation.start();
+
+                                animation = ObjectAnimator.ofFloat(view.findViewById(R.id.folder_list),
+                                        "translationY", deviceHeight, 0);
+                                animation.setDuration(225);
+                                animation.setStartDelay(75);
+                                animation.start();
+
                             } else {
                                 FoldersAdapter foldersAdapter = new FoldersAdapter(view.getContext(), listMusic.lastFolder.getFolderList());
                                 ((GridView)view.findViewById(R.id.f_folder_list)).setAdapter(foldersAdapter);
@@ -71,8 +83,11 @@ public class FoldersFragment extends Fragment {
                                 SongAdapter songAdapter = new SongAdapter(view.getContext(), listMusic.lastFolder.getSongList(), "song");
                                 ((ListView)view.findViewById(R.id.f_song_list)).setAdapter(songAdapter);
 
-                                animations.showViewUp(view.findViewById(R.id.folderFocus),
-                                        view.getContext());
+                                ObjectAnimator animation = ObjectAnimator.ofFloat(view.findViewById(R.id.folderFocus),
+                                        "translationY", deviceHeight, 0);
+                                animation.setDuration(300);
+                                animation.setStartDelay(75);
+                                animation.start();
                             }
                         }
 

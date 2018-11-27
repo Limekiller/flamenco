@@ -20,14 +20,17 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import flamenco.flamenco.ListMusic;
 
+import static android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT;
+
 public class MusicService extends Service implements
         MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
-        MediaPlayer.OnCompletionListener {
+        MediaPlayer.OnCompletionListener, AudioManager.OnAudioFocusChangeListener {
 
     private MediaPlayer player;
     private ArrayList<Song> songs;
     private int songPosn;
     private final IBinder musicBind = new MusicBinder();
+    private AudioManager audioManager;
 
 
     public MusicService() {
@@ -61,6 +64,43 @@ public class MusicService extends Service implements
         songs=theSongs;
     }
 
+    @Override
+    public void onAudioFocusChange(int focusState) {
+        switch (focusState) {
+            case AudioManager.AUDIOFOCUS_GAIN:
+                if (player == null) initMusicPlayer();
+                else if (!player.isPlaying()) player.start();
+                player.setVolume(1.0f, 1.0f);
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS:
+                if (player.isPlaying()) player.pause();
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+
+                if (player.isPlaying()) player.pause();
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                if (player.isPlaying()) player.setVolume(0.1f, 0.1f);
+                break;
+        }
+    }
+
+    private boolean requestAudioFocus() {
+        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+        if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+            //Focus gained
+            return true;
+        }
+        //Could not gain focus
+        return false;
+    }
+
+    private boolean removeAudioFocus() {
+        return AudioManager.AUDIOFOCUS_REQUEST_GRANTED ==
+                audioManager.abandonAudioFocus(this);
+    }
+
 
     public class MusicBinder extends Binder {
         MusicService getService() {
@@ -70,21 +110,23 @@ public class MusicService extends Service implements
 
 
     public void playSong(){
-        player.reset();
 
-        Song playSong = songs.get(songPosn);
-        long currSong = playSong.getID();
-        Uri trackUri = ContentUris.withAppendedId(
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                currSong);
+        if (requestAudioFocus()) {
+            player.reset();
 
-        try {
-            player.setDataSource(getApplicationContext(), trackUri);
+            Song playSong = songs.get(songPosn);
+            long currSong = playSong.getID();
+            Uri trackUri = ContentUris.withAppendedId(
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                    currSong);
+
+            try {
+                player.setDataSource(getApplicationContext(), trackUri);
+            } catch (Exception e) {
+                Log.e("MUSIC SERVICE", "Error setting data source", e);
+            }
+            player.prepareAsync();
         }
-        catch (Exception e) {
-            Log.e("MUSIC SERVICE", "Error setting data source", e);
-        }
-        player.prepareAsync();
     }
 
 
@@ -148,7 +190,11 @@ public class MusicService extends Service implements
 
 
     public boolean isPng(){
-        return player.isPlaying();
+        try {
+            return player.isPlaying();
+        } catch (NullPointerException e) {
+            return false;
+        }
     }
 
 

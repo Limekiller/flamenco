@@ -75,7 +75,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     private boolean isShuffled = false;
 
     private Song lastChosenPlaylist;
-    private int lastPlaylistIndex;
+    public int lastPlaylistIndex;
 
     private LinearLayout audioController;
     private ImageView currSongArt;
@@ -106,7 +106,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         artistList = new ArrayList<>();
         albumList = new ArrayList<>();
         folderList = new ArrayList<>();
-        playList = new ArrayList<>();
         currSongArt = findViewById(R.id.currSongArt);
         currSongInfo = findViewById(R.id.currSongInfo);
         seekBar = findViewById(R.id.seekBar);
@@ -117,6 +116,19 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         currTime = findViewById(R.id.currTime);
         handler = new Handler();
         audioController = findViewById(R.id.audioController);
+
+        Gson gson = new Gson();
+        String json = gson.toJson(shuffledList);
+
+        Type type = new TypeToken<ArrayList<Song>>() {
+        }.getType();
+        playList = gson.fromJson(json, type);
+        String response = prefs.getString("playList", "");
+        playList = gson.fromJson(response, new TypeToken<ArrayList<Song>>() {
+        }.getType());
+        if (playList == null) {
+            playList = new ArrayList<>();
+        }
 
         playBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -249,6 +261,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                 ListView lv = findViewById(R.id.specPlaylist);
                 SongAdapter songAdt = new SongAdapter(lv.getContext(), lastChosenPlaylist.getAlbumSongList(), "song");
                 lv.setAdapter(songAdt);
+                savePlaylistList();
 
             }
         }
@@ -352,6 +365,15 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     }
 
 
+    public void savePlaylistList() {
+        Gson gson = new Gson();
+        String json = gson.toJson(playList);
+
+        prefsEditor.remove("playList").apply();
+        prefsEditor.putString("playList", json);
+        prefsEditor.commit();
+    }
+
     public void updateCurrSong(boolean selected) {
         List<Fragment> allFragments = getSupportFragmentManager().getFragments();
         for (Fragment fragment: allFragments) {
@@ -430,11 +452,11 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
         ObjectAnimator animation = ObjectAnimator.ofFloat(playlistParent.findViewById(R.id.playlist_init),
                 "translationY", 0, deviceHeight);
-        animation.setDuration(225);
+        animation.setDuration(300);
         animation.start();
 
         animation = ObjectAnimator.ofFloat(playlistParent.findViewById(R.id.playlistFocus),
-                "translationY", -deviceHeight, 0);
+                "translationY", -70, 0);
         animation.setDuration(225);
         animation.start();
 
@@ -455,13 +477,27 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
         if (lastFolder == null) {
             tempSearchFolderList = folderList;
-            animations.hideViewDown(parentView.findViewById(R.id.folder_list), this);
-            parentView.findViewById(R.id.folder_list).setVisibility(View.GONE);
-            parentView.findViewById(R.id.folderFocus).setVisibility(View.VISIBLE);
-            animations.showViewDown(parentView.findViewById(R.id.folderFocus), this);
+
+            ObjectAnimator animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.folder_list),
+                    "translationY", 0, deviceHeight);
+            animation.setDuration(300);
+            animation.setStartDelay(75);
+            animation.start();
+
+            animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.folderFocus),
+                    "translationY", -70, 0);
+            animation.setDuration(225);
+            animation.setStartDelay(75);
+            animation.start();
+
         } else {
             tempSearchFolderList = lastFolder.getFolderList();
-            animations.showViewDown(parentView.findViewById(R.id.folderFocus), this);
+
+            ObjectAnimator animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.folder_list),
+                    "translationY", -70, 0);
+            animation.setDuration(225);
+            animation.setStartDelay(75);
+            animation.start();
         }
 
         for (Folder folder : tempSearchFolderList) {
@@ -649,12 +685,13 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     private Runnable updateTime = new Runnable() {
         @Override
         public void run() {
+        playbackPaused = !musicSrv.isPng();
             if (!playbackPaused) {
                 int songPos = musicSrv.getPosn();
                 int songDur = musicSrv.getDur();
                 seekBar.setMax(songDur);
                 seekBar.setProgress(songPos);
-                currTime.setText(""+milliSecondsToTimer(songPos));
+                currTime.setText("" + milliSecondsToTimer(songPos));
 
                 handler.postDelayed(this, 100);
             }

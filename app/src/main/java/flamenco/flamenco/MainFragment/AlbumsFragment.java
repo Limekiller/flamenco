@@ -55,16 +55,11 @@ public class AlbumsFragment extends Fragment {
                             DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
                             float height = displayMetrics.heightPixels;
 
-                            //animations.hideViewUp(albumFocus, view.getContext());
                             ObjectAnimator animation = ObjectAnimator.ofFloat(albumFocus,
                                     "translationY", 0, -70);
                             animation.setDuration(225);
                             animation.start();
-                            //albumFocus.setVisibility(View.GONE);
 
-                            //view.findViewById(R.id.album_list).setVisibility(View.VISIBLE);
-                            //animations.showViewUp(view.findViewById(R.id.album_list),
-                                    //view.getContext());
                             animation = ObjectAnimator.ofFloat(view.findViewById(R.id.album_list),
                                     "translationY", height, 0);
                             animation.setDuration(300);

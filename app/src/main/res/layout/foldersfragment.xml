@@ -17,8 +17,7 @@
         android:layout_marginEnd="20dp"
         android:animateLayoutChanges="true"
         android:orientation="vertical"
-        android:paddingTop="20dp"
-        android:visibility="invisible">
+        android:paddingTop="20dp">
 
         <GridView
             android:id="@+id/f_folder_list"
@@ -52,7 +51,10 @@
     <ListView
         android:id="@+id/folder_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:divider="@null"
+        android:dividerHeight="0dp">
 
     </ListView>
 

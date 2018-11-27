@@ -5,6 +5,7 @@
     android:layout_height="wrap_content"
     android:onClick="songPicked"
     android:clickable="true"
+    android:longClickable="true"
     android:padding="5dp"
     android:focusable="true">
 
