@@ -437,7 +437,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         TextView title = view.findViewById(R.id.playlist_title);
         ArrayList<flamenco.flamenco.Song> tempList;
         String playlistTitle = (String)title.getText();
-        RelativeLayout playlistParent = (RelativeLayout) view.getParent().getParent().getParent();
+        RelativeLayout playlistParent = (RelativeLayout) view.getParent().getParent().getParent().getParent();
         ListView tempPlayList = playlistParent.findViewById(R.id.specPlaylist);
 
         tempList = playList.get(0).getAlbumSongList();
@@ -453,11 +453,13 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         ObjectAnimator animation = ObjectAnimator.ofFloat(playlistParent.findViewById(R.id.playlist_init),
                 "translationY", 0, deviceHeight);
         animation.setDuration(300);
+        animation.setStartDelay(225);
         animation.start();
 
         animation = ObjectAnimator.ofFloat(playlistParent.findViewById(R.id.playlistFocus),
                 "translationY", -70, 0);
         animation.setDuration(225);
+        animation.setStartDelay(225);
         animation.start();
 
 
