@@ -15,6 +15,7 @@
         android:layout_weight="0.25"
         android:background="@android:color/white"
         android:elevation="3dp"
+        android:foreground="?attr/selectableItemBackground"
         android:padding="10dp">
 
         <ImageView

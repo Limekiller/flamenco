@@ -133,7 +133,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         playBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (playbackPaused) {
+                if (playbackPaused && musicSrv.requestAudioFocus()) {
                     musicSrv.go();
                     playBtn.setImageResource(R.drawable.exo_controls_pause);
                     playbackPaused = false;
@@ -481,13 +481,13 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             ObjectAnimator animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.folder_list),
                     "translationY", 0, deviceHeight);
             animation.setDuration(300);
-            animation.setStartDelay(75);
+            animation.setStartDelay(225);
             animation.start();
 
             animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.folderFocus),
                     "translationY", -70, 0);
             animation.setDuration(225);
-            animation.setStartDelay(75);
+            animation.setStartDelay(225);
             animation.start();
 
         } else {
@@ -496,7 +496,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             ObjectAnimator animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.folder_list),
                     "translationY", -70, 0);
             animation.setDuration(225);
-            animation.setStartDelay(75);
+            animation.setStartDelay(225);
             animation.start();
         }
 

@@ -85,7 +85,7 @@ public class MusicService extends Service implements
         }
     }
 
-    private boolean requestAudioFocus() {
+    public boolean requestAudioFocus() {
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
         if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
