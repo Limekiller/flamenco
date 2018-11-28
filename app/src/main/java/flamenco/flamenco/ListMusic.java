@@ -415,7 +415,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         ObjectAnimator animation = ObjectAnimator.ofFloat(albumParent.findViewById(R.id.album_list),
                 "translationY", 0, deviceHeight);
         animation.setDuration(300);
-        animation.setStartDelay(75);
+        animation.setStartDelay(225);
         animation.start();
         albumParent.findViewById(R.id.album_list).setAlpha(0.99f);
 
@@ -423,7 +423,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         animation = ObjectAnimator.ofFloat(albumParent.findViewById(R.id.albumFocus),
                 "translationY", -70, 0);
         animation.setDuration(225);
-        animation.setStartDelay(75);
+        animation.setStartDelay(225);
         animation.start();
         albumParent.findViewById(R.id.albumFocus).setAlpha(1f);
 
@@ -495,11 +495,12 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         } else {
             tempSearchFolderList = lastFolder.getFolderList();
 
-            ObjectAnimator animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.folder_list),
-                    "translationY", -70, 0);
+            ObjectAnimator animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.folderFocus),
+                    "translationY", -deviceHeight, 0);
             animation.setDuration(225);
             animation.setStartDelay(225);
             animation.start();
+
         }
 
         for (Folder folder : tempSearchFolderList) {
