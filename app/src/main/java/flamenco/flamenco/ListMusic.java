@@ -27,6 +27,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.view.View;
+import android.view.GestureDetector;
+import android.view.GestureDetector.OnGestureListener;
+import android.view.MotionEvent;
 import flamenco.flamenco.MusicService.MusicBinder;
 import android.widget.MediaController.MediaPlayerControl;
 
@@ -38,7 +41,7 @@ import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
 
 
-public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
+public class ListMusic extends AppCompatActivity implements MediaPlayerControl, OnGestureListener{
 
     public ArrayList<Song> songList;
     private MusicService musicSrv;
@@ -53,6 +56,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     private ImageButton playBtn;
     private ImageButton ffBtn;
     private Handler handler;
+    GestureDetector gestureDetector;
 
 
     private boolean paused=false, playbackPaused=false;
@@ -71,6 +75,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         ffBtn = findViewById(R.id.ffBtn);
         currTime = findViewById(R.id.currTime);
         handler = new Handler();
+        gestureDetector = new GestureDetector(ListMusic.this, ListMusic.this);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText("Songs"));
@@ -397,4 +402,50 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         return finalTimerString;
     }
 
+    // detect swipes up
+    @Override
+    public boolean onFling(MotionEvent motionEvent1, MotionEvent motionEvent2, float x, float y){
+        if(motionEvent1.getY() - motionEvent2.getY() > 50){
+            // need to load the fullscreen player xml here, and make it functional. Also need
+            // to make sure that it only works when you swipe from the music controller at the
+            // bottom of the screen.
+            return true;
+        }
+        return false;
+    }
+
+    // overriding the rest of the methods in GestureDetector so that the program doesn't break
+    @Override
+    public void onLongPress(MotionEvent arg0) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent arg0, MotionEvent arg1, float arg2, float arg3) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public void onShowPress(MotionEvent arg0) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent arg0) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent motionEvent) {
+        // TODO Auto-generated method stub
+        return gestureDetector.onTouchEvent(motionEvent);
+    }
+
+    @Override
+    public boolean onDown(MotionEvent arg0) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 }
