@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -24,9 +26,10 @@ import java.util.List;
 import flamenco.flamenco.R;
 import flamenco.flamenco.Song;
 
-public class SongAdapter extends BaseAdapter {
+public class SongAdapter extends BaseAdapter implements Filterable {
 
     private Context context;
+    private ArrayList<Song> fullSongList;
     private ArrayList<Song> songs;
     private LayoutInflater songInf;
     private String area;
@@ -35,6 +38,7 @@ public class SongAdapter extends BaseAdapter {
 
         this.context = context;
         songs=theSongs;
+        fullSongList=theSongs;
         songInf=LayoutInflater.from(context);
         area=Area;
 
@@ -104,5 +108,48 @@ public class SongAdapter extends BaseAdapter {
 
         songLay.setTag(position);
         return songLay;
+    }
+
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                FilterResults results = new FilterResults();
+                // We implement here the filter logic
+                if (constraint == null || constraint.length() == 0) {
+                    // No filter implemented we return all the list
+                    results.values = fullSongList;
+                    results.count = fullSongList.size();
+                }
+                else {
+                    // We perform filtering operation
+                    List<Song> nSongList = new ArrayList<>();
+
+                    for (Song p : fullSongList) {
+                        if (p.getTitle().toUpperCase()
+                                .startsWith(constraint.toString().toUpperCase()))
+                            nSongList.add(p);
+                    }
+
+                    results.values = nSongList;
+                    results.count = nSongList.size();
+                }
+                return results;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint,
+                                          FilterResults results) {
+
+                // Now we have to inform the adapter about the new list filtered
+                if (results.count == 0)
+                    notifyDataSetInvalidated();
+                else {
+                    songs = (ArrayList<Song>) results.values;
+                    notifyDataSetChanged();
+                }
+            }
+        };
     }
 }

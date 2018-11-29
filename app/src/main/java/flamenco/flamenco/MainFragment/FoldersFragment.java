@@ -43,6 +43,7 @@ public class FoldersFragment extends Fragment {
         FoldersAdapter folderAdt = new FoldersAdapter(getActivity(), folderList);
         folderView.setAdapter(folderAdt);
 
+
         final GestureDetector gesture = new GestureDetector(getActivity(),
                 new GestureDetector.SimpleOnGestureListener() {
 
@@ -95,6 +96,8 @@ public class FoldersFragment extends Fragment {
                     }
                 });
 
+
+
         view.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -104,4 +107,5 @@ public class FoldersFragment extends Fragment {
 
         return view;
     }
+
 }

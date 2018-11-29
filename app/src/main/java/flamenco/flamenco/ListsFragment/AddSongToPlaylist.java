@@ -4,7 +4,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -18,20 +21,41 @@ public class AddSongToPlaylist extends AppCompatActivity {
 
     Song chosenPlaylist;
     ArrayList<Song> songList;
+    SongAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_song_to_playlist);
         ListView add_song_list = findViewById(R.id.add_song_list);
+        EditText inputSearch = findViewById(R.id.inputSearch);
 
         Bundle extra = getIntent().getBundleExtra("extra");
-
         songList = (ArrayList<Song>) extra.getSerializable("songs");
         chosenPlaylist = (Song) getIntent().getSerializableExtra("extra2");
+        final SongAdapter adapter = new SongAdapter(this, songList, "song");
+        add_song_list.setAdapter(adapter);
 
-        add_song_list.setAdapter(new SongAdapter(this, songList, "song"));
+        inputSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                adapter.getFilter().filter(s);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+
     }
+
 
     public void songPicked(View view) {
         int pos = Integer.parseInt(view.getTag().toString());

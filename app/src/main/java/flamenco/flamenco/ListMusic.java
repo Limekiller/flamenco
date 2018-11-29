@@ -184,6 +184,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
                     int savedIndex = prefs.getInt("shuffleIndex", 0);
                     if (shuffledList == null || shuffledList.size() == 0) {
+                        Toast.makeText(ListMusic.this, "New shuffle created from current queue", Toast.LENGTH_LONG).show();
                         shuffledList = new ArrayList<>(musicSrv.getList());
                         Collections.shuffle(shuffledList);
 
@@ -199,6 +200,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                         prefsEditor.putString("shuffledList", json);
                         prefsEditor.commit();
                     } else {
+                        Toast.makeText(ListMusic.this, "Previous shuffle loaded", Toast.LENGTH_LONG).show();
                         int i = 0;
                         while (i < savedIndex) {
                             shuffledList.remove(0);
@@ -349,6 +351,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     }
 
     public void clearShuffle(View view) {
+        Toast.makeText(ListMusic.this, "Shuffle deleted", Toast.LENGTH_LONG).show();
         shuffledList.clear();
         musicSrv.setList(songList);
         isShuffled = false;
@@ -474,7 +477,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         ArrayList<Song> tempSongList = new ArrayList<>();
         String path = (String)((TextView)view.findViewById(R.id.folder_path)).getText();
         View parentView = view.getRootView();
-        GridView tempFolderView = parentView.findViewById(R.id.f_folder_list);
+        ListView tempFolderView = parentView.findViewById(R.id.f_folder_list);
         ListView tempSongView = parentView.findViewById(R.id.f_song_list);
 
         if (lastFolder == null) {
