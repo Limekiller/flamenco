@@ -44,6 +44,10 @@ public class SongAdapter extends BaseAdapter implements Filterable {
 
     }
 
+    public ArrayList<Song> getSongs() {
+        return songs;
+    }
+
     @Override
     public int getCount() {
         return songs.size();

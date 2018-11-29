@@ -22,18 +22,19 @@ public class AddSongToPlaylist extends AppCompatActivity {
     Song chosenPlaylist;
     ArrayList<Song> songList;
     SongAdapter adapter;
+    ListView add_song_list;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_song_to_playlist);
-        ListView add_song_list = findViewById(R.id.add_song_list);
+        add_song_list = findViewById(R.id.add_song_list);
         EditText inputSearch = findViewById(R.id.inputSearch);
 
         Bundle extra = getIntent().getBundleExtra("extra");
         songList = (ArrayList<Song>) extra.getSerializable("songs");
         chosenPlaylist = (Song) getIntent().getSerializableExtra("extra2");
-        final SongAdapter adapter = new SongAdapter(this, songList, "song");
+        adapter = new SongAdapter(this, songList, "song");
         add_song_list.setAdapter(adapter);
 
         inputSearch.addTextChangedListener(new TextWatcher() {
@@ -60,7 +61,9 @@ public class AddSongToPlaylist extends AppCompatActivity {
     public void songPicked(View view) {
         int pos = Integer.parseInt(view.getTag().toString());
         //chosenPlaylist.add(songList.get(pos));
-        chosenPlaylist.getAlbumSongList().add(songList.get(pos));
+        //chosenPlaylist.getAlbumSongList().add(songList.get(pos));
+
+        chosenPlaylist.getAlbumSongList().add(adapter.getSongs().get(pos));
         Intent resultData = new Intent();
         Bundle extra = new Bundle();
         extra.putSerializable("playlist", chosenPlaylist);
