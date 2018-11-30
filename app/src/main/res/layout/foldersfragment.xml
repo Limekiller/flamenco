@@ -19,19 +19,10 @@
         <ListView
             android:id="@+id/f_folder_list"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_weight="0.5">
 
         </ListView>
-
-        <ListView
-            android:id="@+id/f_song_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.5"
-            android:fastScrollEnabled="false"
-            android:nestedScrollingEnabled="false"
-            android:visibility="visible"></ListView>
 
         <LinearLayout
             android:id="@+id/f_sideIndex"

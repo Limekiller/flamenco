@@ -40,7 +40,7 @@ public class FoldersFragment extends Fragment {
 
         folderList = listMusic.folderList;
         listMusic.lastFolder = null;
-        FoldersAdapter folderAdt = new FoldersAdapter(getActivity(), folderList);
+        FoldersAdapter folderAdt = new FoldersAdapter(getActivity(), folderList, null);
         folderView.setAdapter(folderAdt);
 
 
@@ -78,11 +78,8 @@ public class FoldersFragment extends Fragment {
                                 animation.start();
 
                             } else {
-                                FoldersAdapter foldersAdapter = new FoldersAdapter(view.getContext(), listMusic.lastFolder.getFolderList());
-                                ((GridView)view.findViewById(R.id.f_folder_list)).setAdapter(foldersAdapter);
-
-                                SongAdapter songAdapter = new SongAdapter(view.getContext(), listMusic.lastFolder.getSongList(), "song");
-                                ((ListView)view.findViewById(R.id.f_song_list)).setAdapter(songAdapter);
+                                FoldersAdapter foldersAdapter = new FoldersAdapter(view.getContext(), listMusic.lastFolder.getFolderList(), listMusic.lastFolder.getSongList());
+                                ((ListView)view.findViewById(R.id.f_folder_list)).setAdapter(foldersAdapter);
 
                                 ObjectAnimator animation = ObjectAnimator.ofFloat(view.findViewById(R.id.folderFocus),
                                         "translationY", deviceHeight, 0);

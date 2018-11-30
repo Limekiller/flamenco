@@ -324,8 +324,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             }
         } else if (((ViewGroup)view.getParent()).getId() == R.id.song_list) {
             musicSrv.setList(songList);
-        } else if (((ViewGroup)view.getParent()).getId() == R.id.f_song_list) {
-            musicSrv.setList(lastFolder.getSongList());
         } else if (((ViewGroup)view.getParent()).getId() == R.id.specPlaylist) {
             musicSrv.setList(playList.get(lastPlaylistIndex).getAlbumSongList());
         }
@@ -478,7 +476,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         String path = (String)((TextView)view.findViewById(R.id.folder_path)).getText();
         View parentView = view.getRootView();
         ListView tempFolderView = parentView.findViewById(R.id.f_folder_list);
-        ListView tempSongView = parentView.findViewById(R.id.f_song_list);
 
         if (lastFolder == null) {
             tempSearchFolderList = folderList;
@@ -515,11 +512,8 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             }
         }
 
-        FoldersAdapter foldersAdapter = new FoldersAdapter(view.getContext(), tempFolderList);
+        FoldersAdapter foldersAdapter = new FoldersAdapter(view.getContext(), tempFolderList, tempSongList);
         tempFolderView.setAdapter(foldersAdapter);
-
-        SongAdapter songAdapter = new SongAdapter(view.getContext(), tempSongList, "song");
-        tempSongView.setAdapter(songAdapter);
 
     }
 
