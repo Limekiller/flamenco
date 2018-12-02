@@ -53,6 +53,7 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -324,6 +325,8 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             }
         } else if (((ViewGroup)view.getParent()).getId() == R.id.song_list) {
             musicSrv.setList(songList);
+        } else if (((ViewGroup)view.getParent()).getId() == R.id.f_folder_list) {
+            musicSrv.setList(lastFolder.getSongList());
         } else if (((ViewGroup)view.getParent()).getId() == R.id.specPlaylist) {
             musicSrv.setList(playList.get(lastPlaylistIndex).getAlbumSongList());
         }
@@ -754,19 +757,20 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         }
     }
 
-    public boolean addFolders(Folder folder, Song song, String path, Boolean cont) {
+    public boolean addFolders(Folder folder, Song song, String path) {
         String[] splitPath = path.split("/");
         StringBuilder buildPath = new StringBuilder("/"+splitPath[0]);
         for (int i = 1; i < splitPath.length; i++) {
             buildPath.append(splitPath[i]).append('/');
-            if (buildPath.toString().equals(folder.getPath()) && !cont) {
+            if (buildPath.toString().equals(folder.getPath())) {
                 if (i == splitPath.length-1) {
                     folder.addToSongList(song);
                     return true;
                 } else {
+                    buildPath.append(splitPath[i+1]).append('/');
                     for (Folder subFolder : folder.getFolderList()) {
                         if (subFolder.getPath().equals(buildPath.toString())) {
-                            return addFolders(subFolder, song, path, true);
+                            return addFolders(subFolder, song, path);
                         }
                     }
                     Folder newFolder = new Folder(path, new ArrayList<Song>(), new ArrayList<Folder>(), folder);
@@ -779,6 +783,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         return false;
 
     }
+
 
     // This method runs on startup, constructing a list of songs, artists, and albums
     public void getSongList() {
@@ -824,7 +829,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
                     boolean hasBeenAdded = false;
                     for (int i=0; i<folderList.size(); i++) {
-                        if (addFolders(folderList.get(i), new Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()), path+"/", false)) {
+                        if (addFolders(folderList.get(i), new Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()), path+"/")) {
                             hasBeenAdded = true;
                             break;
                         }

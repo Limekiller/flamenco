@@ -116,7 +116,7 @@ public class FoldersAdapter extends BaseAdapter {
             Glide.with(context).load(currSong.getAlbumArt()).error(R.drawable.placeholder)
                     .crossFade().centerCrop().into(artView);
 
-            songLay.setTag(position);
+            songLay.setTag(position-folders.size());
             return songLay;
         }
     }
