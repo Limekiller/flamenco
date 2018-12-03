@@ -33,6 +33,9 @@ public class Song implements Serializable {
     public void setAlbumSongList (ArrayList<Song> songList) {
         albumSongList=new ArrayList<>(songList);
     }
+    public void setTitle (String newTitle) {
+        title=newTitle;
+    }
 
     public long getID() {
         return id;

@@ -164,7 +164,7 @@ public class PlaylistsFragment extends Fragment{
     @Override
     public boolean onContextItemSelected(MenuItem item){
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        int listPos = info.position;
+        final int listPos = info.position;
         if(item.getItemId()==R.id.Delete){
             playList.remove(listPos);
             final ListView playListView = this.getView().findViewById(R.id.playlist_list);
@@ -178,6 +178,35 @@ public class PlaylistsFragment extends Fragment{
             final ListView playListView = this.getView().findViewById(R.id.specPlaylist);
             final SongAdapter playAdt = new SongAdapter(getActivity(), playList.get(listMusic.lastPlaylistIndex).getAlbumSongList(), "song");
             playListView.setAdapter(playAdt);
+
+        } else if (item.getItemId()==R.id.Edit) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            builder.setTitle("Title");
+
+            final EditText input = new EditText(getContext());
+            input.setInputType(InputType.TYPE_CLASS_TEXT);
+            builder.setView(input);
+
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    mString = input.getText().toString();
+                    playList.get(listPos).setTitle(mString);
+                    final ListView playListView = getActivity().findViewById(R.id.specPlaylist);
+                    final SongAdapter playAdt = new SongAdapter(getActivity(), playList.get(listMusic.lastPlaylistIndex).getAlbumSongList(), "song");
+                    playListView.setAdapter(playAdt);
+
+                }
+            });
+
+            builder.show();
 
         } else {
             return false;
