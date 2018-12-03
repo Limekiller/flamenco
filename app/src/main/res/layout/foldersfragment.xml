@@ -16,6 +16,7 @@
         android:animateLayoutChanges="true"
         android:orientation="vertical">
 
+
         <ListView
             android:id="@+id/f_folder_list"
             android:layout_width="match_parent"
@@ -34,15 +35,25 @@
 
         </LinearLayout>
 
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="match_parent"
+            android:layout_height="25dp"
+            android:layout_alignParentBottom="true"
+            android:clickable="true"
+            android:focusable="true"
+            app:srcCompat="@drawable/drop_shadow" />
+
     </LinearLayout>
 
     <ListView
         android:id="@+id/folder_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:background="@android:color/white"
         android:divider="@null"
         android:dividerHeight="0dp">
+
 
     </ListView>
 

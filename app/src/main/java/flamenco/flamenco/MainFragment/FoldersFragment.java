@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.GridView;
 import android.widget.ListView;
 
@@ -49,6 +50,7 @@ public class FoldersFragment extends Fragment {
 
                     @Override
                     public boolean onDown(MotionEvent e) {
+                        view.findViewById(R.id.imageView2).animate().scaleY(2f);
                         return true;
                     }
 
@@ -95,9 +97,12 @@ public class FoldersFragment extends Fragment {
 
 
 
-        view.setOnTouchListener(new View.OnTouchListener() {
+        view.findViewById(R.id.imageView2).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    view.findViewById(R.id.imageView2).animate().scaleY(1f);
+                }
                 return gesture.onTouchEvent(event);
             }
         });
