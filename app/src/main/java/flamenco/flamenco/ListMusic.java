@@ -409,6 +409,8 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
             // need to load the fullscreen player xml here, and make it functional. Also need
             // to make sure that it only works when you swipe from the music controller at the
             // bottom of the screen.
+            playBtn.setImageResource(R.drawable.exo_controls_play);
+
             return true;
         }
         return false;
