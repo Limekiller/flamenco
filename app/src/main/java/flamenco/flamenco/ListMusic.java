@@ -1,3 +1,5 @@
+// how to manage fragments: fragmentManager? How did Bryce do it?
+
 package flamenco.flamenco;
 
 import android.Manifest;
@@ -32,7 +34,7 @@ import android.view.GestureDetector.OnGestureListener;
 import android.view.MotionEvent;
 import flamenco.flamenco.MusicService.MusicBinder;
 import android.widget.MediaController.MediaPlayerControl;
-
+import android.support.v4.app.FragmentTransaction;
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
@@ -55,9 +57,11 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
     private ImageButton rewindBtn;
     private ImageButton playBtn;
     private ImageButton ffBtn;
+    private ImageButton fullscreen_play;
+    private ImageView fullscreen_art;
     private Handler handler;
-    GestureDetector gestureDetector;
-
+    private GestureDetector gestureDetector;
+    FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
     private boolean paused=false, playbackPaused=false;
 
@@ -405,14 +409,20 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
     // detect swipes up
     @Override
     public boolean onFling(MotionEvent motionEvent1, MotionEvent motionEvent2, float x, float y){
-        if(motionEvent1.getY() - motionEvent2.getY() > 50){
+        if(motionEvent1.getY() - motionEvent2.getY() > 50) {
             // need to load the fullscreen player xml here, and make it functional. Also need
             // to make sure that it only works when you swipe from the music controller at the
             // bottom of the screen.
-            playBtn.setImageResource(R.drawable.exo_controls_play);
-
+            Song currSong = musicSrv.getSong();
+            setContentView(R.layout.fullscreen_player);
+            fullscreen_art = findViewById(R.id.fullscreen_art);
+            fullscreen_play = findViewById(R.id.fullscreen_play);
+            Glide.with(this).load(currSong.getAlbumArt()).error(R.drawable.placeholder)
+                    .crossFade().centerCrop().into(fullscreen_art);
+            fullscreen_play.setImageResource(R.drawable.exo_controls_pause);
             return true;
         }
+        else if (motionEvent2.getY() - motionEvent1.getY() > 50)
         return false;
     }
 
