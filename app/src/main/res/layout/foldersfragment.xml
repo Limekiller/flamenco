@@ -9,42 +9,39 @@
     android:background="#FFFFFF"
     tools:context=".ListMusic" >
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/folderFocus"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:animateLayoutChanges="true"
-        android:orientation="vertical">
+        android:animateLayoutChanges="true">
+
+
 
 
         <ListView
             android:id="@+id/f_folder_list"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.5">
+            android:layout_height="match_parent">
 
         </ListView>
-
-        <LinearLayout
-            android:id="@+id/f_sideIndex"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="#FFF"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
-
-        </LinearLayout>
 
         <ImageView
             android:id="@+id/imageView2"
             android:layout_width="match_parent"
-            android:layout_height="25dp"
+            android:layout_height="50dp"
             android:layout_alignParentBottom="true"
             android:clickable="true"
             android:focusable="true"
             app:srcCompat="@drawable/drop_shadow" />
 
-    </LinearLayout>
+        <ImageView
+            android:id="@+id/arrow_up1"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_alignParentBottom="true"
+            app:srcCompat="@android:drawable/arrow_up_float" />
+
+    </RelativeLayout>
 
     <ListView
         android:id="@+id/folder_list"
@@ -56,16 +53,6 @@
 
 
     </ListView>
-
-    <LinearLayout
-        android:id="@+id/sideIndex"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="#FFF"
-        android:gravity="center_horizontal"
-        android:orientation="vertical">
-
-    </LinearLayout>
 
 
 </RelativeLayout>

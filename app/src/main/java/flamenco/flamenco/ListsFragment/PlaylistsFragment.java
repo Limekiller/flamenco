@@ -1,54 +1,32 @@
 package flamenco.flamenco.ListsFragment;
 
 import android.animation.ObjectAnimator;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.net.sip.SipSession;
-import android.provider.SyncStateContract;
+import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.content.ContentResolver;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
-import android.widget.Toast;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-
-import javax.security.auth.callback.Callback;
 
 import flamenco.flamenco.ListMusic;
-import flamenco.flamenco.MainFragment.FoldersAdapter;
 import flamenco.flamenco.MainFragment.SongAdapter;
 import flamenco.flamenco.R;
 import flamenco.flamenco.Song;
-import flamenco.flamenco.animations;
 
 public class PlaylistsFragment extends Fragment{
 
@@ -58,13 +36,13 @@ public class PlaylistsFragment extends Fragment{
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         final View view =  inflater.inflate(R.layout.playlistsfragment, container, false);
-        FloatingActionButton addNew = view.findViewById(R.id.addNew);
         final ListView playListView = view.findViewById(R.id.playlist_list);
 
         listMusic = (ListMusic) getActivity();
+        assert listMusic != null;
         playList = listMusic.playList;
 
         final SongAdapter playAdt = new SongAdapter(getActivity(), playList, "playlists");
@@ -72,44 +50,13 @@ public class PlaylistsFragment extends Fragment{
         registerForContextMenu(playListView);
         registerForContextMenu(view.findViewById(R.id.specPlaylist));
 
-        addNew.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                builder.setTitle("Title");
-
-                final EditText input = new EditText(getContext());
-                input.setInputType(InputType.TYPE_CLASS_TEXT);
-                builder.setView(input);
-
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        mString = input.getText().toString();
-                        Song newPlaylist = new Song(0, mString, null, 0, null, null);
-                        newPlaylist.setAlbumSongList(new ArrayList<Song>());
-                        playList.add(newPlaylist);
-                        playListView.setAdapter(playAdt);
-                    }
-                });
-
-                builder.show();
-            }
-        });
-
 
         final GestureDetector gesture = new GestureDetector(getActivity(),
                 new GestureDetector.SimpleOnGestureListener() {
 
                     @Override
                     public boolean onDown(MotionEvent e) {
+                        view.findViewById(R.id.imageView).animate().scaleY(3f).setDuration(200);
                         return true;
                     }
 
@@ -118,7 +65,7 @@ public class PlaylistsFragment extends Fragment{
                                            float velocityY) {
 
                         if (e1.getY() - e2.getY() > 0) {
-                            DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+                            DisplayMetrics displayMetrics = Objects.requireNonNull(getContext()).getResources().getDisplayMetrics();
                             float height = displayMetrics.heightPixels;
 
                             ObjectAnimator animation = ObjectAnimator.ofFloat(view.findViewById(R.id.playlistFocus),
@@ -131,6 +78,15 @@ public class PlaylistsFragment extends Fragment{
                             animation.setDuration(300);
                             animation.start();
 
+                            ((FloatingActionButton)view.getRootView().findViewById(R.id.floatingActionButton2)).hide();
+                            final Handler handler = new Handler();
+                            handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ((FloatingActionButton)view.getRootView().findViewById(R.id.addNew)).show();
+                                }
+                            }, 400);
+
                             playListView.setAdapter(playAdt);
                             listMusic.savePlaylistList();
 
@@ -140,9 +96,12 @@ public class PlaylistsFragment extends Fragment{
                     }
                 });
 
-        view.setOnTouchListener(new View.OnTouchListener() {
+        view.findViewById(R.id.imageView).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    view.findViewById(R.id.imageView).animate().scaleY(1f).setDuration(200);
+                }
                 return gesture.onTouchEvent(event);
             }
         });

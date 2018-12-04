@@ -43,6 +43,7 @@ public class FoldersFragment extends Fragment {
         listMusic.lastFolder = null;
         FoldersAdapter folderAdt = new FoldersAdapter(getActivity(), folderList, null);
         folderView.setAdapter(folderAdt);
+        view.findViewById(R.id.arrow_up1).animate().translationY(300).setDuration(200);
 
 
         final GestureDetector gesture = new GestureDetector(getActivity(),
@@ -50,7 +51,8 @@ public class FoldersFragment extends Fragment {
 
                     @Override
                     public boolean onDown(MotionEvent e) {
-                        view.findViewById(R.id.imageView2).animate().scaleY(2f);
+                        view.findViewById(R.id.imageView2).animate().scaleY(3f).setDuration(200);
+                        view.findViewById(R.id.arrow_up1).animate().translationY(-300).setDuration(200);
                         return true;
                     }
 
@@ -101,7 +103,8 @@ public class FoldersFragment extends Fragment {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
-                    view.findViewById(R.id.imageView2).animate().scaleY(1f);
+                    view.findViewById(R.id.imageView2).animate().scaleY(1f).setDuration(200);
+                    view.findViewById(R.id.arrow_up1).animate().translationY(300).setDuration(200);
                 }
                 return gesture.onTouchEvent(event);
             }

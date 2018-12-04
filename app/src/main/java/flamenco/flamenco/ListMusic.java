@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -426,7 +427,13 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         tempAlbumList.setTag(view.getTag());
         animation = ObjectAnimator.ofFloat(albumParent.findViewById(R.id.albumFocus),
                 "translationY", -70, 0);
-        animation.setDuration(225);
+        animation.setDuration(300);
+        animation.setStartDelay(225);
+        animation.start();
+
+        animation = ObjectAnimator.ofFloat(albumParent.findViewById(R.id.a_song_list),
+                "translationY", -150, 0).setDuration(225);
+        animation.setDuration(300);
         animation.setStartDelay(225);
         animation.start();
         albumParent.findViewById(R.id.albumFocus).setAlpha(1f);
@@ -437,7 +444,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
     }
 
-    public void setPlaylistVisibility(View view) {
+    public void setPlaylistVisibility(final View view) {
         TextView title = view.findViewById(R.id.playlist_title);
         ArrayList<flamenco.flamenco.Song> tempList;
         String playlistTitle = (String)title.getText();
@@ -466,6 +473,14 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         animation.setStartDelay(225);
         animation.start();
 
+        ((FloatingActionButton)view.getRootView().findViewById(R.id.addNew)).hide();
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ((FloatingActionButton)view.getRootView().findViewById(R.id.floatingActionButton2)).show();
+            }
+        }, 550);
 
         SongAdapter songAdt = new SongAdapter(playlistParent.getContext(), tempList, "song");
         tempPlayList.setAdapter(songAdt);

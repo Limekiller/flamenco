@@ -79,6 +79,8 @@ public class SongAdapter extends BaseAdapter implements Filterable {
             //get title and artist views
             songView = (TextView)songLay.findViewById(R.id.playlist_title);
             artView = (ImageView)songLay.findViewById(R.id.playlist_art);
+            Glide.with(context).load(R.drawable.baseline_queue_music_black_18dp)
+                    .crossFade().centerCrop().into(artView);
             artistView = null;
             yearView = null;
         } else {
@@ -106,6 +108,8 @@ public class SongAdapter extends BaseAdapter implements Filterable {
             artistView.setVisibility(View.GONE);
             yearView.setVisibility(View.GONE);
             artView.setVisibility(View.GONE);
+            Glide.with(context).load(currSong.getAlbumArt()).error(R.drawable.placeholder)
+                    .crossFade().centerCrop().into(artView);
         }
 
         //set position as tag
