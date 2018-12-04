@@ -52,8 +52,9 @@ public class QueueFragment extends Fragment{
             public View getView(int position, View convertView, ViewGroup parent) {
                 View row = super.getView(position, convertView, parent);
 
-                if(position == ((ListMusic) getActivity()).getCurrSongPosn()) {
-                    if (selected == true) {
+                if (songList.get(position).getTitle().equals(((ListMusic) getActivity()).getCurrSong().getTitle())
+                        && songList.get(position).getArtist().equals(((ListMusic) getActivity()).getCurrSong().getArtist())) {
+                    if (selected) {
                         ObjectAnimator.ofObject(row, "backgroundColor", new ArgbEvaluator(),
                                 Color.WHITE, getResources().getColor(R.color.colorAccentLight))
                                 .setDuration(150).start();

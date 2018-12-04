@@ -35,9 +35,13 @@ public class AlbumsFragment extends Fragment {
         songView = view.findViewById(R.id.album_list);
         listMusic = (ListMusic) getActivity();
 
+        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+        final float deviceHeight = displayMetrics.heightPixels;
+
         albumList = listMusic.albumList;
         AlbumAdapter songAdt = new AlbumAdapter(getActivity(), albumList, "albums");
         songView.setAdapter(songAdt);
+        view.findViewById(R.id.arrow_up).animate().translationY(deviceHeight).setDuration(200);
 
         final GestureDetector gesture = new GestureDetector(getActivity(),
                 new GestureDetector.SimpleOnGestureListener() {
@@ -45,6 +49,7 @@ public class AlbumsFragment extends Fragment {
                     @Override
                     public boolean onDown(MotionEvent e) {
                         view.findViewById(R.id.imageView3).animate().scaleY(3f).setDuration(200);
+                        view.findViewById(R.id.arrow_up).animate().translationY(deviceHeight-1000).setDuration(225);
                         return true;
                     }
 
@@ -53,21 +58,27 @@ public class AlbumsFragment extends Fragment {
                                            float velocityY) {
 
                         if (e1.getY() - e2.getY() > 0) {
-                            DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
-                            float height = displayMetrics.heightPixels;
-
                             ObjectAnimator animation = ObjectAnimator.ofFloat(albumFocus,
                                     "translationY", 0, -70);
                             animation.setDuration(300);
                             animation.start();
 
                             animation = ObjectAnimator.ofFloat(view.findViewById(R.id.album_list),
-                                    "translationY", height, 0);
+                                    "translationY", deviceHeight, 0);
                             animation.setDuration(300);
                             animation.start();
 
                             animation = ObjectAnimator.ofFloat(view.findViewById(R.id.a_song_list),
                                     "translationY", 0, -150);
+                            animation.setDuration(300);
+                            animation.start();
+
+                            animation = ObjectAnimator.ofFloat(view.findViewById(R.id.albumFocus),
+                                    "scaleX", 1, 0.9f);
+                            animation.setDuration(300);
+                            animation.start();
+                            animation = ObjectAnimator.ofFloat(view.findViewById(R.id.albumFocus),
+                                    "scaleY", 1, 0.9f);
                             animation.setDuration(300);
                             animation.start();
                         }
@@ -81,6 +92,7 @@ public class AlbumsFragment extends Fragment {
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     view.findViewById(R.id.imageView3).animate().scaleY(1f).setDuration(200);
+                    view.findViewById(R.id.arrow_up).animate().translationY(deviceHeight).setDuration(300);
                 }
                 return gesture.onTouchEvent(event);
             }

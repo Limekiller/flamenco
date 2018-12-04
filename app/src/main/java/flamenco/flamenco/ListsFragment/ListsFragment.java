@@ -46,6 +46,7 @@ public class ListsFragment extends Fragment {
         tabLayout.addTab(tabLayout.newTab().setText("Playlists"));
         tabLayout.addTab(tabLayout.newTab().setText("Queue"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+        floatingActionButton.hide();
 
         final ViewPager viewPager = (ViewPager) view.findViewById(R.id.pager);
         final ListsFragmentAdapter adapter = new ListsFragmentAdapter

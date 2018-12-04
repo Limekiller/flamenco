@@ -15,6 +15,7 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -70,10 +71,10 @@ public class SongAdapter extends BaseAdapter implements Filterable {
         TextView artistView;
         TextView yearView;
         ImageView artView;
-        LinearLayout songLay;
+        RelativeLayout songLay;
 
         if (area.equals("playlists")) {
-            songLay = (LinearLayout) songInf.inflate
+            songLay = (RelativeLayout) songInf.inflate
                     (R.layout.playlist, parent, false);
 
             //get title and artist views
@@ -84,14 +85,14 @@ public class SongAdapter extends BaseAdapter implements Filterable {
             artistView = null;
             yearView = null;
         } else {
-            songLay = (LinearLayout) songInf.inflate
+            songLay = (RelativeLayout) songInf.inflate
                     (R.layout.song, parent, false);
 
             //get title and artist views
-            songView = (TextView)songLay.findViewById(R.id.song_title);
-            artistView = (TextView)songLay.findViewById(R.id.song_artist);
+            songView = songLay.findViewById(R.id.song_title);
+            artistView = songLay.findViewById(R.id.song_artist);
             yearView = songLay.findViewById(R.id.song_year);
-            artView = (ImageView)songLay.findViewById(R.id.song_art);
+            artView = songLay.findViewById(R.id.song_art);
         }
 
         //get song using position

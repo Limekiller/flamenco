@@ -13,6 +13,7 @@ import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import flamenco.flamenco.Folder;
@@ -100,7 +101,7 @@ public class FoldersAdapter extends BaseAdapter {
             return folderLay;
         } else {
 
-            LinearLayout songLay = (LinearLayout) songInf.inflate
+            View songLay = songInf.inflate
                     (R.layout.song, parent, false);
 
             //get title and artist views

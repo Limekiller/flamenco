@@ -36,7 +36,7 @@
                 android:layout_alignParentBottom="true"
                 android:clickable="true"
                 android:focusable="true"
-                app:srcCompat="@drawable/drop_shadow"
+                app:srcCompat="@drawable/drop_shadow2"
                 tools:srcCompat="@drawable/drop_shadow" />
 
             <TextView
@@ -71,6 +71,14 @@
             android:background="@android:color/white"
             android:fastScrollEnabled="true"
             android:visibility="visible"></ListView>
+
+        <ImageView
+            android:id="@+id/arrow_up"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentBottom="true"
+            android:layout_marginTop="0dp"
+            app:srcCompat="@drawable/arrow" />
 
         <ImageView
             android:id="@+id/imageView3"

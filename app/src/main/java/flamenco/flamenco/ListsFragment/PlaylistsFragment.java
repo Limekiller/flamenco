@@ -45,10 +45,15 @@ public class PlaylistsFragment extends Fragment{
         assert listMusic != null;
         playList = listMusic.playList;
 
+        DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
+        final float height = displayMetrics.heightPixels;
+
         final SongAdapter playAdt = new SongAdapter(getActivity(), playList, "playlists");
         playListView.setAdapter(playAdt);
         registerForContextMenu(playListView);
         registerForContextMenu(view.findViewById(R.id.specPlaylist));
+
+        view.findViewById(R.id.arrow_up2).animate().translationY(height).setDuration(200);
 
 
         final GestureDetector gesture = new GestureDetector(getActivity(),
@@ -57,6 +62,7 @@ public class PlaylistsFragment extends Fragment{
                     @Override
                     public boolean onDown(MotionEvent e) {
                         view.findViewById(R.id.imageView).animate().scaleY(3f).setDuration(200);
+                        view.findViewById(R.id.arrow_up2).animate().translationY(height-1000).setDuration(225);
                         return true;
                     }
 
@@ -65,8 +71,6 @@ public class PlaylistsFragment extends Fragment{
                                            float velocityY) {
 
                         if (e1.getY() - e2.getY() > 0) {
-                            DisplayMetrics displayMetrics = Objects.requireNonNull(getContext()).getResources().getDisplayMetrics();
-                            float height = displayMetrics.heightPixels;
 
                             ObjectAnimator animation = ObjectAnimator.ofFloat(view.findViewById(R.id.playlistFocus),
                                     "translationY", 0, -70);
@@ -101,6 +105,7 @@ public class PlaylistsFragment extends Fragment{
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     view.findViewById(R.id.imageView).animate().scaleY(1f).setDuration(200);
+                    view.findViewById(R.id.arrow_up2).animate().translationY(height).setDuration(300);
                 }
                 return gesture.onTouchEvent(event);
             }

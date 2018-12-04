@@ -33,33 +33,41 @@ public class SongsFragment extends Fragment{
         songList = listMusic.songList;
 
         SongAdapter songAdt = new SongAdapter(getActivity(), songList, "song");
-        updateCurrentSong(false);
+        updateCurrentSong();
         return  view;
     }
 
-
-    public void updateCurrentSong(final Boolean selected) {
+    public void updateCurrentSong() {
 
         int index = songView.getFirstVisiblePosition();
         View v = songView.getChildAt(0);
         int top = (v == null) ? 0 : v.getTop();
 
+
         songView.setAdapter(new SongAdapter(getActivity(), songList, "song") {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 View row = super.getView(position, convertView, parent);
+                View bar = row.findViewById(R.id.imageView6);
 
-                if (songList.get(position) == ((ListMusic) getActivity()).getCurrSong()) {
-                    if (selected) {
-                        ObjectAnimator.ofObject(row, "backgroundColor", new ArgbEvaluator(),
-                                Color.WHITE, getResources().getColor(R.color.colorAccentLight))
-                                .setDuration(150).start();
-                    } else {
-                        row.setBackgroundColor (getResources().getColor(R.color.colorAccentLight));
-                    }
-                }
-                else {
-                    row.setBackgroundColor (Color.WHITE);
+                if (songList.get(position).getTitle().equals(((ListMusic) getActivity()).getCurrSong().getTitle())
+                        && songList.get(position).getArtist().equals(((ListMusic) getActivity()).getCurrSong().getArtist())) {
+                    ObjectAnimator animation = ObjectAnimator.ofFloat(bar,
+                            "scaleX", 0, 1);
+                    animation.setDuration(200);
+                    animation.setStartDelay(100);
+                    animation.start();
+                }  else if (listMusic.lastChosenSong != null &&
+                        listMusic.lastChosenSong.getTitle().equals(songList.get(position).getTitle())
+                        && listMusic.lastChosenSong.getArtist().equals(songList.get(position).getArtist())) {
+                    bar.setScaleX(1);
+                    ObjectAnimator animation = ObjectAnimator.ofFloat(bar,
+                            "scaleX", 1, 0);
+                    animation.setDuration(200);
+                    animation.setStartDelay(100);
+                    animation.start();
+                } else {
+                    bar.setScaleX(0);
                 }
 
                 return row;

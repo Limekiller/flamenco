@@ -76,6 +76,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     private boolean musicBound=false;
     private boolean isShuffled = false;
 
+    public Song lastChosenSong;
     private Song lastChosenPlaylist;
     public int lastPlaylistIndex;
 
@@ -145,27 +146,31 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                     playBtn.setImageResource(R.drawable.exo_controls_play);
 
                 }
-                updateSong(false);
+
+                handler.removeCallbacks(updateTime);
+                handler.postDelayed(updateTime, 100);
             }
         });
 
         rewindBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                lastChosenSong = musicSrv.getSong();
                 musicSrv.playPrev();
                 playBtn.setImageResource(R.drawable.exo_controls_pause);
                 playbackPaused = false;
-                updateSong(true);
+                updateSong();
             }
         });
 
         ffBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                lastChosenSong = musicSrv.getSong();
                 musicSrv.playNext();
                 playBtn.setImageResource(R.drawable.exo_controls_pause);
                 playbackPaused = false;
-                updateSong(true);
+                updateSong();
             }
         });
 
@@ -274,10 +279,10 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
 
     // This method handles moving from one song to the next automatically.
-    public void updateSong(boolean selected) {
+    public void updateSong() {
         flamenco.flamenco.Song currSong = musicSrv.getSong();
         currSongInfo.setText(currSong.getArtist()+" — "+currSong.getTitle());
-        updateCurrSong(selected);
+        updateCurrSong();
         Glide.with(this).load(currSong.getAlbumArt()).error(R.drawable.placeholder)
                 .crossFade().centerCrop().into(currSongArt);
 
@@ -307,7 +312,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
     // This method handles moving from one song to another based on user input
     public void songPicked(View view){
-
+        lastChosenSong = musicSrv.getSong();
         Integer pos;
         // Check which list choice is coming from
         if (((ViewGroup)view.getParent()).getId() == R.id.a_song_list) {
@@ -339,12 +344,12 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
         // Show audio controller (only affects on first pick)
         audioController.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
-        audioController.setLayoutParams(new TableLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, 0.06f));
+        audioController.setLayoutParams(new TableLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, 0.1f));
 
         pos = Integer.parseInt(view.getTag().toString());
         musicSrv.setSong(pos);
         musicSrv.playSong();
-        updateSong(true);
+        updateSong();
 
         if(playbackPaused){
             playbackPaused=false;
@@ -379,15 +384,21 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         prefsEditor.commit();
     }
 
-    public void updateCurrSong(boolean selected) {
+    public void updateCurrSong() {
         List<Fragment> allFragments = getSupportFragmentManager().getFragments();
         for (Fragment fragment: allFragments) {
-            for (Fragment child: fragment.getChildFragmentManager().getFragments()) {
+            for (final Fragment child: fragment.getChildFragmentManager().getFragments()) {
                 if (child instanceof SongsFragment) {
-                    ((SongsFragment) child).updateCurrentSong(selected);
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            ((SongsFragment) child).updateCurrentSong();
+                        }
+                    }, 350);
                 }
                 if (child instanceof  QueueFragment) {
-                    ((QueueFragment) child).updateCurrentSong(selected);
+                    ((QueueFragment) child).updateCurrentSong(true);
                 }
             }
         }
@@ -433,6 +444,17 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
         animation = ObjectAnimator.ofFloat(albumParent.findViewById(R.id.a_song_list),
                 "translationY", -150, 0).setDuration(225);
+        animation.setDuration(300);
+        animation.setStartDelay(225);
+        animation.start();
+
+        animation = ObjectAnimator.ofFloat(albumParent.findViewById(R.id.albumFocus),
+                "scaleY", 0.9f, 1).setDuration(225);
+        animation.setDuration(300);
+        animation.setStartDelay(225);
+        animation.start();
+        animation = ObjectAnimator.ofFloat(albumParent.findViewById(R.id.albumFocus),
+                "scaleX", 0.9f, 1).setDuration(225);
         animation.setDuration(300);
         animation.setStartDelay(225);
         animation.start();
@@ -506,6 +528,17 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
             animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.folderFocus),
                     "translationY", -70, 0);
+            animation.setDuration(225);
+            animation.setStartDelay(225);
+            animation.start();
+
+            animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.folderFocus),
+                    "scaleY", 0.9f, 1);
+            animation.setDuration(225);
+            animation.setStartDelay(225);
+            animation.start();
+            animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.folderFocus),
+                    "scaleX", 0.9f, 1);
             animation.setDuration(225);
             animation.setStartDelay(225);
             animation.start();
@@ -731,7 +764,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
         if (seconds == 0 && !hasUpdated) {
             hasUpdated = true;
-            updateSong(false);
+            updateSong();
             if (!playbackPaused) {
                 playBtn.setImageResource(R.drawable.exo_controls_pause);
             }
