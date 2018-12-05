@@ -42,6 +42,7 @@ import android.view.View;
 import flamenco.flamenco.ListsFragment.AddSongToPlaylist;
 import flamenco.flamenco.ListsFragment.QueueFragment;
 import flamenco.flamenco.MainFragment.AlbumAdapter;
+import flamenco.flamenco.MainFragment.AlbumsFragment;
 import flamenco.flamenco.MainFragment.FoldersAdapter;
 import flamenco.flamenco.MainFragment.MainFragmentAdapter;
 import flamenco.flamenco.MainFragment.SongAdapter;
@@ -76,7 +77,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     private boolean musicBound=false;
     private boolean isShuffled = false;
 
-    public Song lastChosenSong;
     private Song lastChosenPlaylist;
     public int lastPlaylistIndex;
 
@@ -155,7 +155,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         rewindBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                lastChosenSong = musicSrv.getSong();
                 musicSrv.playPrev();
                 playBtn.setImageResource(R.drawable.exo_controls_pause);
                 playbackPaused = false;
@@ -166,7 +165,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         ffBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                lastChosenSong = musicSrv.getSong();
                 musicSrv.playNext();
                 playBtn.setImageResource(R.drawable.exo_controls_pause);
                 playbackPaused = false;
@@ -282,7 +280,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     public void updateSong() {
         flamenco.flamenco.Song currSong = musicSrv.getSong();
         currSongInfo.setText(currSong.getArtist()+" — "+currSong.getTitle());
-        updateCurrSong();
         Glide.with(this).load(currSong.getAlbumArt()).error(R.drawable.placeholder)
                 .crossFade().centerCrop().into(currSongArt);
 
@@ -300,6 +297,8 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
         handler.removeCallbacks(updateTime);
         handler.postDelayed(updateTime, 100);
+        updateCurrSong();
+        currSong.setJustPlayed(true);
     }
 
 
@@ -312,7 +311,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
     // This method handles moving from one song to another based on user input
     public void songPicked(View view){
-        lastChosenSong = musicSrv.getSong();
         Integer pos;
         // Check which list choice is coming from
         if (((ViewGroup)view.getParent()).getId() == R.id.a_song_list) {
@@ -350,6 +348,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         musicSrv.setSong(pos);
         musicSrv.playSong();
         updateSong();
+        hasUpdated = true;
 
         if(playbackPaused){
             playbackPaused=false;

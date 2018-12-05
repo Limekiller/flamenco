@@ -55,17 +55,15 @@ public class SongsFragment extends Fragment{
                     ObjectAnimator animation = ObjectAnimator.ofFloat(bar,
                             "scaleX", 0, 1);
                     animation.setDuration(200);
-                    animation.setStartDelay(100);
                     animation.start();
-                }  else if (listMusic.lastChosenSong != null &&
-                        listMusic.lastChosenSong.getTitle().equals(songList.get(position).getTitle())
-                        && listMusic.lastChosenSong.getArtist().equals(songList.get(position).getArtist())) {
+                }  else if (songList.get(position).getJustPlayed()) {
                     bar.setScaleX(1);
                     ObjectAnimator animation = ObjectAnimator.ofFloat(bar,
                             "scaleX", 1, 0);
                     animation.setDuration(200);
-                    animation.setStartDelay(100);
                     animation.start();
+                    listMusic.songList.get(position).setJustPlayed(false);
+
                 } else {
                     bar.setScaleX(0);
                 }

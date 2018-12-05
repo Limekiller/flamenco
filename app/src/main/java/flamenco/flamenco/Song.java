@@ -17,6 +17,7 @@ public class Song implements Serializable {
     private String title;
     private String artist;
     private String year;
+    private Boolean justPlayed;
     private ArrayList<Song> albumSongList;
 
 
@@ -27,7 +28,7 @@ public class Song implements Serializable {
         albumId=songAlbumId;
         year=songYear;
         albumArt = songAlbumArt;
-
+        justPlayed = false;
     }
 
     public void setAlbumSongList (ArrayList<Song> songList) {
@@ -36,7 +37,9 @@ public class Song implements Serializable {
     public void setTitle (String newTitle) {
         title=newTitle;
     }
+    public void setJustPlayed (Boolean bool) { justPlayed=bool;}
 
+    public Boolean getJustPlayed() {return justPlayed;}
     public long getID() {
         return id;
     }

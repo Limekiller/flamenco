@@ -51,20 +51,27 @@ public class QueueFragment extends Fragment{
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 View row = super.getView(position, convertView, parent);
+                View bar = row.findViewById(R.id.imageView6);
 
                 if (songList.get(position).getTitle().equals(((ListMusic) getActivity()).getCurrSong().getTitle())
                         && songList.get(position).getArtist().equals(((ListMusic) getActivity()).getCurrSong().getArtist())) {
-                    if (selected) {
-                        ObjectAnimator.ofObject(row, "backgroundColor", new ArgbEvaluator(),
-                                Color.WHITE, getResources().getColor(R.color.colorAccentLight))
-                                .setDuration(150).start();
-                    } else {
-                        row.setBackgroundColor (getResources().getColor(R.color.colorAccentLight));
-                    }
+                    ObjectAnimator animation = ObjectAnimator.ofFloat(bar,
+                            "scaleX", 0, 1);
+                    animation.setDuration(200);
+                    animation.setStartDelay(100);
+                    animation.start();
+                }  else if (songList.get(position).getJustPlayed()) {
+                    bar.setScaleX(1);
+                    ObjectAnimator animation = ObjectAnimator.ofFloat(bar,
+                            "scaleX", 1, 0);
+                    animation.setDuration(200);
+                    animation.start();
+                    listMusic.songList.get(position).setJustPlayed(false);
+
+                } else {
+                    bar.setScaleX(0);
                 }
-                else {
-                    row.setBackgroundColor (Color.WHITE);
-                }
+
                 return row;
             }
         });

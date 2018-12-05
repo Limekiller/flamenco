@@ -10,6 +10,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
+import android.widget.ListView;
 
 import java.util.ArrayList;
 
@@ -24,6 +25,7 @@ public class AlbumsFragment extends Fragment {
     private GridView songView;
     public ListMusic listMusic;
     private View view;
+    private ListView minorSongView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -33,6 +35,8 @@ public class AlbumsFragment extends Fragment {
 
         albumList = new ArrayList<Song>();
         songView = view.findViewById(R.id.album_list);
+
+        minorSongView = view.findViewById(R.id.a_song_list);
         listMusic = (ListMusic) getActivity();
 
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
@@ -100,4 +104,5 @@ public class AlbumsFragment extends Fragment {
 
         return view;
     }
+
 }
