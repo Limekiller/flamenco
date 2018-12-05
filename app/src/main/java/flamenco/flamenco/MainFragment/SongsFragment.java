@@ -56,13 +56,14 @@ public class SongsFragment extends Fragment{
                             "scaleX", 0, 1);
                     animation.setDuration(200);
                     animation.start();
-                }  else if (songList.get(position).getJustPlayed()) {
+                }  else if ( ((ListMusic) getActivity()).lastChosenSong != null &&
+                        ((ListMusic) getActivity()).lastChosenSong.getTitle().equals(songList.get(position).getTitle())
+                            && ((ListMusic) getActivity()).lastChosenSong.getArtist().equals(songList.get(position).getArtist())) {
                     bar.setScaleX(1);
                     ObjectAnimator animation = ObjectAnimator.ofFloat(bar,
                             "scaleX", 1, 0);
                     animation.setDuration(200);
                     animation.start();
-                    listMusic.songList.get(position).setJustPlayed(false);
 
                 } else {
                     bar.setScaleX(0);

@@ -79,6 +79,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
     private Song lastChosenPlaylist;
     public int lastPlaylistIndex;
+    public Song lastChosenSong;
 
     private LinearLayout audioController;
     private ImageView currSongArt;
@@ -93,7 +94,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     private float deviceHeight;
 
     private boolean hasUpdated=false;
-    private boolean paused=false, playbackPaused=false;
+    private boolean paused=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,28 +137,23 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         playBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (playbackPaused && musicSrv.requestAudioFocus()) {
+                if (!musicSrv.isPng() && musicSrv.requestAudioFocus()) {
                     musicSrv.go();
                     playBtn.setImageResource(R.drawable.exo_controls_pause);
-                    playbackPaused = false;
                 } else {
                     musicSrv.pausePlayer();
-                    playbackPaused = true;
                     playBtn.setImageResource(R.drawable.exo_controls_play);
 
                 }
-
-                handler.removeCallbacks(updateTime);
-                handler.postDelayed(updateTime, 100);
             }
         });
 
         rewindBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                lastChosenSong = musicSrv.getSong();
                 musicSrv.playPrev();
                 playBtn.setImageResource(R.drawable.exo_controls_pause);
-                playbackPaused = false;
                 updateSong();
             }
         });
@@ -165,9 +161,9 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         ffBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                lastChosenSong = musicSrv.getSong();
                 musicSrv.playNext();
                 playBtn.setImageResource(R.drawable.exo_controls_pause);
-                playbackPaused = false;
                 updateSong();
             }
         });
@@ -278,6 +274,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
     // This method handles moving from one song to the next automatically.
     public void updateSong() {
+        hasUpdated = true;
         flamenco.flamenco.Song currSong = musicSrv.getSong();
         currSongInfo.setText(currSong.getArtist()+" — "+currSong.getTitle());
         Glide.with(this).load(currSong.getAlbumArt()).error(R.drawable.placeholder)
@@ -295,10 +292,10 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         seekBar.setMax(mediaMax);
         seekBar.setProgress(mediaPos);
 
+        updateCurrSong();
+
         handler.removeCallbacks(updateTime);
         handler.postDelayed(updateTime, 100);
-        updateCurrSong();
-        currSong.setJustPlayed(true);
     }
 
 
@@ -311,6 +308,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
     // This method handles moving from one song to another based on user input
     public void songPicked(View view){
+        lastChosenSong = musicSrv.getSong();
         Integer pos;
         // Check which list choice is coming from
         if (((ViewGroup)view.getParent()).getId() == R.id.a_song_list) {
@@ -348,11 +346,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         musicSrv.setSong(pos);
         musicSrv.playSong();
         updateSong();
-        hasUpdated = true;
-
-        if(playbackPaused){
-            playbackPaused=false;
-        }
+        //hasUpdated = true;
 
     }
 
@@ -397,8 +391,13 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                     }, 350);
                 }
                 if (child instanceof  QueueFragment) {
-                    ((QueueFragment) child).updateCurrentSong(true);
-                }
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            ((QueueFragment) child).updateCurrentSong();
+                        }
+                    }, 350);                }
             }
         }
     }
@@ -654,7 +653,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
     @Override
     public void pause() {
-        playbackPaused=true;
         musicSrv.pausePlayer();
     }
 
@@ -735,16 +733,13 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     private Runnable updateTime = new Runnable() {
         @Override
         public void run() {
-        playbackPaused = !musicSrv.isPng();
-            if (!playbackPaused) {
-                int songPos = musicSrv.getPosn();
-                int songDur = musicSrv.getDur();
-                seekBar.setMax(songDur);
-                seekBar.setProgress(songPos);
-                currTime.setText("" + milliSecondsToTimer(songPos));
+            int songPos = musicSrv.getPosn();
+            int songDur = musicSrv.getDur();
+            seekBar.setMax(songDur);
+            seekBar.setProgress(songPos);
+            currTime.setText("" + milliSecondsToTimer(songPos));
 
-                handler.postDelayed(this, 100);
-            }
+            handler.postDelayed(this, 100);
         }
     };
 
@@ -761,10 +756,13 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             finalTimerString = hours + ":";
         }
 
-        if (seconds == 0 && !hasUpdated) {
-            hasUpdated = true;
-            updateSong();
-            if (!playbackPaused) {
+        if (seconds == 0) {
+            if (!hasUpdated) {
+                hasUpdated = true;
+                lastChosenSong = musicSrv.getSong();
+                updateSong();
+            }
+            if (musicSrv.isPng()) {
                 playBtn.setImageResource(R.drawable.exo_controls_pause);
             }
         }
@@ -830,7 +828,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         return false;
 
     }
-
 
     // This method runs on startup, constructing a list of songs, artists, and albums
     public void getSongList() {
