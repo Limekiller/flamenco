@@ -2,12 +2,21 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="0dp"
     android:background="?android:attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true"
     android:longClickable="true"
     android:onClick="songPicked">
+
+    <ImageView
+        android:id="@+id/selectedBG"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignBottom="@+id/songCont"
+        android:layout_alignParentTop="true"
+        android:alpha="0"
+        android:background="#d6d6d6" />
 
     <RelativeLayout
         android:id="@+id/songCont"

@@ -62,29 +62,16 @@ public class AlbumsFragment extends Fragment {
                                            float velocityY) {
 
                         if (e1.getY() - e2.getY() > 0) {
-                            ObjectAnimator animation = ObjectAnimator.ofFloat(albumFocus,
-                                    "translationY", 0, -70);
-                            animation.setDuration(300);
-                            animation.start();
-
-                            animation = ObjectAnimator.ofFloat(view.findViewById(R.id.album_list),
+                            ObjectAnimator animation = ObjectAnimator.ofFloat(view.findViewById(R.id.album_list),
                                     "translationY", deviceHeight, 0);
                             animation.setDuration(300);
                             animation.start();
 
-                            animation = ObjectAnimator.ofFloat(view.findViewById(R.id.a_song_list),
-                                    "translationY", 0, -150);
+                            animation = ObjectAnimator.ofFloat(view.findViewById(R.id.albumFocus),
+                                    "translationY", 0, -70);
                             animation.setDuration(300);
                             animation.start();
 
-                            animation = ObjectAnimator.ofFloat(view.findViewById(R.id.albumFocus),
-                                    "scaleX", 1, 0.9f);
-                            animation.setDuration(300);
-                            animation.start();
-                            animation = ObjectAnimator.ofFloat(view.findViewById(R.id.albumFocus),
-                                    "scaleY", 1, 0.9f);
-                            animation.setDuration(300);
-                            animation.start();
                         }
 
                         return false;

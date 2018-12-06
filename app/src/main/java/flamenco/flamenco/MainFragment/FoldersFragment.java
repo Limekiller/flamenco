@@ -71,21 +71,13 @@ public class FoldersFragment extends Fragment {
 
                             if (lastFolder.getParentFolder() == null) {
 
+
                                 ObjectAnimator animation = ObjectAnimator.ofFloat(folderFocus,
                                         "translationY", 0, -70);
                                 animation.setDuration(300);
                                 animation.setStartDelay(75);
                                 animation.start();
-                                animation = ObjectAnimator.ofFloat(folderFocus,
-                                        "scaleY", 1, 0.9f);
-                                animation.setDuration(300);
-                                animation.setStartDelay(75);
-                                animation.start();
-                                animation = ObjectAnimator.ofFloat(folderFocus,
-                                        "scaleX", 1, 0.9f);
-                                animation.setDuration(300);
-                                animation.setStartDelay(75);
-                                animation.start();
+
 
                                 animation = ObjectAnimator.ofFloat(view.findViewById(R.id.folder_list),
                                         "translationY", deviceHeight, 0);

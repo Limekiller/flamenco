@@ -21,6 +21,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.animation.Animation;
 import android.widget.GridView;
 import android.widget.ImageButton;
@@ -340,7 +341,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
         // Show audio controller (only affects on first pick)
         audioController.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
-        audioController.setLayoutParams(new TableLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, 0.1f));
+        audioController.setLayoutParams(new TableLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, 450, 0.2f));
 
         pos = Integer.parseInt(view.getTag().toString());
         musicSrv.setSong(pos);
@@ -405,10 +406,19 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
     // This method shows the Album Focus page when selecting an album
     public void setAlbumVisibility(View view) {
+        RelativeLayout albumParent;
+        Boolean artistsTab = false;
         TextView title = view.findViewById(R.id.album_title);
         ArrayList<flamenco.flamenco.Song> tempList;
         String albumTitle = (String)title.getText();
-        RelativeLayout albumParent = (RelativeLayout) view.getParent().getParent();
+
+        if (view.getParent().getParent() == view.getRootView().findViewById(R.id.album_list_container)) {
+            albumParent = (RelativeLayout) view.getParent().getParent().getParent();
+            artistsTab = true;
+        } else {
+            albumParent = (RelativeLayout) view.getParent().getParent();
+        }
+
         ListView tempAlbumList = albumParent.findViewById(R.id.a_song_list);
 
         tempList = albumList.get(0).getAlbumSongList();
@@ -425,37 +435,27 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                 .error(R.drawable.placeholder).crossFade().centerCrop()
                 .into((ImageView) albumParent.findViewById(R.id.albumFocusImage));
 
-
-        ObjectAnimator animation = ObjectAnimator.ofFloat(albumParent.findViewById(R.id.album_list),
-                "translationY", 0, deviceHeight);
+        ObjectAnimator animation;
+        if (artistsTab) {
+            animation = ObjectAnimator.ofFloat(albumParent.findViewById(R.id.album_list_container),
+                    "translationY", 0, deviceHeight);
+        } else {
+            animation = ObjectAnimator.ofFloat(albumParent.findViewById(R.id.album_list),
+                    "translationY", 0, deviceHeight);
+        }
         animation.setDuration(300);
         animation.setStartDelay(225);
         animation.start();
         albumParent.findViewById(R.id.album_list).setAlpha(0.99f);
 
         tempAlbumList.setTag(view.getTag());
+
         animation = ObjectAnimator.ofFloat(albumParent.findViewById(R.id.albumFocus),
-                "translationY", -70, 0);
+                "translationY", -70, 0).setDuration(225);
         animation.setDuration(300);
         animation.setStartDelay(225);
         animation.start();
 
-        animation = ObjectAnimator.ofFloat(albumParent.findViewById(R.id.a_song_list),
-                "translationY", -150, 0).setDuration(225);
-        animation.setDuration(300);
-        animation.setStartDelay(225);
-        animation.start();
-
-        animation = ObjectAnimator.ofFloat(albumParent.findViewById(R.id.albumFocus),
-                "scaleY", 0.9f, 1).setDuration(225);
-        animation.setDuration(300);
-        animation.setStartDelay(225);
-        animation.start();
-        animation = ObjectAnimator.ofFloat(albumParent.findViewById(R.id.albumFocus),
-                "scaleX", 0.9f, 1).setDuration(225);
-        animation.setDuration(300);
-        animation.setStartDelay(225);
-        animation.start();
         albumParent.findViewById(R.id.albumFocus).setAlpha(1f);
 
 
@@ -530,16 +530,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             animation.setStartDelay(225);
             animation.start();
 
-            animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.folderFocus),
-                    "scaleY", 0.9f, 1);
-            animation.setDuration(225);
-            animation.setStartDelay(225);
-            animation.start();
-            animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.folderFocus),
-                    "scaleX", 0.9f, 1);
-            animation.setDuration(225);
-            animation.setStartDelay(225);
-            animation.start();
 
         } else {
             tempSearchFolderList = lastFolder.getFolderList();
@@ -596,7 +586,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         animation.start();
         parentView.findViewById(R.id.artist_list).setAlpha(0.99f);
 
-        animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.album_list),
+        animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.album_list_container),
                 "translationY", -70, 0);
         animation.setDuration(225);
         animation.start();

@@ -49,6 +49,7 @@ public class SongsFragment extends Fragment{
             public View getView(int position, View convertView, ViewGroup parent) {
                 View row = super.getView(position, convertView, parent);
                 View bar = row.findViewById(R.id.imageView6);
+                View bg = row.findViewById(R.id.selectedBG);
 
                 if (songList.get(position).getTitle().equals(((ListMusic) getActivity()).getCurrSong().getTitle())
                         && songList.get(position).getArtist().equals(((ListMusic) getActivity()).getCurrSong().getArtist())) {
@@ -56,6 +57,7 @@ public class SongsFragment extends Fragment{
                             "scaleX", 0, 1);
                     animation.setDuration(200);
                     animation.start();
+                    bg.animate().alpha(1).setDuration(200);
                 }  else if ( ((ListMusic) getActivity()).lastChosenSong != null &&
                         ((ListMusic) getActivity()).lastChosenSong.getTitle().equals(songList.get(position).getTitle())
                             && ((ListMusic) getActivity()).lastChosenSong.getArtist().equals(songList.get(position).getArtist())) {
@@ -64,6 +66,7 @@ public class SongsFragment extends Fragment{
                             "scaleX", 1, 0);
                     animation.setDuration(200);
                     animation.start();
+                    bg.animate().alpha(0).setDuration(200);
 
                 } else {
                     bar.setScaleX(0);
