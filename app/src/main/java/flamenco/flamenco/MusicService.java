@@ -1,24 +1,28 @@
 package flamenco.flamenco;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
-import android.media.MediaTimestamp;
+import android.os.Build;
 import android.os.IBinder;
 
 import java.util.ArrayList;
-import java.util.List;
-
+import java.util.Random;
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.ContentUris;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.PowerManager;
 import android.provider.MediaStore;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import flamenco.flamenco.ListMusic;
 
 import static android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT;
 
@@ -38,6 +42,7 @@ public class MusicService extends Service implements
 
 
     public void onCreate(){
+        createNotificationChannel();
         super.onCreate();
         songPosn = 0;
         player = new MediaPlayer();
@@ -158,10 +163,15 @@ public class MusicService extends Service implements
     @Override
     public void onCompletion(MediaPlayer mp) {
         if(player.getCurrentPosition()>0){
-            mp.reset();
-            playNext();
+            mp.reset();playNext();
 
         }
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        NotificationManager notificationManager = ((NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE));
+        notificationManager.cancelAll();
     }
 
 
@@ -173,6 +183,18 @@ public class MusicService extends Service implements
 
     @Override
     public void onPrepared(MediaPlayer mp) {
+
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "ID")
+                .setSmallIcon(R.drawable.exo_notification_play)
+                .setContentTitle(getSong().getTitle())
+                .setOngoing(true)
+                .setContentText(getSong().getArtist())
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(this);
+        notificationManagerCompat.notify(1, mBuilder.build());
+
+
         Intent onPreparedIntent = new Intent("MEDIA_PLAYER_PREPARED");
         LocalBroadcastManager.getInstance(this).sendBroadcast(onPreparedIntent);
         mp.start();
@@ -224,5 +246,23 @@ public class MusicService extends Service implements
         songPosn++;
         if(songPosn >= songs.size()) songPosn=0;
         playSong();
+    }
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = ("Music Service");
+            String description = "This notification allows control of the music service from anywhere.";
+            int importance = NotificationManager.IMPORTANCE_LOW;
+            NotificationChannel channel = new NotificationChannel("ID", name, importance);
+            channel.setVibrationPattern(new long[]{0});
+            channel.enableVibration(true);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 }
