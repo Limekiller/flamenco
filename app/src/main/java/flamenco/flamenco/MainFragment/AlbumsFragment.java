@@ -9,6 +9,9 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.OvershootInterpolator;
 import android.widget.GridView;
 import android.widget.ListView;
 
@@ -53,7 +56,7 @@ public class AlbumsFragment extends Fragment {
                     @Override
                     public boolean onDown(MotionEvent e) {
                         view.findViewById(R.id.imageView3).animate().scaleY(3f).setDuration(200);
-                        view.findViewById(R.id.arrow_up).animate().translationY(deviceHeight-1000).setDuration(225);
+                        view.findViewById(R.id.arrow_up).animate().translationY(deviceHeight-1000).setDuration(225).setInterpolator(new OvershootInterpolator(0.75f));
                         return true;
                     }
 
@@ -64,6 +67,7 @@ public class AlbumsFragment extends Fragment {
                         if (e1.getY() - e2.getY() > 0) {
                             ObjectAnimator animation = ObjectAnimator.ofFloat(view.findViewById(R.id.album_list),
                                     "translationY", deviceHeight, 0);
+                            animation.setInterpolator(new DecelerateInterpolator(3));
                             animation.setDuration(300);
                             animation.start();
 
@@ -83,7 +87,7 @@ public class AlbumsFragment extends Fragment {
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     view.findViewById(R.id.imageView3).animate().scaleY(1f).setDuration(200);
-                    view.findViewById(R.id.arrow_up).animate().translationY(deviceHeight).setDuration(300);
+                    view.findViewById(R.id.arrow_up).animate().translationY(deviceHeight).setDuration(300).setInterpolator(new AccelerateInterpolator(3));
                 }
                 return gesture.onTouchEvent(event);
             }

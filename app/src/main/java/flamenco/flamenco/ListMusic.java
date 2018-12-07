@@ -22,6 +22,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.widget.GridView;
 import android.widget.ImageButton;
@@ -445,6 +446,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         }
         animation.setDuration(300);
         animation.setStartDelay(225);
+        animation.setInterpolator(new AccelerateInterpolator(2));
         animation.start();
         albumParent.findViewById(R.id.album_list).setAlpha(0.99f);
 
@@ -485,6 +487,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                 "translationY", 0, deviceHeight);
         animation.setDuration(300);
         animation.setStartDelay(225);
+        animation.setInterpolator(new AccelerateInterpolator(2));
         animation.start();
 
         animation = ObjectAnimator.ofFloat(playlistParent.findViewById(R.id.playlistFocus),
@@ -522,6 +525,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                     "translationY", 0, deviceHeight);
             animation.setDuration(300);
             animation.setStartDelay(225);
+            animation.setInterpolator(new AccelerateInterpolator(2));
             animation.start();
 
             animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.folderFocus),
@@ -538,6 +542,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
                     "translationY", -deviceHeight, 0);
             animation.setDuration(225);
             animation.setStartDelay(225);
+            animation.setInterpolator(new AccelerateInterpolator(3));
             animation.start();
 
         }
@@ -583,6 +588,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         ObjectAnimator animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.artist_list),
                 "translationY", 0, deviceHeight);
         animation.setDuration(300);
+        animation.setInterpolator(new AccelerateInterpolator(2));
         animation.start();
         parentView.findViewById(R.id.artist_list).setAlpha(0.99f);
 

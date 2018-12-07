@@ -17,6 +17,9 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.OvershootInterpolator;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -62,7 +65,7 @@ public class PlaylistsFragment extends Fragment{
                     @Override
                     public boolean onDown(MotionEvent e) {
                         view.findViewById(R.id.imageView).animate().scaleY(3f).setDuration(200);
-                        view.findViewById(R.id.arrow_up2).animate().translationY(height-1000).setDuration(225);
+                        view.findViewById(R.id.arrow_up2).animate().translationY(height-1000).setDuration(225).setInterpolator(new OvershootInterpolator(0.75f));
                         return true;
                     }
 
@@ -80,6 +83,7 @@ public class PlaylistsFragment extends Fragment{
                             animation = ObjectAnimator.ofFloat(view.findViewById(R.id.playlist_init),
                                     "translationY", height, 0);
                             animation.setDuration(300);
+                            animation.setInterpolator(new DecelerateInterpolator(3));
                             animation.start();
 
                             ((FloatingActionButton)view.getRootView().findViewById(R.id.floatingActionButton2)).hide();
@@ -105,7 +109,7 @@ public class PlaylistsFragment extends Fragment{
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     view.findViewById(R.id.imageView).animate().scaleY(1f).setDuration(200);
-                    view.findViewById(R.id.arrow_up2).animate().translationY(height).setDuration(300);
+                    view.findViewById(R.id.arrow_up2).animate().translationY(height).setDuration(300).setInterpolator(new AccelerateInterpolator(3));
                 }
                 return gesture.onTouchEvent(event);
             }

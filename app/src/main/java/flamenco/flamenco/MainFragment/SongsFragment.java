@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -56,6 +58,7 @@ public class SongsFragment extends Fragment{
                     ObjectAnimator animation = ObjectAnimator.ofFloat(bar,
                             "scaleX", 0, 1);
                     animation.setDuration(200);
+                    animation.setInterpolator(new AccelerateInterpolator(2));
                     animation.start();
                     bg.animate().alpha(1).setDuration(200);
                 }  else if ( ((ListMusic) getActivity()).lastChosenSong != null &&
@@ -65,6 +68,7 @@ public class SongsFragment extends Fragment{
                     ObjectAnimator animation = ObjectAnimator.ofFloat(bar,
                             "scaleX", 1, 0);
                     animation.setDuration(200);
+                    animation.setInterpolator(new AccelerateInterpolator(2));
                     animation.start();
                     bg.animate().alpha(0).setDuration(200);
 
