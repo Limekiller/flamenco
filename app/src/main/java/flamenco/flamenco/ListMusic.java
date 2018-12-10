@@ -136,6 +136,10 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
             playList = new ArrayList<>();
         }
 
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setLogo(R.drawable.ic_action_flamenco_logo_onecolor_small);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
+
         playBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
