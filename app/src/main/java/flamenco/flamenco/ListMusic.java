@@ -994,6 +994,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
     @Override
     public boolean onFling(MotionEvent motionEvent1, MotionEvent motionEvent2, float x, float y){
         //playBtn.setImageResource(R.drawable.exo_controls_play);
+        float factor = 8;
         if(motionEvent1.getY() - motionEvent2.getY() > 20){
             // need to load the fullscreen player xml here, and make it functional. Also need
             // to make sure that it only works when you swipe from the music controller at the
@@ -1008,13 +1009,42 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
 //            ObjectAnimator expansion = ObjectAnimator.ofFloat(R.id.audioController, "scaleX", "scaleY", deviceHeight);
 //            expansion.setDuration(500);
 //            expansion.start();
-            //animations.expandObject(findViewById(R.id.audioController), 1f, 3f);
-            //animations.translateObject(findViewById(R.id.currSongArt), deviceWidth/5f, deviceHeight/5f);
-            //animations.translateObject(findViewById(R.id.playBtn), 100f, 100f);
+            animations.expandObject(findViewById(R.id.audioController), 1f, factor);
+            animations.translateObject(findViewById(R.id.audioController), 0f, -deviceHeight/3f);
+
+            animations.expandObject(findViewById(R.id.seekBar), 1f, 1/factor);
+
+            animations.expandObject(findViewById(R.id.ffBtn), 1f, 1/factor);
+            animations.expandObject(findViewById(R.id.playBtn), 1f, 1/factor);
+            animations.expandObject(findViewById(R.id.rewindBtn), 1f, 1/factor);
+            animations.expandObject(findViewById(R.id.shuffButton), 1f, 1/factor);
+            animations.expandObject(findViewById(R.id.currSongInfo), 1f, 1/factor);
+            animations.expandObject(findViewById(R.id.currTime), 1f, 1/factor);
+            animations.expandObject(findViewById(R.id.currSongArt), 4f, 4/factor);
+
+            animations.translateObject(findViewById(R.id.currSongArt), deviceWidth/2f - 100f, -100f);
+            animations.translateObject(findViewById(R.id.currSongInfo), 0f, deviceHeight/30f);
+            animations.translateObject(findViewById(R.id.pager), 0f, deviceHeight);
+
             return true;
         }
         else if (motionEvent2.getY() - motionEvent1.getY() > 20) {
             // animate the player back to small
+            animations.contractObject(findViewById(R.id.audioController), 1f, factor);
+            animations.translateObject(findViewById(R.id.audioController), 0f, 0f);
+
+            animations.contractObject(findViewById(R.id.seekBar), 1f, 1/factor);
+            animations.contractObject(findViewById(R.id.ffBtn), 1f, 1/factor);
+            animations.contractObject(findViewById(R.id.playBtn), 1f, 1/factor);
+            animations.contractObject(findViewById(R.id.rewindBtn), 1f, 1/factor);
+            animations.contractObject(findViewById(R.id.shuffButton), 1f, 1/factor);
+            animations.contractObject(findViewById(R.id.currSongInfo), 1f, 1/factor);
+            animations.contractObject(findViewById(R.id.currTime), 1f, 1/factor);
+            animations.contractObject(findViewById(R.id.currSongArt), 4f, 4/factor);
+
+            animations.translateObject(findViewById(R.id.currSongArt), 0f, 0f);
+            animations.translateObject(findViewById(R.id.currSongInfo), 0f, 0f);
+            animations.translateObject(findViewById(R.id.pager), 0f, 0f);
         }
         return false;
     }
