@@ -4,6 +4,8 @@ import android.content.Context;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.animation.ObjectAnimator;
+import android.graphics.Path;
 
 public class animations {
 
@@ -94,5 +96,21 @@ public class animations {
         });
         view.startAnimation(animation);
 
+    }
+
+    public static void expandObject(final View view, float x, float y){
+        Path path = new Path();
+        path.moveTo(x, y);
+        ObjectAnimator animation = ObjectAnimator.ofFloat(view, "scaleX", "scaleY", path);
+        animation.setDuration(2000);
+        animation.start();
+    }
+
+    public static void translateObject(final View view, float x, float y) {
+        Path path = new Path();
+        path.moveTo(x, y);
+        ObjectAnimator animation = ObjectAnimator.ofFloat(view, "translationX", "translationY", path);
+        animation.setDuration(2000);
+        animation.start();
     }
 }

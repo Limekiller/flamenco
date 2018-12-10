@@ -9,6 +9,7 @@ import android.content.ContentUris;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Path;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,6 +17,7 @@ import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
@@ -37,6 +39,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.view.View;
+import android.view.MotionEvent;
+import android.view.GestureDetector;
+import android.view.GestureDetector.OnGestureListener;
+import android.support.v4.view.GestureDetectorCompat;
+import android.support.v4.view.MotionEventCompat;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.FragmentManager;
 
 import flamenco.flamenco.ListsFragment.AddSongToPlaylist;
 import flamenco.flamenco.ListsFragment.QueueFragment;
@@ -59,7 +68,7 @@ import java.util.Comparator;
 import java.util.List;
 
 
-public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
+public class ListMusic extends AppCompatActivity implements MediaPlayerControl, OnGestureListener{
 
     public ArrayList<flamenco.flamenco.Song> songList;
     public ArrayList<flamenco.flamenco.Song> artistList;
@@ -89,6 +98,37 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     private ImageButton ffBtn;
     private Handler handler;
     private float deviceHeight;
+    private float deviceWidth;
+    private ImageButton fullscreenPlay;
+    private ImageView fullscreenArt;
+    GestureDetector gestureDetector;
+    FragmentManager fragmentManager = getSupportFragmentManager();
+    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+    Fragment activityListMusic = new Fragment();
+
+
+    /*public boolean onTouchEvent(MotionEvent event){
+        int action = MotionEventCompat.getActionMasked(event);
+
+        switch(action) {
+            case (MotionEvent.ACTION_DOWN) :
+                //playBtn.setImageResource(R.drawable.exo_controls_play);
+                return true;
+            case (MotionEvent.ACTION_MOVE) :
+                //playBtn.setImageResource(R.drawable.exo_controls_play);
+                return true;
+            case (MotionEvent.ACTION_UP) :
+                //playBtn.setImageResource(R.drawable.exo_controls_play);
+                return true;
+            case (MotionEvent.ACTION_CANCEL) :
+                return true;
+            case (MotionEvent.ACTION_OUTSIDE) :
+                //playBtn.setImageResource(R.drawable.exo_controls_play);
+                return true;
+            default :
+                return super.onTouchEvent(event);
+        }
+    }*/
 
     private boolean hasUpdated=false;
     private boolean paused=false, playbackPaused=false;
@@ -96,6 +136,8 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        fragmentTransaction.add(R.id.container, activityListMusic);
         setContentView(R.layout.activity_list_music);
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         prefsEditor = prefs.edit();
@@ -117,6 +159,8 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         currTime = findViewById(R.id.currTime);
         handler = new Handler();
         audioController = findViewById(R.id.audioController);
+        gestureDetector = new GestureDetector(ListMusic.this, ListMusic.this);
+
 
         Gson gson = new Gson();
         String json = gson.toJson(shuffledList);
@@ -249,6 +293,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         if(playIntent==null){
             DisplayMetrics displayMetrics = getApplicationContext().getResources().getDisplayMetrics();
             deviceHeight = displayMetrics.heightPixels;
+            deviceWidth = displayMetrics.widthPixels;
             playIntent = new Intent(this, MusicService.class);
             bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
             startService(playIntent);
@@ -592,7 +637,8 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
 
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    Toast.makeText(ListMusic.this, "Permission denied to read your External storage", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ListMusic.this, "Permission denied to read your External storage",
+                            Toast.LENGTH_SHORT).show();
                 }
             }
             // add other cases for more permissions
@@ -899,6 +945,74 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl{
         final MainFragmentAdapter adapter = new MainFragmentAdapter(
                 getSupportFragmentManager(), 2);
         viewPager.setAdapter(adapter);
+    }
+
+    // detect swipes up
+    // now can load fullscreen player and revert to the activity_list_music
+    // but it doesn't show the player at the bottom, even though music is still playing.
+    // This code is really a band aid right now, until I can figure out fragment transactions.
+    @Override
+    public boolean onFling(MotionEvent motionEvent1, MotionEvent motionEvent2, float x, float y){
+        //playBtn.setImageResource(R.drawable.exo_controls_play);
+        if(motionEvent1.getY() - motionEvent2.getY() > 20){
+            // need to load the fullscreen player xml here, and make it functional. Also need
+            // to make sure that it only works when you swipe from the music controller at the
+            // bottom of the screen.
+            /* Song currSong = musicSrv.getSong();
+            setContentView(R.layout.fullscreen_player);
+            fullscreenArt = findViewById(R.id.fullscreen_art);
+            fullscreenPlay = findViewById(R.id.fullscreen_play);
+            Glide.with(this).load(currSong.getAlbumArt()).error(R.drawable.placeholder)
+                    .crossFade().centerCrop().into(fullscreenArt);
+            fullscreenPlay.setImageResource(R.drawable.exo_controls_play);*/
+//            ObjectAnimator expansion = ObjectAnimator.ofFloat(R.id.audioController, "scaleX", "scaleY", deviceHeight);
+//            expansion.setDuration(500);
+//            expansion.start();
+            //animations.expandObject(findViewById(R.id.audioController), 1f, 3f);
+            //animations.translateObject(findViewById(R.id.currSongArt), deviceWidth/5f, deviceHeight/5f);
+            //animations.translateObject(findViewById(R.id.playBtn), 100f, 100f);
+            return true;
+        }
+        else if (motionEvent2.getY() - motionEvent1.getY() > 20) {
+            // animate the player back to small
+        }
+        return false;
+    }
+
+    // overriding the rest of the methods in GestureDetector so that the program doesn't break
+    @Override
+    public void onLongPress(MotionEvent arg0) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent arg0, MotionEvent arg1, float arg2, float arg3) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public void onShowPress(MotionEvent arg0) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent arg0) {
+        //playBtn.setImageResource(R.drawable.exo_controls_play);
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent motionEvent) {
+        // TODO Auto-generated method stub
+        return gestureDetector.onTouchEvent(motionEvent);
+    }
+
+    @Override
+    public boolean onDown(MotionEvent arg0) {
+        // TODO Auto-generated method stub
+        return false;
     }
 
 }
