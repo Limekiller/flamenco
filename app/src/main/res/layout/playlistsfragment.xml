@@ -11,6 +11,7 @@
         android:layout_height="match_parent"
         android:visibility="visible">
 
+
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/floatingActionButton2"
             android:layout_width="wrap_content"
@@ -23,13 +24,29 @@
             android:focusable="true"
             android:onClick="addSongToPlaylist"
             app:fabSize="normal"
-            app:srcCompat="@android:drawable/ic_input_add" />
+            app:srcCompat="@drawable/baseline_add_black_18dp" />
 
         <ListView
             android:id="@+id/specPlaylist"
             android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <ImageView
+            android:id="@+id/arrow_up2"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginEnd="50dp" />
+            android:layout_alignParentBottom="true"
+            android:layout_marginTop="0dp"
+            app:srcCompat="@drawable/arrow" />
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_alignParentBottom="true"
+            android:clickable="true"
+            android:focusable="true"
+            app:srcCompat="@drawable/drop_shadow" />
 
     </RelativeLayout>
 
@@ -48,18 +65,6 @@
             android:dividerHeight="5dp" />
 
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/addNew"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginEnd="20dp"
-            android:layout_marginBottom="20dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:fabSize="normal"
-            app:srcCompat="@android:drawable/ic_input_add" />
     </RelativeLayout>
 
 </RelativeLayout>

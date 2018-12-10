@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewCompat;
@@ -22,6 +23,8 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.ViewGroup;
+import android.view.ViewParent;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.widget.GridView;
 import android.widget.ImageButton;
@@ -50,6 +53,7 @@ import android.support.v4.app.FragmentManager;
 import flamenco.flamenco.ListsFragment.AddSongToPlaylist;
 import flamenco.flamenco.ListsFragment.QueueFragment;
 import flamenco.flamenco.MainFragment.AlbumAdapter;
+import flamenco.flamenco.MainFragment.AlbumsFragment;
 import flamenco.flamenco.MainFragment.FoldersAdapter;
 import flamenco.flamenco.MainFragment.MainFragmentAdapter;
 import flamenco.flamenco.MainFragment.SongAdapter;
@@ -86,6 +90,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
 
     private Song lastChosenPlaylist;
     public int lastPlaylistIndex;
+    public Song lastChosenSong;
 
     private LinearLayout audioController;
     private ImageView currSongArt;
@@ -131,7 +136,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
     }*/
 
     private boolean hasUpdated=false;
-    private boolean paused=false, playbackPaused=false;
+    private boolean paused=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -178,37 +183,34 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
         playBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (playbackPaused && musicSrv.requestAudioFocus()) {
+                if (!musicSrv.isPng() && musicSrv.requestAudioFocus()) {
                     musicSrv.go();
                     playBtn.setImageResource(R.drawable.exo_controls_pause);
-                    playbackPaused = false;
                 } else {
                     musicSrv.pausePlayer();
-                    playbackPaused = true;
                     playBtn.setImageResource(R.drawable.exo_controls_play);
 
                 }
-                updateSong(false);
             }
         });
 
         rewindBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                lastChosenSong = musicSrv.getSong();
                 musicSrv.playPrev();
                 playBtn.setImageResource(R.drawable.exo_controls_pause);
-                playbackPaused = false;
-                updateSong(true);
+                updateSong();
             }
         });
 
         ffBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                lastChosenSong = musicSrv.getSong();
                 musicSrv.playNext();
                 playBtn.setImageResource(R.drawable.exo_controls_pause);
-                playbackPaused = false;
-                updateSong(true);
+                updateSong();
             }
         });
 
@@ -318,10 +320,10 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
 
 
     // This method handles moving from one song to the next automatically.
-    public void updateSong(boolean selected) {
+    public void updateSong() {
+        hasUpdated = true;
         flamenco.flamenco.Song currSong = musicSrv.getSong();
         currSongInfo.setText(currSong.getArtist()+" — "+currSong.getTitle());
-        updateCurrSong(selected);
         Glide.with(this).load(currSong.getAlbumArt()).error(R.drawable.placeholder)
                 .crossFade().centerCrop().into(currSongArt);
 
@@ -337,6 +339,8 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
         seekBar.setMax(mediaMax);
         seekBar.setProgress(mediaPos);
 
+        updateCurrSong();
+
         handler.removeCallbacks(updateTime);
         handler.postDelayed(updateTime, 100);
     }
@@ -351,7 +355,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
 
     // This method handles moving from one song to another based on user input
     public void songPicked(View view){
-
+        lastChosenSong = musicSrv.getSong();
         Integer pos;
         // Check which list choice is coming from
         if (((ViewGroup)view.getParent()).getId() == R.id.a_song_list) {
@@ -383,16 +387,13 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
 
         // Show audio controller (only affects on first pick)
         audioController.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
-        audioController.setLayoutParams(new TableLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, 0.06f));
+        audioController.setLayoutParams(new TableLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, 450, 0.2f));
 
         pos = Integer.parseInt(view.getTag().toString());
         musicSrv.setSong(pos);
         musicSrv.playSong();
-        updateSong(true);
-
-        if(playbackPaused){
-            playbackPaused=false;
-        }
+        updateSong();
+        //hasUpdated = true;
 
     }
 
@@ -423,16 +424,27 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
         prefsEditor.commit();
     }
 
-    public void updateCurrSong(boolean selected) {
+    public void updateCurrSong() {
         List<Fragment> allFragments = getSupportFragmentManager().getFragments();
         for (Fragment fragment: allFragments) {
-            for (Fragment child: fragment.getChildFragmentManager().getFragments()) {
+            for (final Fragment child: fragment.getChildFragmentManager().getFragments()) {
                 if (child instanceof SongsFragment) {
-                    ((SongsFragment) child).updateCurrentSong(selected);
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            ((SongsFragment) child).updateCurrentSong();
+                        }
+                    }, 350);
                 }
                 if (child instanceof  QueueFragment) {
-                    ((QueueFragment) child).updateCurrentSong(selected);
-                }
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            ((QueueFragment) child).updateCurrentSong();
+                        }
+                    }, 350);                }
             }
         }
     }
@@ -440,10 +452,19 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
 
     // This method shows the Album Focus page when selecting an album
     public void setAlbumVisibility(View view) {
+        RelativeLayout albumParent;
+        Boolean artistsTab = false;
         TextView title = view.findViewById(R.id.album_title);
         ArrayList<flamenco.flamenco.Song> tempList;
         String albumTitle = (String)title.getText();
-        RelativeLayout albumParent = (RelativeLayout) view.getParent().getParent();
+
+        if (view.getParent().getParent() == view.getRootView().findViewById(R.id.album_list_container)) {
+            albumParent = (RelativeLayout) view.getParent().getParent().getParent();
+            artistsTab = true;
+        } else {
+            albumParent = (RelativeLayout) view.getParent().getParent();
+        }
+
         ListView tempAlbumList = albumParent.findViewById(R.id.a_song_list);
 
         tempList = albumList.get(0).getAlbumSongList();
@@ -460,20 +481,28 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
                 .error(R.drawable.placeholder).crossFade().centerCrop()
                 .into((ImageView) albumParent.findViewById(R.id.albumFocusImage));
 
-
-        ObjectAnimator animation = ObjectAnimator.ofFloat(albumParent.findViewById(R.id.album_list),
-                "translationY", 0, deviceHeight);
+        ObjectAnimator animation;
+        if (artistsTab) {
+            animation = ObjectAnimator.ofFloat(albumParent.findViewById(R.id.album_list_container),
+                    "translationY", 0, deviceHeight);
+        } else {
+            animation = ObjectAnimator.ofFloat(albumParent.findViewById(R.id.album_list),
+                    "translationY", 0, deviceHeight);
+        }
         animation.setDuration(300);
         animation.setStartDelay(225);
+        animation.setInterpolator(new AccelerateInterpolator(2));
         animation.start();
         albumParent.findViewById(R.id.album_list).setAlpha(0.99f);
 
         tempAlbumList.setTag(view.getTag());
+
         animation = ObjectAnimator.ofFloat(albumParent.findViewById(R.id.albumFocus),
-                "translationY", -70, 0);
-        animation.setDuration(225);
+                "translationY", -70, 0).setDuration(225);
+        animation.setDuration(300);
         animation.setStartDelay(225);
         animation.start();
+
         albumParent.findViewById(R.id.albumFocus).setAlpha(1f);
 
 
@@ -482,7 +511,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
 
     }
 
-    public void setPlaylistVisibility(View view) {
+    public void setPlaylistVisibility(final View view) {
         TextView title = view.findViewById(R.id.playlist_title);
         ArrayList<flamenco.flamenco.Song> tempList;
         String playlistTitle = (String)title.getText();
@@ -503,6 +532,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
                 "translationY", 0, deviceHeight);
         animation.setDuration(300);
         animation.setStartDelay(225);
+        animation.setInterpolator(new AccelerateInterpolator(2));
         animation.start();
 
         animation = ObjectAnimator.ofFloat(playlistParent.findViewById(R.id.playlistFocus),
@@ -511,6 +541,14 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
         animation.setStartDelay(225);
         animation.start();
 
+        ((FloatingActionButton)view.getRootView().findViewById(R.id.addNew)).hide();
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ((FloatingActionButton)view.getRootView().findViewById(R.id.floatingActionButton2)).show();
+            }
+        }, 550);
 
         SongAdapter songAdt = new SongAdapter(playlistParent.getContext(), tempList, "song");
         tempPlayList.setAdapter(songAdt);
@@ -532,6 +570,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
                     "translationY", 0, deviceHeight);
             animation.setDuration(300);
             animation.setStartDelay(225);
+            animation.setInterpolator(new AccelerateInterpolator(2));
             animation.start();
 
             animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.folderFocus),
@@ -540,6 +579,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
             animation.setStartDelay(225);
             animation.start();
 
+
         } else {
             tempSearchFolderList = lastFolder.getFolderList();
 
@@ -547,6 +587,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
                     "translationY", -deviceHeight, 0);
             animation.setDuration(225);
             animation.setStartDelay(225);
+            animation.setInterpolator(new AccelerateInterpolator(3));
             animation.start();
 
         }
@@ -592,10 +633,11 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
         ObjectAnimator animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.artist_list),
                 "translationY", 0, deviceHeight);
         animation.setDuration(300);
+        animation.setInterpolator(new AccelerateInterpolator(2));
         animation.start();
         parentView.findViewById(R.id.artist_list).setAlpha(0.99f);
 
-        animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.album_list),
+        animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.album_list_container),
                 "translationY", -70, 0);
         animation.setDuration(225);
         animation.start();
@@ -653,7 +695,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
 
     @Override
     public void pause() {
-        playbackPaused=true;
         musicSrv.pausePlayer();
     }
 
@@ -734,16 +775,13 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
     private Runnable updateTime = new Runnable() {
         @Override
         public void run() {
-        playbackPaused = !musicSrv.isPng();
-            if (!playbackPaused) {
-                int songPos = musicSrv.getPosn();
-                int songDur = musicSrv.getDur();
-                seekBar.setMax(songDur);
-                seekBar.setProgress(songPos);
-                currTime.setText("" + milliSecondsToTimer(songPos));
+            int songPos = musicSrv.getPosn();
+            int songDur = musicSrv.getDur();
+            seekBar.setMax(songDur);
+            seekBar.setProgress(songPos);
+            currTime.setText("" + milliSecondsToTimer(songPos));
 
-                handler.postDelayed(this, 100);
-            }
+            handler.postDelayed(this, 100);
         }
     };
 
@@ -760,10 +798,13 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
             finalTimerString = hours + ":";
         }
 
-        if (seconds == 0 && !hasUpdated) {
-            hasUpdated = true;
-            updateSong(false);
-            if (!playbackPaused) {
+        if (seconds == 0) {
+            if (!hasUpdated) {
+                hasUpdated = true;
+                lastChosenSong = musicSrv.getSong();
+                updateSong();
+            }
+            if (musicSrv.isPng()) {
                 playBtn.setImageResource(R.drawable.exo_controls_pause);
             }
         }
@@ -829,7 +870,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
         return false;
 
     }
-
 
     // This method runs on startup, constructing a list of songs, artists, and albums
     public void getSongList() {

@@ -1,0 +1,60 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout"
+    android:layout_width="fill_parent"
+    android:layout_height="64dp"
+    android:background="@color/colorPrimary"
+    android:padding="10dp">
+
+    <ImageView
+        android:id="@+id/songArt"
+        android:layout_width="50dp"
+        android:layout_height="fill_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_marginRight="10dp"
+        android:src="@mipmap/ic_launcher" />
+
+    <TextView
+        android:id="@+id/songTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/songArt"
+        android:textColor="@color/exo_edit_mode_background_color"
+        android:textSize="13dp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/songArtist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/songTitle"
+        android:layout_toRightOf="@id/songArt"
+        android:textColor="@color/exo_edit_mode_background_color"
+        android:textSize="13dp" />
+
+    <ImageView
+        android:id="@+id/nLast"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/nPlay"
+        app:srcCompat="@drawable/exo_icon_previous" />
+
+    <ImageView
+        android:id="@+id/nPlay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="false"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/nNext"
+        app:srcCompat="@drawable/exo_controls_play" />
+
+    <ImageView
+        android:id="@+id/nNext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="25dp"
+        app:srcCompat="@drawable/exo_controls_next" />
+</RelativeLayout>

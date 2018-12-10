@@ -1,26 +1,39 @@
 package flamenco.flamenco;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
-import android.media.MediaTimestamp;
+import android.os.Build;
 import android.os.IBinder;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
-
+import java.util.Random;
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.ContentUris;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.PowerManager;
+import android.os.StrictMode;
 import android.provider.MediaStore;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import flamenco.flamenco.ListMusic;
+import android.widget.ImageView;
+import android.widget.RemoteViews;
 
-import static android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.NotificationTarget;
 
 public class MusicService extends Service implements
         MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
@@ -32,12 +45,35 @@ public class MusicService extends Service implements
     private final IBinder musicBind = new MusicBinder();
     private AudioManager audioManager;
 
-
     public MusicService() {
     }
 
+    private final BroadcastReceiver nReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getStringExtra("action");
+            switch (action) {
+                case "pause":
+                    if (isPng()) {
+                        pausePlayer();
+                    } else {
+                        go();
+                    }
+                    break;
+                case "next":
+                    playNext();
+                    break;
+                default:
+                    playPrev();
+                    break;
+            }
+        }
+    };
 
     public void onCreate(){
+        registerReceiver(nReceiver, new IntentFilter("mediaControl"));
+
+        createNotificationChannel();
         super.onCreate();
         songPosn = 0;
         player = new MediaPlayer();
@@ -158,10 +194,15 @@ public class MusicService extends Service implements
     @Override
     public void onCompletion(MediaPlayer mp) {
         if(player.getCurrentPosition()>0){
-            mp.reset();
-            playNext();
+            mp.reset();playNext();
 
         }
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        NotificationManager notificationManager = ((NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE));
+        notificationManager.cancelAll();
     }
 
 
@@ -171,8 +212,58 @@ public class MusicService extends Service implements
     }
 
 
+    public void setUpNotification() {
+        Intent pauseIntent = new Intent("mediaControl");
+        pauseIntent.putExtra("action", "pause");
+        PendingIntent pausePendingIntent = PendingIntent.getBroadcast(this, 0, pauseIntent, 0);
+
+        Intent nextIntent = new Intent("mediaControl");
+        nextIntent.putExtra("action", "next");
+        PendingIntent nextPendingIntent = PendingIntent.getBroadcast(this, 1, nextIntent, 0);
+
+        Intent prevIntent = new Intent("mediaControl");
+        prevIntent.putExtra("action", "prev");
+        PendingIntent prevPendingIntent = PendingIntent.getBroadcast(this, 2, prevIntent, 0);
+
+        Intent homeIntent = new Intent(this, ListMusic.class);
+        PendingIntent homePendingIntent = PendingIntent.getActivity(this, 3, homeIntent, 0);
+
+
+        RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.notification);
+        contentView.setTextViewText(R.id.songTitle, getSong().getTitle());
+        contentView.setTextViewText(R.id.songArtist, getSong().getArtist());
+        contentView.setImageViewResource(R.id.nLast, R.drawable.exo_controls_previous);
+
+        if (isPng()) {
+            contentView.setImageViewResource(R.id.nPlay, R.drawable.exo_controls_play);
+        } else {
+            contentView.setImageViewResource(R.id.nPlay, R.drawable.exo_controls_pause);
+        }
+
+        contentView.setImageViewResource(R.id.nNext, R.drawable.exo_controls_next);
+        contentView.setImageViewResource(R.id.songArt, R.drawable.baseline_queue_music_black_18dp);
+
+        contentView.setOnClickPendingIntent(R.id.nLast, prevPendingIntent);
+        contentView.setOnClickPendingIntent(R.id.nPlay, pausePendingIntent);
+        contentView.setOnClickPendingIntent(R.id.nNext, nextPendingIntent);
+
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "ID")
+                .setSmallIcon(R.drawable.exo_notification_play)
+                .setContent(contentView)
+                .setContentIntent(homePendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_MAX);
+
+        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(this);
+        notificationManagerCompat.notify(1, mBuilder.build());
+
+
+    }
+
     @Override
     public void onPrepared(MediaPlayer mp) {
+
+        setUpNotification();
+
         Intent onPreparedIntent = new Intent("MEDIA_PLAYER_PREPARED");
         LocalBroadcastManager.getInstance(this).sendBroadcast(onPreparedIntent);
         mp.start();
@@ -199,6 +290,7 @@ public class MusicService extends Service implements
 
 
     public void pausePlayer(){
+        setUpNotification();
         player.pause();
     }
 
@@ -209,6 +301,7 @@ public class MusicService extends Service implements
 
 
     public void go(){
+        setUpNotification();
         player.start();
     }
 
@@ -224,5 +317,23 @@ public class MusicService extends Service implements
         songPosn++;
         if(songPosn >= songs.size()) songPosn=0;
         playSong();
+    }
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = ("Music Service");
+            String description = "This notification allows control of the music service from anywhere.";
+            int importance = NotificationManager.IMPORTANCE_LOW;
+            NotificationChannel channel = new NotificationChannel("ID", name, importance);
+            channel.setVibrationPattern(new long[]{0});
+            channel.enableVibration(true);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 }

@@ -27,7 +27,6 @@ public class Song implements Serializable {
         albumId=songAlbumId;
         year=songYear;
         albumArt = songAlbumArt;
-
     }
 
     public void setAlbumSongList (ArrayList<Song> songList) {

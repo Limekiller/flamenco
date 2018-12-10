@@ -15,6 +15,7 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -70,26 +71,28 @@ public class SongAdapter extends BaseAdapter implements Filterable {
         TextView artistView;
         TextView yearView;
         ImageView artView;
-        LinearLayout songLay;
+        RelativeLayout songLay;
 
         if (area.equals("playlists")) {
-            songLay = (LinearLayout) songInf.inflate
+            songLay = (RelativeLayout) songInf.inflate
                     (R.layout.playlist, parent, false);
 
             //get title and artist views
             songView = (TextView)songLay.findViewById(R.id.playlist_title);
             artView = (ImageView)songLay.findViewById(R.id.playlist_art);
+            Glide.with(context).load(R.drawable.baseline_queue_music_black_18dp)
+                    .crossFade().centerCrop().into(artView);
             artistView = null;
             yearView = null;
         } else {
-            songLay = (LinearLayout) songInf.inflate
+            songLay = (RelativeLayout) songInf.inflate
                     (R.layout.song, parent, false);
 
             //get title and artist views
-            songView = (TextView)songLay.findViewById(R.id.song_title);
-            artistView = (TextView)songLay.findViewById(R.id.song_artist);
+            songView = songLay.findViewById(R.id.song_title);
+            artistView = songLay.findViewById(R.id.song_artist);
             yearView = songLay.findViewById(R.id.song_year);
-            artView = (ImageView)songLay.findViewById(R.id.song_art);
+            artView = songLay.findViewById(R.id.song_art);
         }
 
         //get song using position
@@ -106,6 +109,8 @@ public class SongAdapter extends BaseAdapter implements Filterable {
             artistView.setVisibility(View.GONE);
             yearView.setVisibility(View.GONE);
             artView.setVisibility(View.GONE);
+            Glide.with(context).load(currSong.getAlbumArt()).error(R.drawable.placeholder)
+                    .crossFade().centerCrop().into(artView);
         }
 
         //set position as tag

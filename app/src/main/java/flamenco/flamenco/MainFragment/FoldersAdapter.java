@@ -13,6 +13,7 @@ import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import flamenco.flamenco.Folder;
@@ -85,20 +86,22 @@ public class FoldersAdapter extends BaseAdapter {
             //get title and artist strings
             pathView.setText(currFolder.getPath());
 
-            try {
-                Glide.with(context).load(currFolder.getSongList().get(0).getAlbumArt())
-                        .error(R.drawable.placeholder).crossFade().dontAnimate().centerCrop().into(artView);
-            } catch (IndexOutOfBoundsException e) {
-                Glide.with(context).load(R.drawable.placeholder)
-                        .crossFade().dontAnimate().centerCrop().into(artView);
-            }
+//            try {
+//                Glide.with(context).load(currFolder.getSongList().get(0).getAlbumArt())
+//                        .error(R.drawable.placeholder).crossFade().dontAnimate().centerCrop().into(artView);
+//            } catch (IndexOutOfBoundsException e) {
+//                Glide.with(context).load(R.drawable.placeholder)
+//                        .crossFade().dontAnimate().centerCrop().into(artView);
+//            }
+            Glide.with(context).load(R.drawable.baseline_folder_black_18dp)
+                         .crossFade().dontAnimate().centerCrop().into(artView);
 
             //set position as tag
             folderLay.setTag(position);
             return folderLay;
         } else {
 
-            LinearLayout songLay = (LinearLayout) songInf.inflate
+            View songLay = songInf.inflate
                     (R.layout.song, parent, false);
 
             //get title and artist views
