@@ -352,6 +352,12 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
         queueFragment.refreshQueue();
     }
 
+    public ArrayList<Song> getQueueList(){
+        QueueFragment queueFragment = (QueueFragment) getSupportFragmentManager().getFragments()
+                .get(1).getChildFragmentManager().getFragments().get(1);
+        return queueFragment.getList();
+    }
+
 
     // This method handles moving from one song to another based on user input
     public void songPicked(View view){
@@ -380,19 +386,28 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
             musicSrv.setList(playList.get(lastPlaylistIndex).getAlbumSongList());
         }
 
-        if (((ViewGroup)view.getParent()).getId() != R.id.queueList) {
-            isShuffled = false;
-            refreshQueue();
-        }
+
 
         // Show audio controller (only affects on first pick)
         audioController.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
         audioController.setLayoutParams(new TableLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, 450, 0.2f));
 
         pos = Integer.parseInt(view.getTag().toString());
+
+        if (((ViewGroup)view.getParent()).getId() == R.id.queueList) {
+            ArrayList<Song> queueList = getQueueList();
+            int listDiff = musicSrv.getList().size() - queueList.size();
+            pos = pos + listDiff;
+        }
+        
         musicSrv.setSong(pos);
         musicSrv.playSong();
         updateSong();
+
+        if (((ViewGroup)view.getParent()).getId() != R.id.queueList) {
+            isShuffled = false;
+            refreshQueue();
+        }
         //hasUpdated = true;
 
     }

@@ -45,7 +45,8 @@
                 android:textColor="@android:color/white"
                 android:textSize="18sp"
                 android:textStyle="bold|italic"
-                android:typeface="serif" />
+                android:letterSpacing="0.055"
+                android:fontFamily="@font/timesbi" />
 
             <TextView
                 android:id="@+id/albumFocusArtist"

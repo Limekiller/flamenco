@@ -241,14 +241,14 @@ public class MusicService extends Service implements
         }
 
         contentView.setImageViewResource(R.id.nNext, R.drawable.exo_controls_next);
-        contentView.setImageViewResource(R.id.songArt, R.drawable.baseline_queue_music_black_18dp);
+        contentView.setImageViewResource(R.id.songArt, R.drawable.ic_launcher_round);
 
         contentView.setOnClickPendingIntent(R.id.nLast, prevPendingIntent);
         contentView.setOnClickPendingIntent(R.id.nPlay, pausePendingIntent);
         contentView.setOnClickPendingIntent(R.id.nNext, nextPendingIntent);
 
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "ID")
-                .setSmallIcon(R.drawable.exo_notification_play)
+                .setSmallIcon(R.drawable.ic_stat_flamenco_logo_onecolor)
                 .setContent(contentView)
                 .setContentIntent(homePendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_MAX);
