@@ -25,6 +25,7 @@ public class QueueFragment extends Fragment{
     private ListView songView;
     public ListMusic listMusic;
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -37,8 +38,22 @@ public class QueueFragment extends Fragment{
         return  view;
     }
 
+    public ArrayList<Song> getList() {
+        return songList;
+    }
+
     public void refreshQueue() {
-        songList = listMusic.getServiceList();
+        songList = new ArrayList<>(listMusic.getServiceList());
+        ArrayList<Song> songsToRemove = new ArrayList<>();
+        Song currSong = listMusic.getCurrSong();
+
+        for (flamenco.flamenco.Song dog : songList) {
+            if (dog.getTitle().equals(currSong.getTitle()) && dog.getArtist().equals(currSong.getArtist())) {
+                break;
+            }
+            songsToRemove.add(dog);
+        }
+        songList.removeAll(songsToRemove);
         updateCurrentSong();
     }
 

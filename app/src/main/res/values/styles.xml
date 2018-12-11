@@ -11,7 +11,7 @@
 
     <style name="TextAppearance.AppCompat.Widget.ActionBar.Title" parent="android:style/TextAppearance">
         <item name="android:fontFamily">@font/timesbi</item>
-        <item name="android:textSize">0sp</item>
+        <item name="android:textSize">25sp</item>
         <item name="android:letterSpacing">0.055</item>
     </style>
 
