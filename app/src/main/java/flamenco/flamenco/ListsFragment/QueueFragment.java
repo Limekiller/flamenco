@@ -43,6 +43,11 @@ public class QueueFragment extends Fragment{
     }
 
     public void refreshQueue() {
+
+        if (songList.size() == 0) {
+            return;
+        }
+
         songList = new ArrayList<>(listMusic.getServiceList());
         ArrayList<Song> songsToRemove = new ArrayList<>();
         Song currSong = listMusic.getCurrSong();
