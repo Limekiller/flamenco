@@ -8,12 +8,10 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.text.InputType;
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.GridView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -25,17 +23,14 @@ import flamenco.flamenco.Song;
 
 public class ListsFragment extends Fragment {
 
-    private ArrayList<Song> albumList;
-    private GridView songView;
     public ListMusic listMusic;
     private ArrayList<Song> playList;
-    private View view;
     private String mString;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        view = inflater.inflate(R.layout.listsfragment, container, false);
+        View view = inflater.inflate(R.layout.listsfragment, container, false);
         listMusic = (ListMusic) getActivity();
         playList = listMusic.playList;
 
@@ -66,6 +61,8 @@ public class ListsFragment extends Fragment {
                         break;
 
                     case 1:
+                        // Refresh the queue when viewing the queue page
+                        refreshQueue();
                         addNew.hide();
                         floatingActionButton.show();
                         break;
@@ -129,5 +126,13 @@ public class ListsFragment extends Fragment {
 
 
         return view;
+    }
+
+    public void refreshQueue(){
+        for (final Fragment child: getChildFragmentManager().getFragments()) {
+            if (child instanceof  QueueFragment) {
+                ((QueueFragment) child).refreshQueue();
+            }
+        }
     }
 }
