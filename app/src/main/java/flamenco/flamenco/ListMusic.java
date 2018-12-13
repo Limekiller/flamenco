@@ -1,6 +1,8 @@
 package flamenco.flamenco;
 
+import android.util.Log;
 import android.Manifest;
+import android.animation.Animator;
 import android.animation.LayoutTransition;
 import android.animation.ObjectAnimator;
 import android.content.ContentResolver;
@@ -8,20 +10,23 @@ import android.content.ContentUris;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Path;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Animation;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -41,12 +46,15 @@ import android.view.View;
 import android.view.MotionEvent;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
+import android.support.v4.view.GestureDetectorCompat;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentManager;
 
 import flamenco.flamenco.ListsFragment.AddSongToPlaylist;
 import flamenco.flamenco.ListsFragment.QueueFragment;
 import flamenco.flamenco.MainFragment.AlbumAdapter;
+import flamenco.flamenco.MainFragment.AlbumsFragment;
 import flamenco.flamenco.MainFragment.FoldersAdapter;
 import flamenco.flamenco.MainFragment.MainFragmentAdapter;
 import flamenco.flamenco.MainFragment.SongAdapter;
@@ -59,6 +67,7 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -89,40 +98,15 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
     private TextView currSongInfo;
     private SeekBar seekBar;
     private TextView currTime;
+    private ImageButton rewindBtn;
     private ImageButton playBtn;
+    private ImageButton shuffBtn;
+    private ImageButton ffBtn;
     private Handler handler;
     private float deviceHeight;
     private float deviceWidth;
-    private ImageButton fullscreenPlay;
-    private ImageView fullscreenArt;
+    private boolean isFullscreen = false;
     GestureDetector gestureDetector;
-    FragmentManager fragmentManager = getSupportFragmentManager();
-    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-    Fragment activityListMusic = new Fragment();
-
-
-    /*public boolean onTouchEvent(MotionEvent event){
-        int action = MotionEventCompat.getActionMasked(event);
-
-        switch(action) {
-            case (MotionEvent.ACTION_DOWN) :
-                //playBtn.setImageResource(R.drawable.exo_controls_play);
-                return true;
-            case (MotionEvent.ACTION_MOVE) :
-                //playBtn.setImageResource(R.drawable.exo_controls_play);
-                return true;
-            case (MotionEvent.ACTION_UP) :
-                //playBtn.setImageResource(R.drawable.exo_controls_play);
-                return true;
-            case (MotionEvent.ACTION_CANCEL) :
-                return true;
-            case (MotionEvent.ACTION_OUTSIDE) :
-                //playBtn.setImageResource(R.drawable.exo_controls_play);
-                return true;
-            default :
-                return super.onTouchEvent(event);
-        }
-    }*/
 
     private boolean hasUpdated=false;
     private boolean paused=false;
@@ -131,7 +115,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        fragmentTransaction.add(R.id.container, activityListMusic);
+
         setContentView(R.layout.activity_list_music);
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         prefsEditor = prefs.edit();
@@ -146,18 +130,16 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
         currSongArt = findViewById(R.id.currSongArt);
         currSongInfo = findViewById(R.id.currSongInfo);
         seekBar = findViewById(R.id.seekBar);
-        ImageButton rewindBtn = findViewById(R.id.rewindBtn);
+        rewindBtn = findViewById(R.id.rewindBtn);
         playBtn = findViewById(R.id.playBtn);
-        ImageButton ffBtn = findViewById(R.id.ffBtn);
-        ImageButton shuffBtn = findViewById(R.id.shuffButton);
+        ffBtn = findViewById(R.id.ffBtn);
+        shuffBtn = findViewById(R.id.shuffButton);
         currTime = findViewById(R.id.currTime);
         handler = new Handler();
         audioController = findViewById(R.id.audioController);
         gestureDetector = new GestureDetector(ListMusic.this, ListMusic.this);
 
 
-        // Load saved playlists as well as last saved shuffle.
-        // If null, create new, empty list of playlists
         Gson gson = new Gson();
         String json = gson.toJson(shuffledList);
 
@@ -171,7 +153,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
             playList = new ArrayList<>();
         }
 
-        // Detect taps for play, rewind, fast forward, and shuffle buttons
         playBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -181,6 +162,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
                 } else {
                     musicSrv.pausePlayer();
                     playBtn.setImageResource(R.drawable.exo_controls_play);
+
                 }
             }
         });
@@ -209,7 +191,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
             @Override
             public void onClick(View v) {
 
-                // If not shuffled, attempt to load last shuffle
                 if (!isShuffled) {
                     isShuffled = true;
                     Gson gson = new Gson();
@@ -221,7 +202,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
                     shuffledList = gson.fromJson(response, new TypeToken<ArrayList<Song>>() {
                     }.getType());
 
-                    // If null, create new shuffle
                     int savedIndex = prefs.getInt("shuffleIndex", 0);
                     if (shuffledList == null || shuffledList.size() == 0) {
                         Toast.makeText(ListMusic.this, "New shuffle created from current queue", Toast.LENGTH_LONG).show();
@@ -235,7 +215,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
                             }
                         }
 
-                        // Save new shuffle
                         json = gson.toJson(shuffledList);
                         prefsEditor.remove("shuffledList").apply();
                         prefsEditor.putString("shuffledList", json);
@@ -255,7 +234,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
                         prefsEditor.commit();
                     }
 
-                    // Set the playling list to the shuffle, and refresh the queue fragment.
                     musicSrv.setList(shuffledList);
                     musicSrv.setSong(0);
                     refreshQueue();
@@ -288,7 +266,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
     protected void onStart() {
         super.onStart();
         if(playIntent==null){
-            // Get width and height variables, and begin music service
             DisplayMetrics displayMetrics = getApplicationContext().getResources().getDisplayMetrics();
             deviceHeight = displayMetrics.heightPixels;
             deviceWidth = displayMetrics.widthPixels;
@@ -298,7 +275,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
         }
     }
 
-    // This method receives data from the "add song to playlist" activity and updates the lists
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
@@ -324,8 +300,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
         Glide.with(this).load(currSong.getAlbumArt()).error(R.drawable.placeholder)
                 .crossFade().centerCrop().into(currSongArt);
 
-        // If the music is shuffled, it pops the first song from the playing list
-        // (So the shuffle gets smaller as it is listened to)
         if (isShuffled) {
             prefsEditor.remove("shuffleIndex");
             prefsEditor.putInt("shuffleIndex", getCurrSongPosn());
@@ -345,14 +319,12 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
     }
 
 
-    // Refresh the queue fragment list (this only affects the UI)
     public void refreshQueue(){
         QueueFragment queueFragment = (QueueFragment) getSupportFragmentManager().getFragments()
                 .get(1).getChildFragmentManager().getFragments().get(1);
         queueFragment.refreshQueue();
     }
 
-    // Get the list that the queue fragment is displaying
     public ArrayList<Song> getQueueList(){
         QueueFragment queueFragment = (QueueFragment) getSupportFragmentManager().getFragments()
                 .get(1).getChildFragmentManager().getFragments().get(1);
@@ -365,8 +337,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
         lastChosenSong = musicSrv.getSong();
         Integer pos;
         // Check which list choice is coming from
-
-        // If from artists fragment, check if it's an album or a song
         if (((ViewGroup)view.getParent()).getId() == R.id.a_song_list) {
             if (((ViewGroup)view.getParent().getParent().getParent()).getId() == R.id.artistView) {
                 String albumTitle = (String) ((TextView)((ViewGroup)view.getParent().getParent())
@@ -381,13 +351,10 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
                 musicSrv.setList(albumList.get(Integer.parseInt(((ListView) view.getParent()).getTag().toString()))
                         .getAlbumSongList());
             }
-        // If from song fragment
         } else if (((ViewGroup)view.getParent()).getId() == R.id.song_list) {
             musicSrv.setList(songList);
-        // if from folder fragment
         } else if (((ViewGroup)view.getParent()).getId() == R.id.f_folder_list) {
             musicSrv.setList(lastFolder.getSongList());
-        // if from playlists fragment
         } else if (((ViewGroup)view.getParent()).getId() == R.id.specPlaylist) {
             musicSrv.setList(playList.get(lastPlaylistIndex).getAlbumSongList());
         }
@@ -398,11 +365,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
         audioController.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
         audioController.setLayoutParams(new TableLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, 450, 0.2f));
 
-        // In the queue, we only show the current list starting from the playing song.
-        // So here we get that sublist by popping everything from the front of the currently playing
-        // list until we reach the currently playing song.
-        // The indices don't change, though, so for song selection on the queue fragment to work,
-        // we need to add the number of removed songs to the current position
         pos = Integer.parseInt(view.getTag().toString());
 
         if (((ViewGroup)view.getParent()).getId() == R.id.queueList) {
@@ -410,19 +372,20 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
             int listDiff = musicSrv.getList().size() - queueList.size();
             pos = pos + listDiff;
         }
-        
+
         musicSrv.setSong(pos);
         musicSrv.playSong();
         updateSong();
 
         if (((ViewGroup)view.getParent()).getId() != R.id.queueList) {
             isShuffled = false;
+            refreshQueue();
         }
+        //hasUpdated = true;
 
     }
 
     public void clearShuffle(View view) {
-        // Delete saved shuffle and refresh queue
         Toast.makeText(ListMusic.this, "Shuffle deleted", Toast.LENGTH_LONG).show();
         shuffledList.clear();
         musicSrv.setList(songList);
@@ -441,7 +404,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
 
 
     public void savePlaylistList() {
-        // Commit all of the playlists to storage
         Gson gson = new Gson();
         String json = gson.toJson(playList);
 
@@ -451,9 +413,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
     }
 
     public void updateCurrSong() {
-        // This method is used to display the currently playing song (the red bar and grey background)
-        // Right now it only works on the Song and Queue fragments. In the future, duplicated methods
-        // for the other fragments will need to be added to support the other fragments.
         List<Fragment> allFragments = getSupportFragmentManager().getFragments();
         for (Fragment fragment: allFragments) {
             for (final Fragment child: fragment.getChildFragmentManager().getFragments()) {
@@ -487,7 +446,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
         ArrayList<flamenco.flamenco.Song> tempList;
         String albumTitle = (String)title.getText();
 
-        // Determine if this is the artists or album fragment
         if (view.getParent().getParent() == view.getRootView().findViewById(R.id.album_list_container)) {
             albumParent = (RelativeLayout) view.getParent().getParent().getParent();
             artistsTab = true;
@@ -497,7 +455,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
 
         ListView tempAlbumList = albumParent.findViewById(R.id.a_song_list);
 
-        // Search for and find the desired list of songs
         tempList = albumList.get(0).getAlbumSongList();
         for (flamenco.flamenco.Song dog : albumList) {
             if (dog.getTitle().equals(albumTitle)) {
@@ -506,7 +463,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
             }
         }
 
-        // Load in the data and begin animations
         ((TextView)albumParent.findViewById(R.id.albumFocusTitle)).setText(albumTitle);
         ((TextView)albumParent.findViewById(R.id.albumFocusArtist)).setText(tempList.get(0).getArtist());
         Glide.with(albumParent.getContext()).load(tempList.get(0).getAlbumArt())
@@ -537,13 +493,12 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
 
         albumParent.findViewById(R.id.albumFocus).setAlpha(1f);
 
-        // Adapt list data to ListView
+
         SongAdapter songAdt = new SongAdapter(albumParent.getContext(), tempList, "album");
         tempAlbumList.setAdapter(songAdt);
 
     }
 
-    // This method shows the songs in a playlist
     public void setPlaylistVisibility(final View view) {
         TextView title = view.findViewById(R.id.playlist_title);
         ArrayList<flamenco.flamenco.Song> tempList;
@@ -551,7 +506,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
         RelativeLayout playlistParent = (RelativeLayout) view.getParent().getParent().getParent().getParent();
         ListView tempPlayList = playlistParent.findViewById(R.id.specPlaylist);
 
-        // Search for and retrieve the right song list
         tempList = playList.get(0).getAlbumSongList();
         for (flamenco.flamenco.Song dog : playList) {
             if (dog.getTitle().equals(playlistTitle)) {
@@ -562,7 +516,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
             }
         }
 
-        // Load in data, do animations, adapt list to listview
         ObjectAnimator animation = ObjectAnimator.ofFloat(playlistParent.findViewById(R.id.playlist_init),
                 "translationY", 0, deviceHeight);
         animation.setDuration(300);
@@ -590,7 +543,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
 
     }
 
-    // Again, this is for folders
     public void setFolderVisibility(View view) {
         ArrayList<Folder> tempFolderList = new ArrayList<>();
         ArrayList<Folder> tempSearchFolderList;
@@ -599,7 +551,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
         View parentView = view.getRootView();
         ListView tempFolderView = parentView.findViewById(R.id.f_folder_list);
 
-        // Check if this is a root folder or not
         if (lastFolder == null) {
             tempSearchFolderList = folderList;
 
@@ -629,8 +580,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
 
         }
 
-        // Find the correct folder in the last opened folder or the root directory
-        // (Here the root directory is the initial list of folders)
         for (Folder folder : tempSearchFolderList) {
             if (folder.getPath().equals(path)) {
                 tempFolderList = folder.getFolderList();
@@ -645,8 +594,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
 
     }
 
-    // This method launches the AddSongToPlaylist activity, and provides it with the total list of songs
-    // as well as the playlist that is being added to
     public void addSongToPlaylist(View view) {
         Intent intent = new Intent(this, AddSongToPlaylist.class);
 
@@ -659,7 +606,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
     }
 
     // This method shows the albums belonging to an artist
-    // This should make sense by now hopefully
     public void showAlbums(View view) {
         ArrayList<flamenco.flamenco.Song> tempAlbumList = new ArrayList<>();
         TextView title = view.findViewById(R.id.album_artist);
@@ -691,7 +637,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
     }
 
 
-    // This connects this activity to the music service
     private ServiceConnection musicConnection = new ServiceConnection(){
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -710,7 +655,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
 
     // This method handles the storage permissions
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case 1: {
                 // If request is cancelled, the result arrays are empty.
@@ -731,7 +676,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
     }
 
 
-    // Some of these may be able to be cleaned up/removed?
     @Override
     public void start() {
         musicSrv.go();
@@ -842,9 +786,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
             finalTimerString = hours + ":";
         }
 
-        // If seconds = 0, we're on a new song, so we should update the UI to reflect that
         if (seconds == 0) {
-            // We use the hasUpdated variable to make sure we only update once
             if (!hasUpdated) {
                 hasUpdated = true;
                 lastChosenSong = musicSrv.getSong();
@@ -874,7 +816,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
         return musicSrv.getList();
     }
 
-    // Not sure if this method is needed
     public Integer getCurrSongPosn() {
         try {
             return musicSrv.getSongPosn();
@@ -883,7 +824,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
         }
     }
 
-    // Get the currently playing song
     public Song getCurrSong() {
         try {
             return musicSrv.getSong();
@@ -892,14 +832,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
         }
     }
 
-    // Recursive method that assists in building the folder relations when the app is started
-    // It takes a song, a parent folder, and a path, and figures out where to place the song
     public boolean addFolders(Folder folder, Song song, String path) {
-        // Works by splitting the path by slashes, and then building it back up, checking each time
-        // if the string is equal to the parent's path. If it is, and it's only one folder behind
-        // the current path, it adds the song to the parent folder. If not, that means there's more
-        // folders in the way, so it keeps adding folders and checking the path until it can add
-        // the song.
         String[] splitPath = path.split("/");
         StringBuilder buildPath = new StringBuilder("/"+splitPath[0]);
         for (int i = 1; i < splitPath.length; i++) {
@@ -928,9 +861,6 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
 
     // This method runs on startup, constructing a list of songs, artists, and albums
     public void getSongList() {
-        // Pretty complicated, basically uses Android's built in method to find all audio files known
-        // to be music, and then extracts the info from the files
-        // The Song class is then used to create structures of artists, albums, and folders
         ArrayList<flamenco.flamenco.Song> albumSongList = new ArrayList<>();
         ContentResolver musicResolver = getContentResolver();
         Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
@@ -967,9 +897,10 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
 
                 if (thisIsMusic > 0) {
 
+
                     String path = thisPath.substring(0, thisPath.lastIndexOf("/"));
 
-                    // Use addFolders method to add the song to a folder
+
                     boolean hasBeenAdded = false;
                     for (int i=0; i<folderList.size(); i++) {
                         if (addFolders(folderList.get(i), new Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()), path+"/")) {
@@ -977,14 +908,13 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
                             break;
                         }
                     }
-                    // If it failed for some reason, just add a new folder and put the song in it.
+
                     if (!hasBeenAdded) {
                         folderList.add(new Folder(path+"/", new ArrayList<Song>(), new ArrayList<Folder>(), null));
                         folderList.get(folderList.size()-1).addToSongList(new Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));
                     }
 
-                    // If album or artist don't exist yet, make them
-                    // Otherwise, find them in their respective lists and add the song to them
+
                     if (albumList.size() == 0) {
                         albumList.add(new flamenco.flamenco.Song(thisId, thisTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));
                         artistList.add(new flamenco.flamenco.Song(thisId, thisSongTitle, thisArtist, thisAlbumId, thisYear, albumArt.toString()));
@@ -1017,11 +947,8 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
         } catch (ArrayIndexOutOfBoundsException e) {
             Toast.makeText(ListMusic.this, "No audio found!", Toast.LENGTH_SHORT).show();
         }
-        assert musicCursor != null;
         musicCursor.close();
 
-        // Sort the songs, albums, and artists alphabetically
-        //TODO: Do not treat songs starting with "The, A," etc, as if they begin with T or A, etc.
         Collections.sort(songList, new Comparator<flamenco.flamenco.Song>() {
             @Override
             public int compare(flamenco.flamenco.Song o1, flamenco.flamenco.Song o2) {
@@ -1049,63 +976,115 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
     }
 
     // detect swipes up
-    // now can load fullscreen player and revert to the activity_list_music
-    // but it doesn't show the player at the bottom, even though music is still playing.
-    // This code is really a band aid right now, until I can figure out fragment transactions.
     @Override
     public boolean onFling(MotionEvent motionEvent1, MotionEvent motionEvent2, float x, float y){
-        //playBtn.setImageResource(R.drawable.exo_controls_play);
+        //our expansion and contraction multiplier
         float factor = 8;
-        if(motionEvent1.getY() - motionEvent2.getY() > 20){
-            // need to load the fullscreen player xml here, and make it functional. Also need
-            // to make sure that it only works when you swipe from the music controller at the
-            // bottom of the screen.
-            /* Song currSong = musicSrv.getSong();
-            setContentView(R.layout.fullscreen_player);
-            fullscreenArt = findViewById(R.id.fullscreen_art);
-            fullscreenPlay = findViewById(R.id.fullscreen_play);
-            Glide.with(this).load(currSong.getAlbumArt()).error(R.drawable.placeholder)
-                    .crossFade().centerCrop().into(fullscreenArt);
-            fullscreenPlay.setImageResource(R.drawable.exo_controls_play);*/
-//            ObjectAnimator expansion = ObjectAnimator.ofFloat(R.id.audioController, "scaleX", "scaleY", deviceHeight);
-//            expansion.setDuration(500);
-//            expansion.start();
-            animations.expandObject(findViewById(R.id.audioController), 1f, factor);
-            animations.translateObject(findViewById(R.id.audioController), 0f, -deviceHeight/3f);
+        // This code rearranges and resizes the audioController and its elements into the fullscreen player
+        // and then back. It isn't totally finished yet, but all of the necessary elements are there.
+        // I just didn't have time to go through and make sure all of the elements were going to the
+        // correct positions. This is just a matter of finding the correct values now to make it look
+        // good.
 
-            animations.expandObject(findViewById(R.id.seekBar), 1f, 1/factor);
+        //if swipe is up from bottom player and it isn't already in fullscreen player
+        if((motionEvent1.getY() - motionEvent2.getY() > 20) && isFullscreen == false){
+            isFullscreen = true;
+            //this is for more recent taller and thinner phones like pixel 2 XL
+            if (deviceHeight/deviceWidth > 1.75){
+                //expand and move the audioController to fill the screen
+                animations.expandObject(findViewById(R.id.audioController), 1f, factor);
+                animations.translateObject(findViewById(R.id.audioController), 0f, -deviceHeight/3f);
 
-            animations.expandObject(findViewById(R.id.ffBtn), 1f, 1/factor);
-            animations.expandObject(findViewById(R.id.playBtn), 1f, 1/factor);
-            animations.expandObject(findViewById(R.id.rewindBtn), 1f, 1/factor);
-            animations.expandObject(findViewById(R.id.shuffButton), 1f, 1/factor);
-            animations.expandObject(findViewById(R.id.currSongInfo), 1f, 1/factor);
-            animations.expandObject(findViewById(R.id.currTime), 1f, 1/factor);
-            animations.expandObject(findViewById(R.id.currSongArt), 4f, 4/factor);
+                //since all the other objects expand too, scale them back to what they were (or rescale them)
+                animations.expandObject(findViewById(R.id.seekBar), 1f, 1/factor);
+                animations.expandObject(findViewById(R.id.ffBtn), 2f, 2/factor);
+                animations.expandObject(findViewById(R.id.playBtn), 2f, 2/factor);
+                animations.expandObject(findViewById(R.id.rewindBtn), 2f, 2/factor);
+                animations.expandObject(findViewById(R.id.shuffButton), 1f, 1/factor);
+                animations.expandObject(findViewById(R.id.currSongInfo), 1f, 1/factor);
+                animations.expandObject(findViewById(R.id.currTime), 1f, 1/factor);
+                animations.expandObject(findViewById(R.id.currSongArt), 4f, 4/factor);
 
-            animations.translateObject(findViewById(R.id.currSongArt), deviceWidth/2f - 100f, -100f);
-            animations.translateObject(findViewById(R.id.currSongInfo), 0f, deviceHeight/30f);
-            animations.translateObject(findViewById(R.id.pager), 0f, deviceHeight);
+                //reposition objects within the audiocontroller
+                animations.translateObject(findViewById(R.id.currSongArt), (deviceWidth-50)/2.5f, (deviceHeight-45000f)/600f);
+                animations.translateObject(findViewById(R.id.currSongInfo), 0f, deviceHeight/25f);
+                animations.translateObject(findViewById(R.id.buttonsLayout), 0f, deviceHeight/60);
+                animations.translateObject(findViewById(R.id.seekBar), -deviceWidth/8 + 40, -5f);
+
+
+                //you can still scroll through songs behind the music player, so move it out of the way
+                animations.translateObject(findViewById(R.id.pager), 0f, deviceHeight);
+            }
+            // this is for older more short and wide phones like the nexus 6.
+            else{
+                //expand and move the audiocontroller to fill the screen
+                animations.expandObject(findViewById(R.id.audioController), 1f, factor);
+                animations.translateObject(findViewById(R.id.audioController), 0f, -deviceHeight/3f);
+
+                //since all the other objects expand too, scale them back to what they were (or rescale them)
+                animations.expandObject(findViewById(R.id.seekBar), 1f, 1/factor);
+                animations.expandObject(findViewById(R.id.ffBtn), 2f, 2/factor);
+                animations.expandObject(findViewById(R.id.playBtn), 2f, 2/factor);
+                animations.expandObject(findViewById(R.id.rewindBtn), 2f, 2/factor);
+                animations.expandObject(findViewById(R.id.shuffButton), 1f, 1/factor);
+                animations.expandObject(findViewById(R.id.currSongInfo), 1f, 1/factor);
+                animations.expandObject(findViewById(R.id.currTime), 1f, 1/factor);
+                animations.expandObject(findViewById(R.id.currSongArt), 4f, 4/factor);
+
+                //reposition objects within the audiocontroller
+                animations.translateObject(findViewById(R.id.currSongArt), (deviceWidth-50)/2.5f, (deviceHeight-45000f)/900f);
+                animations.translateObject(findViewById(R.id.currSongInfo), 0f, deviceHeight/30f);
+
+                //you can still scroll through songs behind the music player, so move it out of the way
+                animations.translateObject(findViewById(R.id.pager), 0f, deviceHeight);
+            }
 
             return true;
         }
-        else if (motionEvent2.getY() - motionEvent1.getY() > 20) {
+        //if the swipe is down and the music player is large, animate back to the small player
+        else if (motionEvent2.getY() - motionEvent1.getY() > 20 && isFullscreen == true) {
+            isFullscreen = false;
             // animate the player back to small
-            animations.contractObject(findViewById(R.id.audioController), 1f, factor);
-            animations.translateObject(findViewById(R.id.audioController), 0f, 0f);
+            // undo everything above
+            if (deviceHeight/deviceWidth > 1.75) {
+                animations.contractObject(findViewById(R.id.audioController), 1f, factor);
+                animations.translateObject(findViewById(R.id.audioController), 0f, 0f);
 
-            animations.contractObject(findViewById(R.id.seekBar), 1f, 1/factor);
-            animations.contractObject(findViewById(R.id.ffBtn), 1f, 1/factor);
-            animations.contractObject(findViewById(R.id.playBtn), 1f, 1/factor);
-            animations.contractObject(findViewById(R.id.rewindBtn), 1f, 1/factor);
-            animations.contractObject(findViewById(R.id.shuffButton), 1f, 1/factor);
-            animations.contractObject(findViewById(R.id.currSongInfo), 1f, 1/factor);
-            animations.contractObject(findViewById(R.id.currTime), 1f, 1/factor);
-            animations.contractObject(findViewById(R.id.currSongArt), 4f, 4/factor);
+                animations.contractObject(findViewById(R.id.seekBar), 1f, 1 / factor);
+                animations.contractObject(findViewById(R.id.ffBtn), 1f, 1 / factor);
+                animations.contractObject(findViewById(R.id.playBtn), 1f, 1 / factor);
+                animations.contractObject(findViewById(R.id.rewindBtn), 1f, 1 / factor);
+                animations.contractObject(findViewById(R.id.shuffButton), 1f, 1 / factor);
+                animations.contractObject(findViewById(R.id.currSongInfo), 1f, 1 / factor);
+                animations.contractObject(findViewById(R.id.currTime), 1f, 1 / factor);
+                animations.contractObject(findViewById(R.id.currSongArt), 4f, 4 / factor);
 
-            animations.translateObject(findViewById(R.id.currSongArt), 0f, 0f);
-            animations.translateObject(findViewById(R.id.currSongInfo), 0f, 0f);
-            animations.translateObject(findViewById(R.id.pager), 0f, 0f);
+                animations.translateObject(findViewById(R.id.currSongArt), 0f, 0f);
+                animations.translateObject(findViewById(R.id.currSongInfo), 0f, 0f);
+                animations.translateObject(findViewById(R.id.buttonsLayout), 0f, 0f);
+                animations.translateObject(findViewById(R.id.seekBar), 0f, 0f);
+
+
+                animations.translateObject(findViewById(R.id.pager), 0f, 0f);
+            }
+            else {
+                animations.contractObject(findViewById(R.id.audioController), 1f, factor);
+                animations.translateObject(findViewById(R.id.audioController), 0f, 0f);
+
+                animations.contractObject(findViewById(R.id.seekBar), 1f, 1 / factor);
+                animations.contractObject(findViewById(R.id.ffBtn), 1f, 1 / factor);
+                animations.contractObject(findViewById(R.id.playBtn), 1f, 1 / factor);
+                animations.contractObject(findViewById(R.id.rewindBtn), 1f, 1 / factor);
+                animations.contractObject(findViewById(R.id.shuffButton), 1f, 1 / factor);
+                animations.contractObject(findViewById(R.id.currSongInfo), 1f, 1 / factor);
+                animations.contractObject(findViewById(R.id.currTime), 1f, 1 / factor);
+                animations.contractObject(findViewById(R.id.currSongArt), 4f, 4 / factor);
+
+                animations.translateObject(findViewById(R.id.currSongArt), 0f, 0f);
+                animations.translateObject(findViewById(R.id.currSongInfo), 0f, 0f);
+                animations.translateObject(findViewById(R.id.pager), 0f, 0f);
+
+            }
         }
         return false;
     }
