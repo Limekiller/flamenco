@@ -72,6 +72,7 @@
             android:layout_height="match_parent"
             android:layout_alignParentBottom="true"
             android:layout_marginTop="0dp"
+            android:layout_marginBottom="100dp"
             app:srcCompat="@drawable/arrow" />
 
         <ImageView
@@ -79,6 +80,7 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_alignParentBottom="true"
+            android:layout_marginBottom="100dp"
             android:clickable="true"
             android:focusable="true"
             app:srcCompat="@drawable/drop_shadow" />
@@ -105,6 +107,7 @@
             android:layout_height="match_parent"
             android:layout_alignParentBottom="true"
             android:layout_marginTop="0dp"
+            android:layout_marginBottom="100dp"
             app:srcCompat="@drawable/arrow" />
 
         <ImageView
@@ -112,6 +115,7 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_alignParentBottom="true"
+            android:layout_marginBottom="100dp"
             android:clickable="true"
             android:focusable="true"
             app:srcCompat="@drawable/drop_shadow" />

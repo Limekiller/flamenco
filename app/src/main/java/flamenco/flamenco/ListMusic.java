@@ -27,6 +27,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -73,7 +74,7 @@ import java.util.Comparator;
 import java.util.List;
 
 
-public class ListMusic extends AppCompatActivity implements MediaPlayerControl, OnGestureListener{
+public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
 
     public ArrayList<flamenco.flamenco.Song> songList;
     public ArrayList<flamenco.flamenco.Song> artistList;
@@ -93,7 +94,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
     public int lastPlaylistIndex;
     public Song lastChosenSong;
 
-    private LinearLayout audioController;
+    private RelativeLayout audioController;
     private ImageView currSongArt;
     private TextView currSongInfo;
     private SeekBar seekBar;
@@ -137,11 +138,11 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
         currTime = findViewById(R.id.currTime);
         handler = new Handler();
         audioController = findViewById(R.id.audioController);
-        gestureDetector = new GestureDetector(ListMusic.this, ListMusic.this);
-
 
         Gson gson = new Gson();
         String json = gson.toJson(shuffledList);
+
+        final GestureDetector gdt = new GestureDetector(new GestureListener());
 
         Type type = new TypeToken<ArrayList<Song>>() {
         }.getType();
@@ -184,6 +185,14 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
                 musicSrv.playNext();
                 playBtn.setImageResource(R.drawable.exo_controls_pause);
                 updateSong();
+            }
+        });
+
+        audioController.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(final View view, final MotionEvent event) {
+                gdt.onTouchEvent(event);
+                return true;
             }
         });
 
@@ -360,10 +369,13 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
         }
 
 
+        if (getCurrSongPosn() == 0) {
+            ObjectAnimator animation = ObjectAnimator.ofFloat(audioController,
+                "translationY", deviceHeight, 0).setDuration(500);
+            animation.setInterpolator(new DecelerateInterpolator(2));
+            animation.start();
+        }
 
-        // Show audio controller (only affects on first pick)
-        audioController.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
-        audioController.setLayoutParams(new TableLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, 450, 0.2f));
 
         pos = Integer.parseInt(view.getTag().toString());
 
@@ -975,154 +987,58 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl, 
         viewPager.setAdapter(adapter);
     }
 
-    // detect swipes up
-    @Override
-    public boolean onFling(MotionEvent motionEvent1, MotionEvent motionEvent2, float x, float y){
-        //our expansion and contraction multiplier
-        float factor = 8;
-        // This code rearranges and resizes the audioController and its elements into the fullscreen player
-        // and then back. It isn't totally finished yet, but all of the necessary elements are there.
-        // I just didn't have time to go through and make sure all of the elements were going to the
-        // correct positions. This is just a matter of finding the correct values now to make it look
-        // good.
+    private class GestureListener extends GestureDetector.SimpleOnGestureListener {
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 
-        //if swipe is up from bottom player and it isn't already in fullscreen player
-        if((motionEvent1.getY() - motionEvent2.getY() > 20) && isFullscreen == false){
-            isFullscreen = true;
-            //this is for more recent taller and thinner phones like pixel 2 XL
-            if (deviceHeight/deviceWidth > 1.75){
-                //expand and move the audioController to fill the screen
-                animations.expandObject(findViewById(R.id.audioController), 1f, factor);
-                animations.translateObject(findViewById(R.id.audioController), 0f, -deviceHeight/3f);
+            if(e1.getY() - e2.getY() > 10) {
+                RelativeLayout songController = audioController.findViewById(R.id.songController);
 
-                //since all the other objects expand too, scale them back to what they were (or rescale them)
-                animations.expandObject(findViewById(R.id.seekBar), 1f, 1/factor);
-                animations.expandObject(findViewById(R.id.ffBtn), 2f, 2/factor);
-                animations.expandObject(findViewById(R.id.playBtn), 2f, 2/factor);
-                animations.expandObject(findViewById(R.id.rewindBtn), 2f, 2/factor);
-                animations.expandObject(findViewById(R.id.shuffButton), 1f, 1/factor);
-                animations.expandObject(findViewById(R.id.currSongInfo), 1f, 1/factor);
-                animations.expandObject(findViewById(R.id.currTime), 1f, 1/factor);
-                animations.expandObject(findViewById(R.id.currSongArt), 4f, 4/factor);
+                RelativeLayout.LayoutParams parms = new RelativeLayout.LayoutParams(audioController.getWidth(), (int) deviceHeight);
+                audioController.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
+                audioController.setLayoutParams(parms);
+                audioController.requestLayout();
 
-                //reposition objects within the audiocontroller
-                animations.translateObject(findViewById(R.id.currSongArt), (deviceWidth-50)/2.5f, (deviceHeight-45000f)/600f);
-                animations.translateObject(findViewById(R.id.currSongInfo), 0f, deviceHeight/25f);
-                animations.translateObject(findViewById(R.id.buttonsLayout), 0f, deviceHeight/60);
-                animations.translateObject(findViewById(R.id.seekBar), -deviceWidth/8 + 40, -5f);
+                audioController.findViewById(R.id.currSongArt).animate().translationX(deviceWidth/2.75f)
+                        .setDuration(500).start();
+                audioController.findViewById(R.id.currSongArt).animate().translationY(deviceHeight/5)
+                        .setDuration(500).start();
+                audioController.findViewById(R.id.currSongArt).animate().scaleX(3.5f)
+                        .setDuration(500).start();
+                audioController.findViewById(R.id.currSongArt).animate().scaleY(3.5f)
+                        .setDuration(500).start();
 
+                audioController.findViewById(R.id.songController).animate().translationX(-deviceWidth/6)
+                        .setInterpolator(new DecelerateInterpolator(2)).setDuration(450).start();
+                audioController.findViewById(R.id.songController).animate().translationY(deviceHeight/2.25f)
+                        .setInterpolator(new DecelerateInterpolator(2)).setDuration(450).start();
 
-                //you can still scroll through songs behind the music player, so move it out of the way
-                animations.translateObject(findViewById(R.id.pager), 0f, deviceHeight);
+                return false; // Bottom to top
+            }  else if (e2.getY() - e1.getY() > 10) {
+                RelativeLayout.LayoutParams parms = new RelativeLayout.LayoutParams(audioController.getWidth(), (int)(100 * getResources().getDisplayMetrics().density));
+                parms.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                audioController.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
+                audioController.setLayoutParams(parms);
+                audioController.requestLayout();
+
+                audioController.findViewById(R.id.currSongArt).animate().translationX(0)
+                        .setInterpolator(new DecelerateInterpolator(2)).setDuration(500).start();
+                audioController.findViewById(R.id.currSongArt).animate().translationY(0)
+                        .setInterpolator(new DecelerateInterpolator(2)).setDuration(500).start();
+                audioController.findViewById(R.id.currSongArt).animate().scaleX(1)
+                        .setInterpolator(new DecelerateInterpolator(2)).setDuration(500).start();
+                audioController.findViewById(R.id.currSongArt).animate().scaleY(1)
+                        .setInterpolator(new DecelerateInterpolator(2)).setDuration(500).start();
+
+                audioController.findViewById(R.id.songController).animate().translationX(0)
+                        .setInterpolator(new DecelerateInterpolator(2)).setDuration(450).start();
+                audioController.findViewById(R.id.songController).animate().translationY(0)
+                        .setInterpolator(new DecelerateInterpolator(2)).setDuration(450).start();
+
+                return false; // Top to bottom
             }
-            // this is for older more short and wide phones like the nexus 6.
-            else{
-                //expand and move the audiocontroller to fill the screen
-                animations.expandObject(findViewById(R.id.audioController), 1f, factor);
-                animations.translateObject(findViewById(R.id.audioController), 0f, -deviceHeight/3f);
-
-                //since all the other objects expand too, scale them back to what they were (or rescale them)
-                animations.expandObject(findViewById(R.id.seekBar), 1f, 1/factor);
-                animations.expandObject(findViewById(R.id.ffBtn), 2f, 2/factor);
-                animations.expandObject(findViewById(R.id.playBtn), 2f, 2/factor);
-                animations.expandObject(findViewById(R.id.rewindBtn), 2f, 2/factor);
-                animations.expandObject(findViewById(R.id.shuffButton), 1f, 1/factor);
-                animations.expandObject(findViewById(R.id.currSongInfo), 1f, 1/factor);
-                animations.expandObject(findViewById(R.id.currTime), 1f, 1/factor);
-                animations.expandObject(findViewById(R.id.currSongArt), 4f, 4/factor);
-
-                //reposition objects within the audiocontroller
-                animations.translateObject(findViewById(R.id.currSongArt), (deviceWidth-50)/2.5f, (deviceHeight-45000f)/900f);
-                animations.translateObject(findViewById(R.id.currSongInfo), 0f, deviceHeight/30f);
-
-                //you can still scroll through songs behind the music player, so move it out of the way
-                animations.translateObject(findViewById(R.id.pager), 0f, deviceHeight);
-            }
-
-            return true;
+            return false;
         }
-        //if the swipe is down and the music player is large, animate back to the small player
-        else if (motionEvent2.getY() - motionEvent1.getY() > 20 && isFullscreen == true) {
-            isFullscreen = false;
-            // animate the player back to small
-            // undo everything above
-            if (deviceHeight/deviceWidth > 1.75) {
-                animations.contractObject(findViewById(R.id.audioController), 1f, factor);
-                animations.translateObject(findViewById(R.id.audioController), 0f, 0f);
-
-                animations.contractObject(findViewById(R.id.seekBar), 1f, 1 / factor);
-                animations.contractObject(findViewById(R.id.ffBtn), 1f, 1 / factor);
-                animations.contractObject(findViewById(R.id.playBtn), 1f, 1 / factor);
-                animations.contractObject(findViewById(R.id.rewindBtn), 1f, 1 / factor);
-                animations.contractObject(findViewById(R.id.shuffButton), 1f, 1 / factor);
-                animations.contractObject(findViewById(R.id.currSongInfo), 1f, 1 / factor);
-                animations.contractObject(findViewById(R.id.currTime), 1f, 1 / factor);
-                animations.contractObject(findViewById(R.id.currSongArt), 4f, 4 / factor);
-
-                animations.translateObject(findViewById(R.id.currSongArt), 0f, 0f);
-                animations.translateObject(findViewById(R.id.currSongInfo), 0f, 0f);
-                animations.translateObject(findViewById(R.id.buttonsLayout), 0f, 0f);
-                animations.translateObject(findViewById(R.id.seekBar), 0f, 0f);
-
-
-                animations.translateObject(findViewById(R.id.pager), 0f, 0f);
-            }
-            else {
-                animations.contractObject(findViewById(R.id.audioController), 1f, factor);
-                animations.translateObject(findViewById(R.id.audioController), 0f, 0f);
-
-                animations.contractObject(findViewById(R.id.seekBar), 1f, 1 / factor);
-                animations.contractObject(findViewById(R.id.ffBtn), 1f, 1 / factor);
-                animations.contractObject(findViewById(R.id.playBtn), 1f, 1 / factor);
-                animations.contractObject(findViewById(R.id.rewindBtn), 1f, 1 / factor);
-                animations.contractObject(findViewById(R.id.shuffButton), 1f, 1 / factor);
-                animations.contractObject(findViewById(R.id.currSongInfo), 1f, 1 / factor);
-                animations.contractObject(findViewById(R.id.currTime), 1f, 1 / factor);
-                animations.contractObject(findViewById(R.id.currSongArt), 4f, 4 / factor);
-
-                animations.translateObject(findViewById(R.id.currSongArt), 0f, 0f);
-                animations.translateObject(findViewById(R.id.currSongInfo), 0f, 0f);
-                animations.translateObject(findViewById(R.id.pager), 0f, 0f);
-
-            }
-        }
-        return false;
-    }
-
-    // overriding the rest of the methods in GestureDetector so that the program doesn't break
-    @Override
-    public void onLongPress(MotionEvent arg0) {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
-    public boolean onScroll(MotionEvent arg0, MotionEvent arg1, float arg2, float arg3) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public void onShowPress(MotionEvent arg0) {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
-    public boolean onSingleTapUp(MotionEvent arg0) {
-        //playBtn.setImageResource(R.drawable.exo_controls_play);
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent motionEvent) {
-        // TODO Auto-generated method stub
-        return gestureDetector.onTouchEvent(motionEvent);
-    }
-
-    @Override
-    public boolean onDown(MotionEvent arg0) {
-        // TODO Auto-generated method stub
-        return false;
     }
 
 }
