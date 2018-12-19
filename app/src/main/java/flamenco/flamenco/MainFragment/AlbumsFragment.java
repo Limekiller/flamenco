@@ -17,16 +17,15 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-import flamenco.flamenco.ListMusic;
+import flamenco.flamenco.MusicActivity;
 import flamenco.flamenco.R;
 import flamenco.flamenco.Song;
-import flamenco.flamenco.animations;
 
 public class AlbumsFragment extends Fragment {
 
     private ArrayList<Song> albumList;
     private GridView songView;
-    public ListMusic listMusic;
+    public MusicActivity musicActivity;
     private View view;
     private ListView minorSongView;
 
@@ -40,12 +39,12 @@ public class AlbumsFragment extends Fragment {
         songView = view.findViewById(R.id.album_list);
 
         minorSongView = view.findViewById(R.id.a_song_list);
-        listMusic = (ListMusic) getActivity();
+        musicActivity = (MusicActivity) getActivity();
 
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
         final float deviceHeight = displayMetrics.heightPixels;
 
-        albumList = listMusic.albumList;
+        albumList = musicActivity.albumList;
         AlbumAdapter songAdt = new AlbumAdapter(getActivity(), albumList, "albums");
         songView.setAdapter(songAdt);
         view.findViewById(R.id.arrow_up).animate().translationY(deviceHeight).setDuration(200);

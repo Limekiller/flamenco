@@ -16,14 +16,14 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-import flamenco.flamenco.ListMusic;
+import flamenco.flamenco.MusicActivity;
 import flamenco.flamenco.MainFragment.SongAdapter;
 import flamenco.flamenco.R;
 import flamenco.flamenco.Song;
 
 public class ListsFragment extends Fragment {
 
-    public ListMusic listMusic;
+    public MusicActivity musicActivity;
     private ArrayList<Song> playList;
     private String mString;
 
@@ -31,8 +31,8 @@ public class ListsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.listsfragment, container, false);
-        listMusic = (ListMusic) getActivity();
-        playList = listMusic.playList;
+        musicActivity = (MusicActivity) getActivity();
+        playList = musicActivity.playList;
 
         final FloatingActionButton addNew = view.findViewById(R.id.addNew);
         final FloatingActionButton floatingActionButton = view.findViewById(R.id.floatingActionButton);

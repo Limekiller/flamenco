@@ -7,33 +7,24 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.IBinder;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Random;
-import android.app.Notification;
+
 import android.app.PendingIntent;
 import android.content.ContentUris;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.PowerManager;
-import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.ImageView;
 import android.widget.RemoteViews;
-
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.NotificationTarget;
 
 public class MusicService extends Service implements
         MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
@@ -225,7 +216,7 @@ public class MusicService extends Service implements
         prevIntent.putExtra("action", "prev");
         PendingIntent prevPendingIntent = PendingIntent.getBroadcast(this, 2, prevIntent, 0);
 
-        Intent homeIntent = new Intent(this, ListMusic.class);
+        Intent homeIntent = new Intent(this, MusicActivity.class);
         PendingIntent homePendingIntent = PendingIntent.getActivity(this, 3, homeIntent, 0);
 
 

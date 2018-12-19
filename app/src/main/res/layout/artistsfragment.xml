@@ -7,7 +7,7 @@
     android:layout_height="fill_parent"
     android:background="#FFFFFF"
     android:orientation="vertical"
-    tools:context=".ListMusic">
+    tools:context=".MusicActivity">
 
     <RelativeLayout
         android:id="@+id/albumFocus"

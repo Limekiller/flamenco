@@ -1,20 +1,17 @@
 package flamenco.flamenco.ListsFragment;
 
-import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
-import android.graphics.Color;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.ListView;
 
 import java.util.ArrayList;
 
-import flamenco.flamenco.ListMusic;
+import flamenco.flamenco.MusicActivity;
 import flamenco.flamenco.MainFragment.SongAdapter;
 import flamenco.flamenco.R;
 import flamenco.flamenco.Song;
@@ -23,7 +20,7 @@ public class QueueFragment extends Fragment{
 
     private ArrayList<Song> songList;
     private ListView songView;
-    public ListMusic listMusic;
+    public MusicActivity musicActivity;
 
 
     @Override
@@ -32,8 +29,8 @@ public class QueueFragment extends Fragment{
         super.onCreate(savedInstanceState);
         View view =  inflater.inflate(R.layout.queuefragment, container, false);
         songView = view.findViewById(R.id.queueList);
-        listMusic = (ListMusic) getActivity();
-        songList = listMusic.songList;
+        musicActivity = (MusicActivity) getActivity();
+        songList = musicActivity.songList;
 
         return  view;
     }
@@ -48,9 +45,9 @@ public class QueueFragment extends Fragment{
             return;
         }
 
-        songList = new ArrayList<>(listMusic.getServiceList());
+        songList = new ArrayList<>(musicActivity.getServiceList());
         ArrayList<Song> songsToRemove = new ArrayList<>();
-        Song currSong = listMusic.getCurrSong();
+        Song currSong = musicActivity.getCurrSong();
 
         for (flamenco.flamenco.Song dog : songList) {
             if (dog.getTitle().equals(currSong.getTitle()) && dog.getArtist().equals(currSong.getArtist())) {
@@ -76,17 +73,17 @@ public class QueueFragment extends Fragment{
                 View bar = row.findViewById(R.id.imageView6);
                 View bg = row.findViewById(R.id.selectedBG);
 
-                if (songList.get(position).getTitle().equals(((ListMusic) getActivity()).getCurrSong().getTitle())
-                        && songList.get(position).getArtist().equals(((ListMusic) getActivity()).getCurrSong().getArtist())) {
+                if (songList.get(position).getTitle().equals(((MusicActivity) getActivity()).getCurrSong().getTitle())
+                        && songList.get(position).getArtist().equals(((MusicActivity) getActivity()).getCurrSong().getArtist())) {
                     ObjectAnimator animation = ObjectAnimator.ofFloat(bar,
                             "scaleX", 0, 1);
                     animation.setDuration(200);
                     animation.setInterpolator(new AccelerateInterpolator(2));
                     animation.start();
                     bg.animate().alpha(1).setDuration(200);
-                }  else if ( ((ListMusic) getActivity()).lastChosenSong != null &&
-                        ((ListMusic) getActivity()).lastChosenSong.getTitle().equals(songList.get(position).getTitle())){
-                        //&& ((ListMusic) getActivity()).lastChosenSong.getArtist().equals(songList.get(position).getArtist())) {
+                }  else if ( ((MusicActivity) getActivity()).lastChosenSong != null &&
+                        ((MusicActivity) getActivity()).lastChosenSong.getTitle().equals(songList.get(position).getTitle())){
+                        //&& ((MusicActivity) getActivity()).lastChosenSong.getArtist().equals(songList.get(position).getArtist())) {
                     bar.setScaleX(1);
                     ObjectAnimator animation = ObjectAnimator.ofFloat(bar,
                             "scaleX", 1, 0);

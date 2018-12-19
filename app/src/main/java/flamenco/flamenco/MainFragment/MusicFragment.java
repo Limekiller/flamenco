@@ -11,7 +11,7 @@ import android.widget.GridView;
 
 import java.util.ArrayList;
 
-import flamenco.flamenco.ListMusic;
+import flamenco.flamenco.MusicActivity;
 import flamenco.flamenco.R;
 import flamenco.flamenco.Song;
 
@@ -19,7 +19,7 @@ public class MusicFragment extends Fragment {
 
     private ArrayList<Song> albumList;
     private GridView songView;
-    public ListMusic listMusic;
+    public MusicActivity musicActivity;
     private View view;
 
     @Override

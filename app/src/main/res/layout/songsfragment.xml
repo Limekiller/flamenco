@@ -6,7 +6,7 @@
     android:layout_height="fill_parent"
     android:orientation="vertical"
     android:background="#FFFFFF"
-    tools:context=".ListMusic" >
+    tools:context=".MusicActivity" >
 
     <ListView
         android:id="@+id/song_list"

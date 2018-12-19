@@ -24,9 +24,8 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import java.util.ArrayList;
-import java.util.Objects;
 
-import flamenco.flamenco.ListMusic;
+import flamenco.flamenco.MusicActivity;
 import flamenco.flamenco.MainFragment.SongAdapter;
 import flamenco.flamenco.R;
 import flamenco.flamenco.Song;
@@ -35,7 +34,7 @@ public class PlaylistsFragment extends Fragment{
 
     private String mString;
     private ArrayList<Song> playList;
-    public ListMusic listMusic;
+    public MusicActivity musicActivity;
 
 
     @Override
@@ -44,9 +43,9 @@ public class PlaylistsFragment extends Fragment{
         final View view =  inflater.inflate(R.layout.playlistsfragment, container, false);
         final ListView playListView = view.findViewById(R.id.playlist_list);
 
-        listMusic = (ListMusic) getActivity();
-        assert listMusic != null;
-        playList = listMusic.playList;
+        musicActivity = (MusicActivity) getActivity();
+        assert musicActivity != null;
+        playList = musicActivity.playList;
 
         DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
         final float height = displayMetrics.heightPixels;
@@ -96,7 +95,7 @@ public class PlaylistsFragment extends Fragment{
                             }, 400);
 
                             playListView.setAdapter(playAdt);
-                            listMusic.savePlaylistList();
+                            musicActivity.savePlaylistList();
 
                         }
 
@@ -138,13 +137,13 @@ public class PlaylistsFragment extends Fragment{
             final ListView playListView = this.getView().findViewById(R.id.playlist_list);
             final SongAdapter playAdt = new SongAdapter(getActivity(), playList, "playlists");
             playListView.setAdapter(playAdt);
-            listMusic.playList = playList;
-            listMusic.savePlaylistList();
+            musicActivity.playList = playList;
+            musicActivity.savePlaylistList();
 
         } else if (item.getItemId()==R.id.Remove) {
-            playList.get(listMusic.lastPlaylistIndex).getAlbumSongList().remove(listPos);
+            playList.get(musicActivity.lastPlaylistIndex).getAlbumSongList().remove(listPos);
             final ListView playListView = this.getView().findViewById(R.id.specPlaylist);
-            final SongAdapter playAdt = new SongAdapter(getActivity(), playList.get(listMusic.lastPlaylistIndex).getAlbumSongList(), "song");
+            final SongAdapter playAdt = new SongAdapter(getActivity(), playList.get(musicActivity.lastPlaylistIndex).getAlbumSongList(), "song");
             playListView.setAdapter(playAdt);
 
         } else if (item.getItemId()==R.id.Edit) {
@@ -168,7 +167,7 @@ public class PlaylistsFragment extends Fragment{
                     mString = input.getText().toString();
                     playList.get(listPos).setTitle(mString);
                     final ListView playListView = getActivity().findViewById(R.id.specPlaylist);
-                    final SongAdapter playAdt = new SongAdapter(getActivity(), playList.get(listMusic.lastPlaylistIndex).getAlbumSongList(), "song");
+                    final SongAdapter playAdt = new SongAdapter(getActivity(), playList.get(musicActivity.lastPlaylistIndex).getAlbumSongList(), "song");
                     playListView.setAdapter(playAdt);
 
                 }
@@ -180,8 +179,8 @@ public class PlaylistsFragment extends Fragment{
             return false;
         }
 
-        listMusic.playList = playList;
-        listMusic.savePlaylistList();
+        musicActivity.playList = playList;
+        musicActivity.savePlaylistList();
         return true;
     }
 

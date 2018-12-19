@@ -1,9 +1,6 @@
 package flamenco.flamenco;
 
-import android.media.Image;
-import android.util.Log;
 import android.Manifest;
-import android.animation.Animator;
 import android.animation.LayoutTransition;
 import android.animation.ObjectAnimator;
 import android.content.ContentResolver;
@@ -11,32 +8,31 @@ import android.content.ContentUris;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Path;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
+import android.view.MenuItem;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.view.animation.AccelerateInterpolator;
-import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
-import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.os.IBinder;
@@ -47,16 +43,10 @@ import android.content.ServiceConnection;
 import android.view.View;
 import android.view.MotionEvent;
 import android.view.GestureDetector;
-import android.view.GestureDetector.OnGestureListener;
-import android.support.v4.view.GestureDetectorCompat;
-import android.support.v4.view.MotionEventCompat;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.FragmentManager;
 
 import flamenco.flamenco.ListsFragment.AddSongToPlaylist;
 import flamenco.flamenco.ListsFragment.QueueFragment;
 import flamenco.flamenco.MainFragment.AlbumAdapter;
-import flamenco.flamenco.MainFragment.AlbumsFragment;
 import flamenco.flamenco.MainFragment.FoldersAdapter;
 import flamenco.flamenco.MainFragment.MainFragmentAdapter;
 import flamenco.flamenco.MainFragment.SongAdapter;
@@ -69,13 +59,12 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 
-public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
+public class MusicActivity extends AppCompatActivity implements MediaPlayerControl {
 
     public ArrayList<flamenco.flamenco.Song> songList;
     public ArrayList<flamenco.flamenco.Song> artistList;
@@ -160,7 +149,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
 
             int savedIndex = prefs.getInt("shuffleIndex", 0);
             if (shuffledList == null || shuffledList.size() == 0) {
-                Toast.makeText(ListMusic.this, "New shuffle created from current queue", Toast.LENGTH_LONG).show();
+                Toast.makeText(MusicActivity.this, "New shuffle created from current queue", Toast.LENGTH_LONG).show();
                 shuffledList = new ArrayList<>(musicSrv.getList());
                 Collections.shuffle(shuffledList);
 
@@ -176,7 +165,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
                 prefsEditor.putString("shuffledList", json);
                 prefsEditor.commit();
             } else {
-                Toast.makeText(ListMusic.this, "Previous shuffle loaded", Toast.LENGTH_LONG).show();
+                Toast.makeText(MusicActivity.this, "Previous shuffle loaded", Toast.LENGTH_LONG).show();
                 int i = 0;
                 while (i < savedIndex) {
                     shuffledList.remove(0);
@@ -200,11 +189,10 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
         setContentView(R.layout.activity_list_music);
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         prefsEditor = prefs.edit();
-        ActivityCompat.requestPermissions(ListMusic.this,
+        ActivityCompat.requestPermissions(MusicActivity.this,
                 new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},1);
 
         shuffledList = new ArrayList<>();
@@ -245,7 +233,21 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
             playList = new ArrayList<>();
         }
 
-
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                        menuItem.setChecked(true);
+                        ((DrawerLayout)findViewById(R.id.drawer_layout)).closeDrawers();
+                        if (menuItem.getTitle().equals("Podcasts/Audiobooks")) {
+                            Intent intent = new Intent(MusicActivity.this, OtherAudioActivity.class);
+                            startActivity(intent);
+                        }
+                        return true;
+                    }
+                }
+        );
 
         playBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -473,7 +475,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
     }
 
     public void clearShuffle(View view) {
-        Toast.makeText(ListMusic.this, "Shuffle deleted", Toast.LENGTH_LONG).show();
+        Toast.makeText(MusicActivity.this, "Shuffle deleted", Toast.LENGTH_LONG).show();
         shuffledList.clear();
         musicSrv.setList(songList);
         isShuffled = false;
@@ -754,7 +756,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
 
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    Toast.makeText(ListMusic.this, "Permission denied to read your External storage",
+                    Toast.makeText(MusicActivity.this, "Permission denied to read your External storage",
                             Toast.LENGTH_SHORT).show();
                 }
             }
@@ -1035,7 +1037,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
         try {
             albumList.get(albumList.size() - 1).setAlbumSongList(albumSongList);
         } catch (ArrayIndexOutOfBoundsException e) {
-            Toast.makeText(ListMusic.this, "No audio found!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MusicActivity.this, "No audio found!", Toast.LENGTH_SHORT).show();
         }
         musicCursor.close();
 

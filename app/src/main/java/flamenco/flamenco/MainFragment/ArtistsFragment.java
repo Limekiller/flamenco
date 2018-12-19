@@ -1,6 +1,5 @@
 package flamenco.flamenco.MainFragment;
 
-import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -17,17 +16,15 @@ import android.widget.GridView;
 
 import java.util.ArrayList;
 
-import flamenco.flamenco.ListMusic;
-import flamenco.flamenco.MainFragment.AlbumAdapter;
+import flamenco.flamenco.MusicActivity;
 import flamenco.flamenco.R;
 import flamenco.flamenco.Song;
-import flamenco.flamenco.animations;
 
 public class ArtistsFragment extends Fragment {
 
     private ArrayList<Song> artistList;
     private GridView songView;
-    public ListMusic listMusic;
+    public MusicActivity musicActivity;
 
 
     @Override
@@ -35,11 +32,11 @@ public class ArtistsFragment extends Fragment {
         final View view = inflater.inflate(R.layout.artistsfragment, container, false);
         artistList = new ArrayList<Song>();
         songView = view.findViewById(R.id.artist_list);
-        listMusic = (ListMusic) getActivity();
+        musicActivity = (MusicActivity) getActivity();
 
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
         final float height = displayMetrics.heightPixels;
-        artistList = listMusic.artistList;
+        artistList = musicActivity.artistList;
         view.findViewById(R.id.arrow_up3).animate().translationY(height).setDuration(200);
         view.findViewById(R.id.arrow_up5).animate().translationY(height).setDuration(200);
 

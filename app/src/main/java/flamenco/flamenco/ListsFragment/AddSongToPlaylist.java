@@ -12,7 +12,6 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-import flamenco.flamenco.ListMusic;
 import flamenco.flamenco.MainFragment.SongAdapter;
 import flamenco.flamenco.R;
 import flamenco.flamenco.Song;

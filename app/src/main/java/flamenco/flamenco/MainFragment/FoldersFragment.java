@@ -9,21 +9,17 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
-import android.view.animation.BounceInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
-import android.widget.GridView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
 
 import flamenco.flamenco.Folder;
-import flamenco.flamenco.ListMusic;
+import flamenco.flamenco.MusicActivity;
 import flamenco.flamenco.R;
 import flamenco.flamenco.Song;
-import flamenco.flamenco.animations;
 
 public class FoldersFragment extends Fragment {
 
@@ -31,7 +27,7 @@ public class FoldersFragment extends Fragment {
     private ArrayList<Song> songList;
     private ListView folderView;
     private Folder lastFolder;
-    public ListMusic listMusic;
+    public MusicActivity musicActivity;
     private View view;
 
     @Override
@@ -44,10 +40,10 @@ public class FoldersFragment extends Fragment {
         final float deviceHeight = displayMetrics.heightPixels;
 
         folderView = view.findViewById(R.id.folder_list);
-        listMusic = (ListMusic) getActivity();
+        musicActivity = (MusicActivity) getActivity();
 
-        folderList = listMusic.folderList;
-        listMusic.lastFolder = null;
+        folderList = musicActivity.folderList;
+        musicActivity.lastFolder = null;
         FoldersAdapter folderAdt = new FoldersAdapter(getActivity(), folderList, null);
         folderView.setAdapter(folderAdt);
         view.findViewById(R.id.arrow_up1).animate().translationY(deviceHeight).setDuration(200);
@@ -70,8 +66,8 @@ public class FoldersFragment extends Fragment {
 
                         if (e1.getY() - e2.getY() > 0) {
 
-                            lastFolder = listMusic.lastFolder;
-                            listMusic.lastFolder = lastFolder.getParentFolder();
+                            lastFolder = musicActivity.lastFolder;
+                            musicActivity.lastFolder = lastFolder.getParentFolder();
 
                             if (lastFolder.getParentFolder() == null) {
 
@@ -91,7 +87,7 @@ public class FoldersFragment extends Fragment {
                                 animation.start();
 
                             } else {
-                                FoldersAdapter foldersAdapter = new FoldersAdapter(view.getContext(), listMusic.lastFolder.getFolderList(), listMusic.lastFolder.getSongList());
+                                FoldersAdapter foldersAdapter = new FoldersAdapter(view.getContext(), musicActivity.lastFolder.getFolderList(), musicActivity.lastFolder.getSongList());
                                 ((ListView)view.findViewById(R.id.f_folder_list)).setAdapter(foldersAdapter);
 
                                 ObjectAnimator animation = ObjectAnimator.ofFloat(view.findViewById(R.id.folderFocus),

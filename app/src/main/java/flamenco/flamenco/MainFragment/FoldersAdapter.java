@@ -1,31 +1,21 @@
 package flamenco.flamenco.MainFragment;
 
-import android.content.ContentUris;
 import android.content.Context;
-import android.net.Uri;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import flamenco.flamenco.Folder;
-import flamenco.flamenco.ListMusic;
+import flamenco.flamenco.MusicActivity;
 import flamenco.flamenco.R;
 import flamenco.flamenco.Song;
 
 import com.bumptech.glide.Glide;
 
-import org.w3c.dom.Text;
-
-import java.io.File;
 import java.util.ArrayList;
 
 public class FoldersAdapter extends BaseAdapter {
@@ -34,7 +24,7 @@ public class FoldersAdapter extends BaseAdapter {
     private ArrayList<Folder> folders;
     private ArrayList<Song> songs;
     private LayoutInflater songInf;
-    public ListMusic listMusic;
+    public MusicActivity musicActivity;
 
     public FoldersAdapter(Context context, ArrayList<Folder> theFolders, ArrayList<Song> theSongs) {
 
