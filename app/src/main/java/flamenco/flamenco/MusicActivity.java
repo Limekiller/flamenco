@@ -18,6 +18,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -26,7 +27,6 @@ import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -52,6 +52,9 @@ import flamenco.flamenco.MainFragment.MainFragmentAdapter;
 import flamenco.flamenco.MainFragment.SongAdapter;
 import flamenco.flamenco.MainFragment.SongsFragment;
 import flamenco.flamenco.MusicService.MusicBinder;
+import flamenco.flamenco.OtherFragment.BaseOtherAudioAdapter;
+import flamenco.flamenco.OtherFragment.OtherAudioAdapter;
+
 import android.widget.MediaController.MediaPlayerControl;
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
@@ -219,7 +222,7 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
         audioController = findViewById(R.id.audioController);
 
         Gson gson = new Gson();
-        String json = gson.toJson(shuffledList);
+        final String json = gson.toJson(shuffledList);
 
         final GestureDetector gdt = new GestureDetector(new GestureListener());
 
@@ -241,8 +244,17 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
                         menuItem.setChecked(true);
                         ((DrawerLayout)findViewById(R.id.drawer_layout)).closeDrawers();
                         if (menuItem.getTitle().equals("Podcasts/Audiobooks")) {
-                            Intent intent = new Intent(MusicActivity.this, OtherAudioActivity.class);
-                            startActivity(intent);
+
+                            final ViewPager viewPager = findViewById(R.id.pager);
+                            final BaseOtherAudioAdapter adapter = new BaseOtherAudioAdapter(
+                                    getSupportFragmentManager(), 1);
+                            viewPager.setAdapter(adapter);
+
+                        } else if (menuItem.getTitle().equals("Music")) {
+                            final ViewPager viewPager = findViewById(R.id.pager);
+                            final MainFragmentAdapter adapter = new MainFragmentAdapter(
+                                    getSupportFragmentManager(), 2);
+                            viewPager.setAdapter(adapter);
                         }
                         return true;
                     }
@@ -406,15 +418,26 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
 
 
     public void refreshQueue(){
-        QueueFragment queueFragment = (QueueFragment) getSupportFragmentManager().getFragments()
-                .get(1).getChildFragmentManager().getFragments().get(1);
-        queueFragment.refreshQueue();
+        List<Fragment> allFragments = getSupportFragmentManager().getFragments();
+        for (Fragment fragment: allFragments) {
+            for (final Fragment child: fragment.getChildFragmentManager().getFragments()) {
+                if (child instanceof  QueueFragment) {
+                   ((QueueFragment) child).refreshQueue();
+                }
+            }
+        }
     }
 
     public ArrayList<Song> getQueueList(){
-        QueueFragment queueFragment = (QueueFragment) getSupportFragmentManager().getFragments()
-                .get(1).getChildFragmentManager().getFragments().get(1);
-        return queueFragment.getList();
+        List<Fragment> allFragments = getSupportFragmentManager().getFragments();
+        for (Fragment fragment: allFragments) {
+            for (final Fragment child: fragment.getChildFragmentManager().getFragments()) {
+                if (child instanceof  QueueFragment) {
+                    return ((QueueFragment) child).getList();
+                }
+            }
+        }
+        return null;
     }
 
 

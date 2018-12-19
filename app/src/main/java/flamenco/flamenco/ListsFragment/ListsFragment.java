@@ -37,7 +37,7 @@ public class ListsFragment extends Fragment {
         final FloatingActionButton addNew = view.findViewById(R.id.addNew);
         final FloatingActionButton floatingActionButton = view.findViewById(R.id.floatingActionButton);
 
-        TabLayout tabLayout = (TabLayout) view.findViewById(R.id.tab_layout);
+        TabLayout tabLayout = (TabLayout) view.findViewById(R.id.TabLayout);
         tabLayout.addTab(tabLayout.newTab().setText("Playlists"));
         tabLayout.addTab(tabLayout.newTab().setText("Queue"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);

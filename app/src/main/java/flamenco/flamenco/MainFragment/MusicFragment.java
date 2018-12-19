@@ -27,7 +27,7 @@ public class MusicFragment extends Fragment {
 
         view = inflater.inflate(R.layout.fragment_list_music, container, false);
 
-        TabLayout tabLayout = (TabLayout) view.findViewById(R.id.tab_layout);
+        TabLayout tabLayout = (TabLayout) view.findViewById(R.id.TabLayout);
         tabLayout.addTab(tabLayout.newTab().setText("Songs"));
         tabLayout.addTab(tabLayout.newTab().setText("Artists"));
         tabLayout.addTab(tabLayout.newTab().setText("Albums"));

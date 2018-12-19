@@ -1,31 +1,35 @@
-package flamenco.flamenco;
+package flamenco.flamenco.OtherFragment;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.MediaController;
 import android.widget.Toolbar;
 
 import flamenco.flamenco.OtherFragment.OtherAudioAdapter;
+import flamenco.flamenco.R;
 
-public class OtherAudioActivity extends AppCompatActivity {
+public class OtherAudioFragment extends Fragment {
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list_other_audio);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.TabLayout);
+        View view = inflater.inflate(R.layout.list_other_audio, container, false);
+        TabLayout tabLayout = view.findViewById(R.id.TabLayout2);
         tabLayout.addTab(tabLayout.newTab().setText("Podcasts"));
         tabLayout.addTab(tabLayout.newTab().setText("Audiobooks"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
-        final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
+        final ViewPager viewPager = view.findViewById(R.id.pager2);
         final PagerAdapter adapter = new OtherAudioAdapter
-                (getSupportFragmentManager(), tabLayout.getTabCount());
+                (getChildFragmentManager(), tabLayout.getTabCount());
         viewPager.setAdapter(adapter);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -44,22 +48,9 @@ public class OtherAudioActivity extends AppCompatActivity {
 
             }
         });
+
+        return view;
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.menu_main, menu);
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        int id = item.getItemId();
-//        if (id == R.id.action_settings) {
-//            return true;
-//        }
-//
-//        return super.onOptionsItemSelected(item);
-//    }
 }
 
