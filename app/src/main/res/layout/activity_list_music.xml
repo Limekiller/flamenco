@@ -41,7 +41,9 @@
                 <ImageView
                     android:id="@+id/currSongArt"
                     android:layout_width="80dp"
-                    android:layout_height="75dp" />
+                    android:layout_height="80dp"
+                    android:layout_centerHorizontal="false"
+                    android:layout_centerVertical="false" />
 
                 <RelativeLayout
                     android:id="@+id/songController"
@@ -124,6 +126,85 @@
 
                 </RelativeLayout>
 
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/audioControllerFocused"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="0">
+
+                <TextView
+                    android:id="@+id/currSongTitleFocused"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:text="TextView"
+                    android:textColor="@color/exo_edit_mode_background_color"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/currSongArtistFocused"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/currSongTitleFocused"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginBottom="25dp"
+                    android:text="TextView"
+                    android:textColor="@color/exo_edit_mode_background_color"
+                    android:textSize="18sp" />
+
+                <LinearLayout
+                    android:id="@+id/audioControlsFocused"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/currSongArtistFocused"
+                    android:layout_centerHorizontal="true"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/rewindBtnFocus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@android:color/transparent"
+                        app:srcCompat="@drawable/exo_controls_previous" />
+
+                    <ImageButton
+                        android:id="@+id/playBtnFocus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="25dp"
+                        android:layout_marginRight="25dp"
+                        android:background="@android:color/transparent"
+                        app:srcCompat="@drawable/exo_controls_pause" />
+
+                    <ImageButton
+                        android:id="@+id/ffBtnFocus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="25dp"
+                        android:background="@android:color/transparent"
+                        app:srcCompat="@drawable/exo_controls_next" />
+
+                    <ImageButton
+                        android:id="@+id/shuffButtonFocus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@android:color/transparent"
+                        app:srcCompat="@drawable/exo_controls_shuffle" />
+                </LinearLayout>
+
+                <SeekBar
+                    android:id="@+id/seekBarFocus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/audioControlsFocused"
+                    android:layout_marginStart="25dp"
+                    android:layout_marginTop="25dp"
+                    android:layout_marginEnd="25dp"
+                    android:maxHeight="30dp"
+                    android:minHeight="30dp" />
             </RelativeLayout>
 
         </RelativeLayout>

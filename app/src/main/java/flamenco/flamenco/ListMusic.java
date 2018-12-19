@@ -1,5 +1,6 @@
 package flamenco.flamenco;
 
+import android.media.Image;
 import android.util.Log;
 import android.Manifest;
 import android.animation.Animator;
@@ -97,20 +98,103 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
     private RelativeLayout audioController;
     private ImageView currSongArt;
     private TextView currSongInfo;
+    private TextView currSongTitleFocused;
+    private TextView currSongArtistFocused;
     private SeekBar seekBar;
+    private SeekBar seekBarFocus;
     private TextView currTime;
     private ImageButton rewindBtn;
     private ImageButton playBtn;
     private ImageButton shuffBtn;
     private ImageButton ffBtn;
+    private ImageButton rewindBtnFocus;
+    private ImageButton playBtnFocus;
+    private ImageButton shuffBtnFocus;
+    private ImageButton ffBtnFocus;
     private Handler handler;
     private float deviceHeight;
     private float deviceWidth;
-    private boolean isFullscreen = false;
-    GestureDetector gestureDetector;
 
     private boolean hasUpdated=false;
     private boolean paused=false;
+
+    public void playButtonAction() {
+        if (!musicSrv.isPng() && musicSrv.requestAudioFocus()) {
+            musicSrv.go();
+            playBtn.setImageResource(R.drawable.exo_controls_pause);
+            playBtnFocus.setImageResource(R.drawable.exo_controls_pause);
+        } else {
+            musicSrv.pausePlayer();
+            playBtn.setImageResource(R.drawable.exo_controls_play);
+            playBtnFocus.setImageResource(R.drawable.exo_controls_play);
+        }
+    }
+
+    public void rwButtonAction() {
+        lastChosenSong = musicSrv.getSong();
+        musicSrv.playPrev();
+        playBtn.setImageResource(R.drawable.exo_controls_pause);
+        playBtnFocus.setImageResource(R.drawable.exo_controls_pause);
+        updateSong();
+    }
+
+    public void ffButtonAction() {
+        lastChosenSong = musicSrv.getSong();
+        musicSrv.playNext();
+        playBtn.setImageResource(R.drawable.exo_controls_pause);
+        playBtnFocus.setImageResource(R.drawable.exo_controls_pause);
+        updateSong();
+    }
+
+    public void shuffButtonAction() {
+        if (!isShuffled) {
+            isShuffled = true;
+            Gson gson = new Gson();
+            String json = gson.toJson(shuffledList);
+            Type type = new TypeToken<ArrayList<Song>>() {
+            }.getType();
+            shuffledList = gson.fromJson(json, type);
+            String response = prefs.getString("shuffledList", "");
+            shuffledList = gson.fromJson(response, new TypeToken<ArrayList<Song>>() {
+            }.getType());
+
+            int savedIndex = prefs.getInt("shuffleIndex", 0);
+            if (shuffledList == null || shuffledList.size() == 0) {
+                Toast.makeText(ListMusic.this, "New shuffle created from current queue", Toast.LENGTH_LONG).show();
+                shuffledList = new ArrayList<>(musicSrv.getList());
+                Collections.shuffle(shuffledList);
+
+                for (int i = 0; i < shuffledList.size(); i++) {
+                    if (shuffledList.get(i) == getCurrSong()) {
+                        shuffledList.add(0, getCurrSong());
+                        shuffledList.remove(i);
+                    }
+                }
+
+                json = gson.toJson(shuffledList);
+                prefsEditor.remove("shuffledList").apply();
+                prefsEditor.putString("shuffledList", json);
+                prefsEditor.commit();
+            } else {
+                Toast.makeText(ListMusic.this, "Previous shuffle loaded", Toast.LENGTH_LONG).show();
+                int i = 0;
+                while (i < savedIndex) {
+                    shuffledList.remove(0);
+                    i++;
+                }
+
+                shuffledList.add(0, musicSrv.getSong());
+                json = gson.toJson(shuffledList);
+                prefsEditor.remove("shuffledList").apply();
+                prefsEditor.putString("shuffledList", json);
+                prefsEditor.commit();
+            }
+
+            musicSrv.setList(shuffledList);
+            musicSrv.setSong(0);
+            refreshQueue();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,11 +214,18 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
         folderList = new ArrayList<>();
         currSongArt = findViewById(R.id.currSongArt);
         currSongInfo = findViewById(R.id.currSongInfo);
+        currSongTitleFocused = findViewById(R.id.currSongTitleFocused);
+        currSongArtistFocused = findViewById(R.id.currSongArtistFocused);
         seekBar = findViewById(R.id.seekBar);
+        seekBarFocus = findViewById(R.id.seekBarFocus);
         rewindBtn = findViewById(R.id.rewindBtn);
         playBtn = findViewById(R.id.playBtn);
         ffBtn = findViewById(R.id.ffBtn);
         shuffBtn = findViewById(R.id.shuffButton);
+        rewindBtnFocus = findViewById(R.id.rewindBtnFocus);
+        playBtnFocus = findViewById(R.id.playBtnFocus);
+        ffBtnFocus = findViewById(R.id.ffBtnFocus);
+        shuffBtnFocus = findViewById(R.id.shuffButtonFocus);
         currTime = findViewById(R.id.currTime);
         handler = new Handler();
         audioController = findViewById(R.id.audioController);
@@ -154,37 +245,44 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
             playList = new ArrayList<>();
         }
 
+
+
         playBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!musicSrv.isPng() && musicSrv.requestAudioFocus()) {
-                    musicSrv.go();
-                    playBtn.setImageResource(R.drawable.exo_controls_pause);
-                } else {
-                    musicSrv.pausePlayer();
-                    playBtn.setImageResource(R.drawable.exo_controls_play);
-
-                }
+                playButtonAction();
+            }
+        });
+        playBtnFocus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playButtonAction();
             }
         });
 
         rewindBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                lastChosenSong = musicSrv.getSong();
-                musicSrv.playPrev();
-                playBtn.setImageResource(R.drawable.exo_controls_pause);
-                updateSong();
+                rwButtonAction();
+            }
+        });
+        rewindBtnFocus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                rwButtonAction();
             }
         });
 
         ffBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                lastChosenSong = musicSrv.getSong();
-                musicSrv.playNext();
-                playBtn.setImageResource(R.drawable.exo_controls_pause);
-                updateSong();
+                ffButtonAction();
+            }
+        });
+        ffBtnFocus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ffButtonAction();
             }
         });
 
@@ -199,58 +297,34 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
         shuffBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                if (!isShuffled) {
-                    isShuffled = true;
-                    Gson gson = new Gson();
-                    String json = gson.toJson(shuffledList);
-                    Type type = new TypeToken<ArrayList<Song>>() {
-                    }.getType();
-                    shuffledList = gson.fromJson(json, type);
-                    String response = prefs.getString("shuffledList", "");
-                    shuffledList = gson.fromJson(response, new TypeToken<ArrayList<Song>>() {
-                    }.getType());
-
-                    int savedIndex = prefs.getInt("shuffleIndex", 0);
-                    if (shuffledList == null || shuffledList.size() == 0) {
-                        Toast.makeText(ListMusic.this, "New shuffle created from current queue", Toast.LENGTH_LONG).show();
-                        shuffledList = new ArrayList<>(musicSrv.getList());
-                        Collections.shuffle(shuffledList);
-
-                        for (int i = 0; i < shuffledList.size(); i++) {
-                            if (shuffledList.get(i) == getCurrSong()) {
-                                shuffledList.add(0, getCurrSong());
-                                shuffledList.remove(i);
-                            }
-                        }
-
-                        json = gson.toJson(shuffledList);
-                        prefsEditor.remove("shuffledList").apply();
-                        prefsEditor.putString("shuffledList", json);
-                        prefsEditor.commit();
-                    } else {
-                        Toast.makeText(ListMusic.this, "Previous shuffle loaded", Toast.LENGTH_LONG).show();
-                        int i = 0;
-                        while (i < savedIndex) {
-                            shuffledList.remove(0);
-                            i++;
-                        }
-
-                        shuffledList.add(0, musicSrv.getSong());
-                        json = gson.toJson(shuffledList);
-                        prefsEditor.remove("shuffledList").apply();
-                        prefsEditor.putString("shuffledList", json);
-                        prefsEditor.commit();
-                    }
-
-                    musicSrv.setList(shuffledList);
-                    musicSrv.setSong(0);
-                    refreshQueue();
-                }
+                shuffButtonAction();
+            }
+        });
+        shuffBtnFocus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                shuffButtonAction();
             }
         });
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if(musicSrv != null && fromUser) {
+                    musicSrv.seek(progress);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        seekBarFocus.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if(musicSrv != null && fromUser) {
@@ -300,12 +374,13 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
     }
 
 
-
     // This method handles moving from one song to the next automatically.
     public void updateSong() {
         hasUpdated = true;
         flamenco.flamenco.Song currSong = musicSrv.getSong();
         currSongInfo.setText(currSong.getArtist()+" — "+currSong.getTitle());
+        currSongTitleFocused.setText(currSong.getTitle());
+        currSongArtistFocused.setText(currSong.getArtist());
         Glide.with(this).load(currSong.getAlbumArt()).error(R.drawable.placeholder)
                 .crossFade().centerCrop().into(currSongArt);
 
@@ -779,6 +854,8 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
             int songDur = musicSrv.getDur();
             seekBar.setMax(songDur);
             seekBar.setProgress(songPos);
+            seekBarFocus.setMax(songDur);
+            seekBarFocus.setProgress(songPos);
             currTime.setText("" + milliSecondsToTimer(songPos));
 
             handler.postDelayed(this, 100);
@@ -806,6 +883,7 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
             }
             if (musicSrv.isPng()) {
                 playBtn.setImageResource(R.drawable.exo_controls_pause);
+                playBtnFocus.setImageResource(R.drawable.exo_controls_pause);
             }
         }
 
@@ -993,47 +1071,69 @@ public class ListMusic extends AppCompatActivity implements MediaPlayerControl {
 
             if(e1.getY() - e2.getY() > 10) {
                 RelativeLayout songController = audioController.findViewById(R.id.songController);
+                ImageView songArt = audioController.findViewById(R.id.currSongArt);
+                final RelativeLayout songControllerFocused = audioController.getRootView().findViewById(R.id.audioControllerFocused);
 
-                RelativeLayout.LayoutParams parms = new RelativeLayout.LayoutParams(audioController.getWidth(), (int) deviceHeight);
+                RelativeLayout.LayoutParams parms = new RelativeLayout.LayoutParams((int)deviceWidth, (int) deviceHeight);
                 audioController.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
                 audioController.setLayoutParams(parms);
                 audioController.requestLayout();
 
-                audioController.findViewById(R.id.currSongArt).animate().translationX(deviceWidth/2.75f)
-                        .setDuration(500).start();
-                audioController.findViewById(R.id.currSongArt).animate().translationY(deviceHeight/5)
-                        .setDuration(500).start();
+
+                RelativeLayout.LayoutParams parms2 = new RelativeLayout.LayoutParams(songArt.getWidth(), songArt.getHeight());
+                parms2.addRule(RelativeLayout.CENTER_HORIZONTAL);
+                parms2.topMargin = (int)deviceHeight / 5;
+                songArt.setLayoutParams(parms2);
+
                 audioController.findViewById(R.id.currSongArt).animate().scaleX(3.5f)
                         .setDuration(500).start();
                 audioController.findViewById(R.id.currSongArt).animate().scaleY(3.5f)
                         .setDuration(500).start();
 
-                audioController.findViewById(R.id.songController).animate().translationX(-deviceWidth/6)
-                        .setInterpolator(new DecelerateInterpolator(2)).setDuration(450).start();
-                audioController.findViewById(R.id.songController).animate().translationY(deviceHeight/2.25f)
-                        .setInterpolator(new DecelerateInterpolator(2)).setDuration(450).start();
+                RelativeLayout.LayoutParams parms3 = new RelativeLayout.LayoutParams(songControllerFocused.getWidth(), songControllerFocused.getHeight());
+                parms3.topMargin = (int)deviceHeight / 2;
+                songControllerFocused.setLayoutParams(parms3);
+
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        songControllerFocused.animate().alpha(1);
+                    }
+                }, 525);
+                songController.setAlpha(0);
+
 
                 return false; // Bottom to top
             }  else if (e2.getY() - e1.getY() > 10) {
+                final RelativeLayout songController = audioController.findViewById(R.id.songController);
+                ImageView songArt = audioController.findViewById(R.id.currSongArt);
+                final RelativeLayout songControllerFocused = audioController.getRootView().findViewById(R.id.audioControllerFocused);
+
                 RelativeLayout.LayoutParams parms = new RelativeLayout.LayoutParams(audioController.getWidth(), (int)(100 * getResources().getDisplayMetrics().density));
                 parms.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
                 audioController.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
                 audioController.setLayoutParams(parms);
                 audioController.requestLayout();
 
-                audioController.findViewById(R.id.currSongArt).animate().translationX(0)
-                        .setInterpolator(new DecelerateInterpolator(2)).setDuration(500).start();
-                audioController.findViewById(R.id.currSongArt).animate().translationY(0)
-                        .setInterpolator(new DecelerateInterpolator(2)).setDuration(500).start();
+
+                RelativeLayout.LayoutParams parms2 = new RelativeLayout.LayoutParams(songArt.getWidth(), songArt.getHeight());
+                parms2.removeRule(RelativeLayout.CENTER_HORIZONTAL);
+                songArt.setLayoutParams(parms2);
                 audioController.findViewById(R.id.currSongArt).animate().scaleX(1)
                         .setInterpolator(new DecelerateInterpolator(2)).setDuration(500).start();
                 audioController.findViewById(R.id.currSongArt).animate().scaleY(1)
                         .setInterpolator(new DecelerateInterpolator(2)).setDuration(500).start();
 
-                audioController.findViewById(R.id.songController).animate().translationX(0)
-                        .setInterpolator(new DecelerateInterpolator(2)).setDuration(450).start();
-                audioController.findViewById(R.id.songController).animate().translationY(0)
-                        .setInterpolator(new DecelerateInterpolator(2)).setDuration(450).start();
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        songController.animate().alpha(1);
+                    }
+                }, 525);
+                songControllerFocused.setAlpha(0);
+
 
                 return false; // Top to bottom
             }
