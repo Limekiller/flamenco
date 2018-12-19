@@ -1072,7 +1072,7 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 
             if(e1.getY() - e2.getY() > 10) {
-                RelativeLayout songController = audioController.findViewById(R.id.songController);
+                final RelativeLayout songController = audioController.findViewById(R.id.songController);
                 ImageView songArt = audioController.findViewById(R.id.currSongArt);
                 final RelativeLayout songControllerFocused = audioController.getRootView().findViewById(R.id.audioControllerFocused);
 
@@ -1080,7 +1080,6 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
                 audioController.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
                 audioController.setLayoutParams(parms);
                 audioController.requestLayout();
-
 
                 RelativeLayout.LayoutParams parms2 = new RelativeLayout.LayoutParams(songArt.getWidth(), songArt.getHeight());
                 parms2.addRule(RelativeLayout.CENTER_HORIZONTAL);
@@ -1100,10 +1099,13 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
+                        songControllerFocused.setVisibility(View.VISIBLE);
+                        songControllerFocused.setAlpha(0);
                         songControllerFocused.animate().alpha(1);
                     }
                 }, 525);
-                songController.setAlpha(0);
+                songController.setVisibility(View.GONE);
+
 
 
                 return false; // Bottom to top
@@ -1131,10 +1133,13 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
+                        songController.setVisibility(View.VISIBLE);
+                        songController.setAlpha(0);
                         songController.animate().alpha(1);
                     }
                 }, 525);
-                songControllerFocused.setAlpha(0);
+                songControllerFocused.setVisibility(View.GONE);
+
 
 
                 return false; // Top to bottom
