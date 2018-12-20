@@ -1094,7 +1094,7 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 
-            if(e1.getY() - e2.getY() > 10) {
+            if(e1.getY() - e2.getY() > 100) {
                 final RelativeLayout songController = audioController.findViewById(R.id.songController);
                 ImageView songArt = audioController.findViewById(R.id.currSongArt);
                 final RelativeLayout songControllerFocused = audioController.getRootView().findViewById(R.id.audioControllerFocused);
@@ -1132,7 +1132,7 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
 
 
                 return false; // Bottom to top
-            }  else if (e2.getY() - e1.getY() > 10) {
+            }  else if (e2.getY() - e1.getY() > 100) {
                 final RelativeLayout songController = audioController.findViewById(R.id.songController);
                 ImageView songArt = audioController.findViewById(R.id.currSongArt);
                 final RelativeLayout songControllerFocused = audioController.getRootView().findViewById(R.id.audioControllerFocused);

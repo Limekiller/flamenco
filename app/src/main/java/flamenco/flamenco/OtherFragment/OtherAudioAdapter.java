@@ -17,10 +17,10 @@ public class OtherAudioAdapter extends FragmentStatePagerAdapter {
 
         switch (position) {
             case 0:
-                AudiobooksFragment tab1 = new AudiobooksFragment();
+                PodcastsFragment tab1 = new PodcastsFragment();
                 return tab1;
             case 1:
-                PodcastsFragment tab2 = new PodcastsFragment();
+                AudiobooksFragment tab2 = new AudiobooksFragment();
                 return tab2;
             default:
                 return null;
