@@ -73,6 +73,7 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
     public ArrayList<flamenco.flamenco.Song> artistList;
     public ArrayList<flamenco.flamenco.Song> albumList;
     public ArrayList<flamenco.flamenco.Folder> folderList;
+    public ArrayList<Song> podcastList;
     public ArrayList<Song> playList;
     public Folder lastFolder;
     private ArrayList<Song> shuffledList;
@@ -203,6 +204,7 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
         artistList = new ArrayList<>();
         albumList = new ArrayList<>();
         folderList = new ArrayList<>();
+        podcastList = new ArrayList<>();
         currSongArt = findViewById(R.id.currSongArt);
         currSongInfo = findViewById(R.id.currSongInfo);
         currSongTitleFocused = findViewById(R.id.currSongTitleFocused);
@@ -717,8 +719,48 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
         startActivityForResult(intent,1);
     }
 
+    // This method shows the podcast tracks
+    public void showPodcasts(View view) {
+
+        ArrayList<flamenco.flamenco.Song> tempPodcastList = new ArrayList<>();
+        TextView title = view.findViewById(R.id.album_artist);
+        String artistName = (String) title.getText();
+        final View parentView = (View) view.getParent().getParent();
+
+        for (flamenco.flamenco.Song dog : albumList) {
+            if (dog.getArtist().equals(artistName)) {
+                tempPodcastList = dog.getAlbumSongList();
+            }
+        }
+
+        ObjectAnimator animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.Podcast_List),
+                "translationY", 0, deviceHeight);
+        animation.setDuration(300);
+        animation.setInterpolator(new AccelerateInterpolator(2));
+        animation.start();
+        parentView.findViewById(R.id.Podcast_List).setAlpha(0.99f);
+
+        animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.podcast_track_list),
+                "translationY", -70, 0);
+        animation.setDuration(225);
+        animation.start();
+        parentView.findViewById(R.id.album_list).setAlpha(1f);
+
+        GridView albumView = parentView.findViewById(R.id.album_list);
+        AlbumAdapter songAdt = new AlbumAdapter(view.getContext(), tempAlbumList, "albums");
+        albumView.setAdapter(songAdt);
+
+
+    }
+
     // This method shows the albums belonging to an artist
     public void showAlbums(View view) {
+
+        if (view.getParent() == findViewById(R.id.Podcast_List)) {
+            showPodcasts(view);
+            return;
+        }
+
         ArrayList<flamenco.flamenco.Song> tempAlbumList = new ArrayList<>();
         TextView title = view.findViewById(R.id.album_artist);
         String artistName = (String) title.getText();
@@ -775,6 +817,7 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission granted and now can proceed
                     getSongList();
+                    getPodcastList();
                 } else {
 
                     // permission denied, boo! Disable the
@@ -1088,6 +1131,63 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
         final MainFragmentAdapter adapter = new MainFragmentAdapter(
                 getSupportFragmentManager(), 2);
         viewPager.setAdapter(adapter);
+    }
+
+    public void getPodcastList() {
+
+        ContentResolver musicResolver = getContentResolver();
+        Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
+        if (musicCursor != null && musicCursor.moveToFirst()) {
+            int titleColumn = musicCursor.getColumnIndex
+                    (MediaStore.Audio.Albums.ALBUM);
+            int artistColumn = musicCursor.getColumnIndex
+                    (MediaStore.Audio.Albums.ARTIST);
+            int isPodcast = musicCursor.getColumnIndex
+                    (MediaStore.Audio.Media.IS_PODCAST);
+            int idColumn = musicCursor.getColumnIndex
+                    (MediaStore.Audio.Media._ID);
+            int albumIdColumn = musicCursor.getColumnIndex
+                    (MediaStore.Audio.Media.ALBUM_ID);
+
+            do {
+
+                int thisIsPodcast = musicCursor.getInt(isPodcast);
+                String thisArtist = musicCursor.getString(artistColumn);
+                String thisTitle = musicCursor.getString(titleColumn);
+                long thisId = musicCursor.getLong(idColumn);
+                long thisAlbumId = musicCursor.getLong(albumIdColumn);
+                Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
+                Uri albumArt = ContentUris.withAppendedId(sArtworkUri, thisAlbumId);
+
+                if (thisIsPodcast > 0) {
+
+                    Song tempArtist = new Song(thisId, thisArtist, thisArtist, thisAlbumId, null, albumArt.toString());
+                    tempArtist.setAlbumSongList(new ArrayList<Song>());
+                    boolean artistFound = false;
+                    for (int i=0;i<podcastList.size();i++) {
+                        if (podcastList.get(i).getArtist().equals(tempArtist.getArtist())) {
+                            artistFound = true;
+                            podcastList.get(i).getAlbumSongList().add(new Song(thisId, thisTitle, thisArtist, thisAlbumId, null, albumArt.toString()));
+                        }
+                    }
+                    if (!artistFound) {
+                        tempArtist.getAlbumSongList().add(new Song(thisId, thisTitle, thisArtist, thisAlbumId, null, albumArt.toString()));
+                        podcastList.add(tempArtist);
+                    }
+                }
+            }
+            while (musicCursor.moveToNext());
+        }
+        musicCursor.close();
+
+        Collections.sort(podcastList, new Comparator<Song>() {
+            @Override
+            public int compare(flamenco.flamenco.Song o1, flamenco.flamenco.Song o2) {
+                return o1.getTitle().compareTo(o2.getTitle());
+            }
+        });
+
     }
 
     private class GestureListener extends GestureDetector.SimpleOnGestureListener {
