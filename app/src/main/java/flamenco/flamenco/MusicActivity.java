@@ -468,6 +468,15 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
             musicSrv.setList(lastFolder.getSongList());
         } else if (((ViewGroup)view.getParent()).getId() == R.id.specPlaylist) {
             musicSrv.setList(playList.get(lastPlaylistIndex).getAlbumSongList());
+        } else if (((ViewGroup)view.getParent()).getId() == R.id.p_track_list) {
+            String podcastTitle = (String) ((TextView)((ViewGroup)view.getParent().getParent())
+                    .findViewById(R.id.podcastFocusTitle)).getText();
+            for (flamenco.flamenco.Song dog : podcastList) {
+                if (dog.getTitle().equals(podcastTitle)) {
+                    musicSrv.setList(dog.getAlbumSongList());
+                    break;
+                }
+            }
         }
 
 
@@ -727,9 +736,14 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
         String artistName = (String) title.getText();
         final View parentView = (View) view.getParent().getParent();
 
-        for (flamenco.flamenco.Song dog : albumList) {
+        ((TextView)parentView.findViewById(R.id.podcastFocusTitle)).setText(artistName);
+        for (flamenco.flamenco.Song dog : podcastList) {
             if (dog.getArtist().equals(artistName)) {
                 tempPodcastList = dog.getAlbumSongList();
+                Glide.with(this).load(dog.getAlbumArt())
+                        .crossFade().centerCrop()
+                        .into((ImageView) parentView.findViewById(R.id.podcastFocusImage));
+                break;
             }
         }
 
@@ -740,14 +754,14 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
         animation.start();
         parentView.findViewById(R.id.Podcast_List).setAlpha(0.99f);
 
-        animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.podcast_track_list),
+        animation = ObjectAnimator.ofFloat(parentView.findViewById(R.id.podcastFocus),
                 "translationY", -70, 0);
         animation.setDuration(225);
         animation.start();
-        parentView.findViewById(R.id.album_list).setAlpha(1f);
+        parentView.findViewById(R.id.Podcast_List).setAlpha(1f);
 
-        GridView albumView = parentView.findViewById(R.id.album_list);
-        AlbumAdapter songAdt = new AlbumAdapter(view.getContext(), tempAlbumList, "albums");
+        ListView albumView = parentView.findViewById(R.id.p_track_list);
+        SongAdapter songAdt = new SongAdapter(view.getContext(), tempPodcastList, "album");
         albumView.setAdapter(songAdt);
 
 
@@ -1140,7 +1154,7 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
         Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
         if (musicCursor != null && musicCursor.moveToFirst()) {
             int titleColumn = musicCursor.getColumnIndex
-                    (MediaStore.Audio.Albums.ALBUM);
+                    (MediaStore.Audio.Media.TITLE);
             int artistColumn = musicCursor.getColumnIndex
                     (MediaStore.Audio.Albums.ARTIST);
             int isPodcast = musicCursor.getColumnIndex
@@ -1195,6 +1209,7 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 
             if(e1.getY() - e2.getY() > 100) {
+
                 final RelativeLayout songController = audioController.findViewById(R.id.songController);
                 ImageView songArt = audioController.findViewById(R.id.currSongArt);
                 final RelativeLayout songControllerFocused = audioController.getRootView().findViewById(R.id.audioControllerFocused);

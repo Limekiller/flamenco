@@ -132,7 +132,8 @@
                 android:id="@+id/audioControllerFocused"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:alpha="0">
+                android:alpha="0"
+                android:visibility="invisible">
 
                 <TextView
                     android:id="@+id/currSongTitleFocused"

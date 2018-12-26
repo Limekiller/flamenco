@@ -1,11 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/podcastFocus"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true"
+        android:background="@android:color/background_light"
+        android:visibility="visible">
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:background="?android:attr/selectableItemBackground">
+
+            <ImageView
+                android:id="@+id/podcastFocusImage"
+                android:layout_width="match_parent"
+                android:layout_height="120dp" />
+
+            <ImageView
+                android:id="@+id/imageView48"
+                app:srcCompat="@drawable/drop_shadow2"
+                tools:srcCompat="@drawable/drop_shadow"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_alignParentBottom="true"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <TextView
+                android:id="@+id/podcastFocusTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_above="@id/albumFocusArtist"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="20dp"
+                android:layout_marginBottom="20dp"
+                android:fontFamily="@font/timesbi"
+                android:letterSpacing="0.055"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                android:textStyle="bold|italic" />
+
+            <TextView
+                android:id="@+id/podcastFocusArtist"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="false"
+                android:layout_marginStart="20dp"
+                android:layout_marginBottom="8dp"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                android:typeface="sans" />
+
+        </RelativeLayout>
+
+        <ListView
+            android:id="@+id/p_track_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="120dp"
+            android:background="@android:color/white"
+            android:fastScrollEnabled="true"
+            android:visibility="visible"></ListView>
+
+        <ImageView
+            android:id="@+id/arrow"
+            app:srcCompat="@drawable/arrow"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentBottom="true"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="100dp" />
+
+        <ImageView
+            android:id="@+id/imageView36"
+            app:srcCompat="@drawable/drop_shadow"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="100dp"
+            android:clickable="true"
+            android:focusable="true" />
+
+    </RelativeLayout>
 
     <GridView
         android:id="@+id/Podcast_List"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
+        android:background="@android:color/white"
         android:numColumns="2" />
+
 </RelativeLayout>
