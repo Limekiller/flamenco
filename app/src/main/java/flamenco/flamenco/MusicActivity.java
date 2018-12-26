@@ -365,6 +365,7 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
     protected void onStart() {
         super.onStart();
         if(playIntent==null){
+
             DisplayMetrics displayMetrics = getApplicationContext().getResources().getDisplayMetrics();
             deviceHeight = displayMetrics.heightPixels;
             deviceWidth = displayMetrics.widthPixels;
@@ -373,6 +374,13 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
             startService(playIntent);
         }
     }
+
+    @Override
+    protected void onStop() {
+
+        super.onStop();
+    }
+
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1) {
@@ -810,7 +818,8 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
         public void onServiceConnected(ComponentName name, IBinder service) {
             MusicBinder binder = (MusicBinder)service;
             musicSrv = binder.getService();
-            musicSrv.setList(songList);
+
+
             musicBound = true;
         }
 
@@ -919,12 +928,6 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
             //setController();
             paused=false;
         }
-    }
-
-    @Override
-    protected void onStop() {
-        //controller.hide();
-        super.onStop();
     }
 
 
@@ -1145,6 +1148,36 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
         final MainFragmentAdapter adapter = new MainFragmentAdapter(
                 getSupportFragmentManager(), 2);
         viewPager.setAdapter(adapter);
+
+        Gson gson = new Gson();
+
+        ArrayList<Song> currentList = gson.fromJson(prefs.getString("currentList", ""), new TypeToken<ArrayList<Song>>() {
+        }.getType());
+        final int currentTime = prefs.getInt("currentTime", 0);
+        int currentPos = prefs.getInt("currentPos", 0);
+
+        if (currentList != null) {
+            musicSrv.setList(currentList);
+        } else {
+            musicSrv.setList(songList);
+        }
+
+        musicSrv.setSong(currentPos);
+        musicSrv.playSong();
+
+        handler.removeCallbacks(updateTime);
+        handler.postDelayed(updateTime, 100);
+
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                playButtonAction();
+                musicSrv.seek(currentTime);
+                seekBar.setProgress(currentTime);
+            }
+        }, 1000);
+
     }
 
     public void getPodcastList() {

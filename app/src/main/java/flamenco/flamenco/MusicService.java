@@ -7,8 +7,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
 
 import java.util.ArrayList;
@@ -19,12 +21,15 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.PowerManager;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.RemoteViews;
+
+import com.google.gson.Gson;
 
 public class MusicService extends Service implements
         MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
@@ -35,6 +40,9 @@ public class MusicService extends Service implements
     private int songPosn;
     private final IBinder musicBind = new MusicBinder();
     private AudioManager audioManager;
+    private SharedPreferences prefs;
+    private SharedPreferences.Editor prefsEditor;
+
 
     public MusicService() {
     }
@@ -153,9 +161,34 @@ public class MusicService extends Service implements
                 Log.e("MUSIC SERVICE", "Error setting data source", e);
             }
             player.prepareAsync();
+            Handler handler = new Handler();
+            handler.removeCallbacks(savePos);
+            handler.postDelayed(savePos, 1000);
         }
     }
 
+    private Runnable savePos = new Runnable() {
+        @Override
+        public void run() {
+
+            if (isPng()) {
+                prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                prefsEditor = prefs.edit();
+
+                Gson gson = new Gson();
+                String json = gson.toJson(getList());
+
+                prefsEditor.remove("currentList").apply();
+                prefsEditor.putInt("currentTime", getPosn());
+                prefsEditor.putInt("currentPos", getSongPosn());
+                prefsEditor.putString("currentList", json);
+                prefsEditor.commit();
+            }
+
+            Handler handler = new Handler();
+            handler.postDelayed(this, 5000);
+        }
+    };
 
     public void setSong(int songIndex){
         songPosn=songIndex;
