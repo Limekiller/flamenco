@@ -76,6 +76,7 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
     public ArrayList<Song> podcastList;
     public ArrayList<Song> playList;
     public Folder lastFolder;
+
     private ArrayList<Song> shuffledList;
     private MusicService musicSrv;
     private Intent playIntent;
@@ -189,6 +190,55 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
         }
     }
 
+    public void loadMusicPos(Boolean type) {
+
+        Gson gson = new Gson();
+        ArrayList<Song> currentList;
+        int currentPos;
+        final int currentTime;
+
+        if (type) {
+            currentList = gson.fromJson(prefs.getString("currentMusicList", ""), new TypeToken<ArrayList<Song>>() {
+            }.getType());
+            currentTime = prefs.getInt("currentMusicTime", 0);
+            currentPos = prefs.getInt("currentMusicPos", 0);
+        } else {
+            currentList = gson.fromJson(prefs.getString("currentPodcastList", ""), new TypeToken<ArrayList<Song>>() {
+            }.getType());
+            currentTime = prefs.getInt("currentPodcastTime", 0);
+            currentPos = prefs.getInt("currentPodcastPos", 0);
+        }
+
+        if (currentList != null) {
+            musicSrv.setList(currentList);
+        } else {
+            musicSrv.setList(songList);
+        }
+
+        musicSrv.setSong(currentPos);
+        musicSrv.playSong();
+
+        handler.removeCallbacks(updateTime);
+        handler.postDelayed(updateTime, 100);
+
+        flamenco.flamenco.Song currSong = musicSrv.getSong();
+        currSongInfo.setText(currSong.getArtist()+" — "+currSong.getTitle());
+        currSongTitleFocused.setText(currSong.getTitle());
+        currSongArtistFocused.setText(currSong.getArtist());
+        Glide.with(this).load(currSong.getAlbumArt()).error(R.drawable.placeholder)
+                .crossFade().centerCrop().into(currSongArt);
+
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                playButtonAction();
+                musicSrv.seek(currentTime);
+                seekBar.setProgress(currentTime, true);
+            }
+        }, 500);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -247,12 +297,17 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
                         ((DrawerLayout)findViewById(R.id.drawer_layout)).closeDrawers();
                         if (menuItem.getTitle().equals("Podcasts/Audiobooks")) {
 
+                            musicSrv.musicPlaying = false;
+                            loadMusicPos(false);
+
                             final ViewPager viewPager = findViewById(R.id.pager);
                             final BaseOtherAudioAdapter adapter = new BaseOtherAudioAdapter(
                                     getSupportFragmentManager(), 1);
                             viewPager.setAdapter(adapter);
 
                         } else if (menuItem.getTitle().equals("Music")) {
+                            musicSrv.musicPlaying = true;
+                            loadMusicPos(true);
                             final ViewPager viewPager = findViewById(R.id.pager);
                             final MainFragmentAdapter adapter = new MainFragmentAdapter(
                                     getSupportFragmentManager(), 2);
@@ -476,6 +531,7 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
             musicSrv.setList(lastFolder.getSongList());
         } else if (((ViewGroup)view.getParent()).getId() == R.id.specPlaylist) {
             musicSrv.setList(playList.get(lastPlaylistIndex).getAlbumSongList());
+
         } else if (((ViewGroup)view.getParent()).getId() == R.id.p_track_list) {
             String podcastTitle = (String) ((TextView)((ViewGroup)view.getParent().getParent())
                     .findViewById(R.id.podcastFocusTitle)).getText();
@@ -486,6 +542,18 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
                 }
             }
         }
+
+        // Save new queue when a song is picked
+        Gson gson = new Gson();
+        String json = gson.toJson(musicSrv.getList());
+        if (musicSrv.musicPlaying) {
+            prefsEditor.remove("currentMusicList");
+            prefsEditor.putString("currentMusicList", json);
+        } else {
+            prefsEditor.remove("currentPodcastList");
+            prefsEditor.putString("currentPodcastList", json);
+        }
+        prefsEditor.apply();
 
 
         if (getCurrSongPosn() == 0) {
@@ -1149,35 +1217,7 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
                 getSupportFragmentManager(), 2);
         viewPager.setAdapter(adapter);
 
-        Gson gson = new Gson();
-
-        ArrayList<Song> currentList = gson.fromJson(prefs.getString("currentList", ""), new TypeToken<ArrayList<Song>>() {
-        }.getType());
-        final int currentTime = prefs.getInt("currentTime", 0);
-        int currentPos = prefs.getInt("currentPos", 0);
-
-        if (currentList != null) {
-            musicSrv.setList(currentList);
-        } else {
-            musicSrv.setList(songList);
-        }
-
-        musicSrv.setSong(currentPos);
-        musicSrv.playSong();
-
-        handler.removeCallbacks(updateTime);
-        handler.postDelayed(updateTime, 100);
-
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                playButtonAction();
-                musicSrv.seek(currentTime);
-                seekBar.setProgress(currentTime);
-            }
-        }, 1000);
-
+        loadMusicPos(true);
     }
 
     public void getPodcastList() {

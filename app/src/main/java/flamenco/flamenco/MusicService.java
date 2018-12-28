@@ -43,6 +43,7 @@ public class MusicService extends Service implements
     private SharedPreferences prefs;
     private SharedPreferences.Editor prefsEditor;
 
+    public Boolean musicPlaying = true;
 
     public MusicService() {
     }
@@ -175,14 +176,14 @@ public class MusicService extends Service implements
                 prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                 prefsEditor = prefs.edit();
 
-                Gson gson = new Gson();
-                String json = gson.toJson(getList());
-
-                prefsEditor.remove("currentList").apply();
-                prefsEditor.putInt("currentTime", getPosn());
-                prefsEditor.putInt("currentPos", getSongPosn());
-                prefsEditor.putString("currentList", json);
-                prefsEditor.commit();
+                if (musicPlaying) {
+                    prefsEditor.putInt("currentMusicTime", getPosn());
+                    prefsEditor.putInt("currentMusicPos", getSongPosn());
+                } else {
+                    prefsEditor.putInt("currentPodcastTime", getPosn());
+                    prefsEditor.putInt("currentPodcastPos", getSongPosn());
+                }
+                prefsEditor.apply();
             }
 
             Handler handler = new Handler();
