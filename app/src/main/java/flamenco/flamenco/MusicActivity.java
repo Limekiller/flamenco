@@ -201,12 +201,16 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
             currentList = gson.fromJson(prefs.getString("currentMusicList", ""), new TypeToken<ArrayList<Song>>() {
             }.getType());
             currentTime = prefs.getInt("currentMusicTime", 0);
-            currentPos = prefs.getInt("currentMusicPos", 0);
+            currentPos = prefs.getInt("currentMusicPos", -1);
         } else {
             currentList = gson.fromJson(prefs.getString("currentPodcastList", ""), new TypeToken<ArrayList<Song>>() {
             }.getType());
             currentTime = prefs.getInt("currentPodcastTime", 0);
-            currentPos = prefs.getInt("currentPodcastPos", 0);
+            currentPos = prefs.getInt("currentPodcastPos", -1);
+        }
+
+        if (currentPos == -1) {
+            return;
         }
 
         if (currentList != null) {
@@ -1071,7 +1075,7 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
         try {
             return musicSrv.getSong();
         } catch (NullPointerException e) {
-            return null;
+            return songList.get(0);
         }
     }
 

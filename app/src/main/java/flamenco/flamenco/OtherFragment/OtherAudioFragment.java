@@ -22,32 +22,6 @@ public class OtherAudioFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.list_other_audio, container, false);
-        TabLayout tabLayout = view.findViewById(R.id.TabLayout2);
-        tabLayout.addTab(tabLayout.newTab().setText("Podcasts"));
-        tabLayout.addTab(tabLayout.newTab().setText("Audiobooks"));
-        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
-
-        final ViewPager viewPager = view.findViewById(R.id.pager2);
-        final PagerAdapter adapter = new OtherAudioAdapter
-                (getChildFragmentManager(), tabLayout.getTabCount());
-        viewPager.setAdapter(adapter);
-        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                viewPager.setCurrentItem(tab.getPosition());
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
-        });
 
         return view;
     }
