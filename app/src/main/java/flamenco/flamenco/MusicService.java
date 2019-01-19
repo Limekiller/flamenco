@@ -172,13 +172,15 @@ public class MusicService extends Service implements
         @Override
         public void run() {
 
-            if (isPng()) {
+            if (isPng() && getPosn() > 1000) {
                 prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                 prefsEditor = prefs.edit();
 
                 if (musicPlaying) {
-                    prefsEditor.putInt("currentMusicTime", getPosn());
-                    prefsEditor.putInt("currentMusicPos", getSongPosn());
+                    if (!prefs.getBoolean("isShuffled", false)) {
+                        prefsEditor.putInt("currentMusicTime", getPosn());
+                        prefsEditor.putInt("currentMusicPos", getSongPosn());
+                    }
                 } else {
                     prefsEditor.putInt("currentPodcastTime", getPosn());
                     prefsEditor.putInt("currentPodcastPos", getSongPosn());
@@ -187,7 +189,7 @@ public class MusicService extends Service implements
             }
 
             Handler handler = new Handler();
-            handler.postDelayed(this, 5000);
+            handler.postDelayed(this, 500);
         }
     };
 

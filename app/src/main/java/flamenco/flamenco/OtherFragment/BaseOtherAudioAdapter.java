@@ -17,7 +17,7 @@ public class BaseOtherAudioAdapter extends FragmentStatePagerAdapter {
 
         switch (position) {
             case 0:
-                OtherAudioFragment tab1 = new OtherAudioFragment();
+                PodcastsFragment tab1 = new PodcastsFragment();
                 return tab1;
             default:
                 return null;

@@ -18,7 +18,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -53,7 +52,6 @@ import flamenco.flamenco.MainFragment.SongAdapter;
 import flamenco.flamenco.MainFragment.SongsFragment;
 import flamenco.flamenco.MusicService.MusicBinder;
 import flamenco.flamenco.OtherFragment.BaseOtherAudioAdapter;
-import flamenco.flamenco.OtherFragment.OtherAudioAdapter;
 
 import android.widget.MediaController.MediaPlayerControl;
 import com.bumptech.glide.Glide;
@@ -168,6 +166,7 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
                 json = gson.toJson(shuffledList);
                 prefsEditor.remove("shuffledList").apply();
                 prefsEditor.putString("shuffledList", json);
+                prefsEditor.putBoolean("isShuffled", true);
                 prefsEditor.commit();
             } else {
                 Toast.makeText(MusicActivity.this, "Previous shuffle loaded", Toast.LENGTH_LONG).show();
@@ -177,15 +176,31 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
                     i++;
                 }
 
-                shuffledList.add(0, musicSrv.getSong());
+                try {
+                    if (!shuffledList.get(0).getArtist().equals(musicSrv.getSong().getArtist()) &&
+                            !shuffledList.get(0).getTitle().equals(musicSrv.getSong().getTitle())) {
+                        shuffledList.add(0, musicSrv.getSong());
+                    }
+                } catch (NullPointerException e) {
+                    // An exception here is fine -- just means that no current song is playing.
+                }
+
                 json = gson.toJson(shuffledList);
                 prefsEditor.remove("shuffledList").apply();
                 prefsEditor.putString("shuffledList", json);
+                prefsEditor.putBoolean("isShuffled", true);
                 prefsEditor.commit();
             }
 
             musicSrv.setList(shuffledList);
             musicSrv.setSong(0);
+            refreshQueue();
+
+        } else {
+            prefsEditor.putBoolean("isShuffled", false);
+            prefsEditor.commit();
+            isShuffled = false;
+            loadMusicPos(true);
             refreshQueue();
         }
     }
@@ -198,6 +213,12 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
         final int currentTime;
 
         if (type) {
+            if (prefs.getBoolean("isShuffled", false)) {
+                isShuffled = false;
+                shuffButtonAction();
+                return;
+            }
+
             currentList = gson.fromJson(prefs.getString("currentMusicList", ""), new TypeToken<ArrayList<Song>>() {
             }.getType());
             currentTime = prefs.getInt("currentMusicTime", 0);
@@ -299,7 +320,7 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
                     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                         menuItem.setChecked(true);
                         ((DrawerLayout)findViewById(R.id.drawer_layout)).closeDrawers();
-                        if (menuItem.getTitle().equals("Podcasts/Audiobooks")) {
+                        if (menuItem.getTitle().equals("Podcasts")) {
 
                             musicSrv.musicPlaying = false;
                             loadMusicPos(false);
@@ -311,7 +332,14 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
 
                         } else if (menuItem.getTitle().equals("Music")) {
                             musicSrv.musicPlaying = true;
-                            loadMusicPos(true);
+
+                            try {
+                                loadMusicPos(true);
+                            } catch (IndexOutOfBoundsException e) {
+                                // It's okay if this throws an exception --
+                                // Most likely the file no longer exists
+                            }
+
                             final ViewPager viewPager = findViewById(R.id.pager);
                             final MainFragmentAdapter adapter = new MainFragmentAdapter(
                                     getSupportFragmentManager(), 2);
@@ -509,9 +537,22 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
         return null;
     }
 
+    public void saveQueue() {
+        Gson gson = new Gson();
+        String json = gson.toJson(musicSrv.getList());
+        if (musicSrv.musicPlaying) {
+            prefsEditor.remove("currentMusicList");
+            prefsEditor.putString("currentMusicList", json);
+        } else {
+            prefsEditor.remove("currentPodcastList");
+            prefsEditor.putString("currentPodcastList", json);
+        }
+        prefsEditor.apply();
+    }
 
     // This method handles moving from one song to another based on user input
     public void songPicked(View view){
+
         lastChosenSong = musicSrv.getSong();
         Integer pos;
         // Check which list choice is coming from
@@ -547,33 +588,17 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
             }
         }
 
-        // Save new queue when a song is picked
-        Gson gson = new Gson();
-        String json = gson.toJson(musicSrv.getList());
-        if (musicSrv.musicPlaying) {
-            prefsEditor.remove("currentMusicList");
-            prefsEditor.putString("currentMusicList", json);
-        } else {
-            prefsEditor.remove("currentPodcastList");
-            prefsEditor.putString("currentPodcastList", json);
-        }
-        prefsEditor.apply();
-
-
-        if (getCurrSongPosn() == 0) {
-            ObjectAnimator animation = ObjectAnimator.ofFloat(audioController,
-                "translationY", deviceHeight, 0).setDuration(500);
-            animation.setInterpolator(new DecelerateInterpolator(2));
-            animation.start();
-        }
-
-
         pos = Integer.parseInt(view.getTag().toString());
 
         if (((ViewGroup)view.getParent()).getId() == R.id.queueList) {
             ArrayList<Song> queueList = getQueueList();
             int listDiff = musicSrv.getList().size() - queueList.size();
             pos = pos + listDiff;
+        } else {
+            // Save new queue when a song is picked
+            prefsEditor.putBoolean("isShuffled", false);
+            isShuffled = false;
+            saveQueue();
         }
 
         musicSrv.setSong(pos);
@@ -1074,7 +1099,7 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
     public Song getCurrSong() {
         try {
             return musicSrv.getSong();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException | IndexOutOfBoundsException e) {
             return songList.get(0);
         }
     }
@@ -1221,7 +1246,12 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
                 getSupportFragmentManager(), 2);
         viewPager.setAdapter(adapter);
 
-        loadMusicPos(true);
+        try {
+            loadMusicPos(true);
+        } catch (IndexOutOfBoundsException e) {
+            musicSrv.setList(songList);
+            musicSrv.setSong(0);
+        }
     }
 
     public void getPodcastList() {
@@ -1278,6 +1308,8 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
                 return o1.getTitle().compareTo(o2.getTitle());
             }
         });
+
+
 
     }
 

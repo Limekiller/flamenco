@@ -73,8 +73,9 @@ public class QueueFragment extends Fragment{
                 View bar = row.findViewById(R.id.imageView6);
                 View bg = row.findViewById(R.id.selectedBG);
 
-                if (songList.get(position).getTitle().equals(((MusicActivity) getActivity()).getCurrSong().getTitle())
-                        && songList.get(position).getArtist().equals(((MusicActivity) getActivity()).getCurrSong().getArtist())) {
+                if (((MusicActivity)getActivity()).getCurrSongPosn() == position &&
+                        ((MusicActivity) getActivity()).getCurrSong().getTitle().equals(
+                                songList.get(position).getTitle())) {
                     ObjectAnimator animation = ObjectAnimator.ofFloat(bar,
                             "scaleX", 0, 1);
                     animation.setDuration(200);

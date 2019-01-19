@@ -8,7 +8,7 @@
         <item
             android:id="@+id/nav_audio"
             android:icon="@android:drawable/stat_sys_headset"
-            android:title="Podcasts/Audiobooks" />
+            android:title="Podcasts" />
         <item
             android:id="@+id/nav_settings"
             android:icon="@android:drawable/ic_popup_reminder"
