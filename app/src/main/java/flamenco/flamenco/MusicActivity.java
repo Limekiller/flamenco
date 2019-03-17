@@ -200,10 +200,19 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
             refreshQueue();
 
         } else {
+            Gson gson = new Gson();
+            ArrayList<Song> currentList = gson.fromJson(prefs.getString("currentMusicList", ""), new TypeToken<ArrayList<Song>>() {
+            }.getType());
+            int currentPos = prefs.getInt("currentMusicPos", -1);
+
+            musicSrv.setList(currentList);
+            musicSrv.setSong(currentPos);
+
             prefsEditor.putBoolean("isShuffled", false);
             prefsEditor.commit();
             isShuffled = false;
-            loadMusicPos(true);
+
+            //loadMusicPos(true);
             refreshQueue();
         }
     }
@@ -346,8 +355,8 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
                             try {
                                 loadMusicPos(true);
                                 if (isShuffled) {
-                                    ffButtonAction();
-                                    playButtonAction();
+//                                    ffButtonAction();
+//                                    playButtonAction();
                                 }
                             } catch (IndexOutOfBoundsException e) {
                                 // It's okay if this throws an exception --
