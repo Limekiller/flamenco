@@ -18,9 +18,12 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.view.MenuItem;
 import android.view.ViewGroup;
@@ -313,6 +316,13 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
             playList = new ArrayList<>();
         }
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionbar = getSupportActionBar();
+        actionbar.setDisplayHomeAsUpEnabled(true);
+        actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
+
+
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
@@ -335,6 +345,10 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
 
                             try {
                                 loadMusicPos(true);
+                                if (isShuffled) {
+                                    ffButtonAction();
+                                    playButtonAction();
+                                }
                             } catch (IndexOutOfBoundsException e) {
                                 // It's okay if this throws an exception --
                                 // Most likely the file no longer exists
@@ -446,6 +460,18 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
         });
 
     }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                ((DrawerLayout)findViewById(R.id.drawer_layout)).openDrawer(GravityCompat.START);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 
 
     @Override

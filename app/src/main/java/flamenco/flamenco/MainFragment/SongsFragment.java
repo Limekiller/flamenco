@@ -49,7 +49,7 @@ public class SongsFragment extends Fragment{
                 View bar = row.findViewById(R.id.imageView6);
                 View bg = row.findViewById(R.id.selectedBG);
 
-                if (songList.get(position).getTitle().equals(((MusicActivity) getActivity()).getCurrSong().getTitle())
+                if (((MusicActivity)getActivity()).getCurrSong() != null && songList.get(position).getTitle().equals(((MusicActivity) getActivity()).getCurrSong().getTitle())
                         && songList.get(position).getArtist().equals(((MusicActivity) getActivity()).getCurrSong().getArtist())) {
                     ObjectAnimator animation = ObjectAnimator.ofFloat(bar,
                             "scaleX", 0, 1);

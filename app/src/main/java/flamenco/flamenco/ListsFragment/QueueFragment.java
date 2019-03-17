@@ -20,6 +20,7 @@ public class QueueFragment extends Fragment{
 
     private ArrayList<Song> songList;
     private ListView songView;
+    private int origSize;
     public MusicActivity musicActivity;
 
 
@@ -45,11 +46,13 @@ public class QueueFragment extends Fragment{
             return;
         }
 
+        origSize = -1;
         songList = new ArrayList<>(musicActivity.getServiceList());
         ArrayList<Song> songsToRemove = new ArrayList<>();
         Song currSong = musicActivity.getCurrSong();
 
         for (flamenco.flamenco.Song dog : songList) {
+            origSize++;
             if (dog.getTitle().equals(currSong.getTitle()) && dog.getArtist().equals(currSong.getArtist())) {
                 break;
             }
@@ -73,7 +76,8 @@ public class QueueFragment extends Fragment{
                 View bar = row.findViewById(R.id.imageView6);
                 View bg = row.findViewById(R.id.selectedBG);
 
-                if (((MusicActivity)getActivity()).getCurrSongPosn() == position &&
+                if ((((MusicActivity)getActivity()).getCurrSongPosn() == position ||
+                        ((MusicActivity)getActivity()).getCurrSongPosn() == position + origSize) &&
                         ((MusicActivity) getActivity()).getCurrSong().getTitle().equals(
                                 songList.get(position).getTitle())) {
                     ObjectAnimator animation = ObjectAnimator.ofFloat(bar,

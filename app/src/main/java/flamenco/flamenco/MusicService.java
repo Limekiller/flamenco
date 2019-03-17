@@ -198,7 +198,11 @@ public class MusicService extends Service implements
     }
 
     public Song getSong() {
-        return songs.get(songPosn);
+        try {
+            return songs.get(songPosn);
+        } catch (NullPointerException e) {
+            return null;
+        }
     }
 
     public Integer getSongPosn() {return songPosn;}
