@@ -225,11 +225,11 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
         final int currentTime;
 
         if (type) {
-            if (prefs.getBoolean("isShuffled", false)) {
-                isShuffled = false;
-                shuffButtonAction();
-                return;
-            }
+//            if (prefs.getBoolean("isShuffled", false)) {
+//                isShuffled = false;
+//                shuffButtonAction();
+//                return;
+//            }
 
             currentList = gson.fromJson(prefs.getString("currentMusicList", ""), new TypeToken<ArrayList<Song>>() {
             }.getType());
@@ -328,6 +328,7 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionbar = getSupportActionBar();
+        actionbar.setDisplayShowTitleEnabled(false);
         actionbar.setDisplayHomeAsUpEnabled(true);
         actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
 
