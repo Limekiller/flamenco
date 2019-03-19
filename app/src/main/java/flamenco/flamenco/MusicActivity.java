@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
@@ -25,6 +26,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
@@ -520,6 +522,15 @@ public class MusicActivity extends AppCompatActivity implements MediaPlayerContr
         }
     }
 
+    public void switchView(View view) {
+        final ViewPager viewPager = findViewById(R.id.pager);
+
+        if (viewPager.getCurrentItem() == 0) {
+            viewPager.setCurrentItem(1);
+        } else {
+            viewPager.setCurrentItem(0);
+        }
+    }
 
     // This method handles moving from one song to the next automatically.
     public void updateSong() {
