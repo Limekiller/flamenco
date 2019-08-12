@@ -66,6 +66,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="120dp"
+            android:layout_marginBottom="100dp"
             android:background="@android:color/white"
             android:fastScrollEnabled="true"
             android:visibility="visible"></ListView>
@@ -95,6 +96,7 @@
         android:id="@+id/Podcast_List"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
+        android:layout_marginBottom="100dp"
         android:background="@android:color/white"
         android:numColumns="2" />
 

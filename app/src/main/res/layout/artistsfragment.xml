@@ -64,6 +64,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="120dp"
+            android:layout_marginBottom="100dp"
             android:fastScrollEnabled="true"></ListView>
 
         <ImageView
@@ -125,6 +126,7 @@
         android:id="@+id/artist_list"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
+        android:layout_marginBottom="100dp"
         android:animateLayoutChanges="true"
         android:background="@android:color/white"
         android:numColumns="2" />

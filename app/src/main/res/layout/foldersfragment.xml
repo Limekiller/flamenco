@@ -18,7 +18,8 @@
         <ListView
             android:id="@+id/f_folder_list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_marginBottom="100dp">
 
         </ListView>
 
@@ -48,6 +49,7 @@
         android:id="@+id/folder_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="100dp"
         android:background="@android:color/white"
         android:divider="@null"
         android:dividerHeight="0dp">
