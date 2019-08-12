@@ -8,6 +8,13 @@
     android:background="#FFFFFF"
     tools:context=".MusicActivity" >
 
+    <EditText
+        android:id="@+id/inputSearch"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:hint="Find song..."
+        android:inputType="textVisiblePassword" />
+
     <ListView
         android:id="@+id/song_list"
         android:layout_width="fill_parent"

@@ -33,7 +33,6 @@
         <activity android:name=".ListsFragment.AddSongToPlaylist"
             android:parentActivityName=".MusicActivity">
         </activity>
-        <activity android:name=".OtherFragment.OtherAudioFragment" />
     </application>
 
 </manifest>

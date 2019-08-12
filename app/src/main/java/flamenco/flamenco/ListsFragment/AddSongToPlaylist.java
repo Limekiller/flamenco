@@ -13,8 +13,8 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 import flamenco.flamenco.MainFragment.SongAdapter;
-import flamenco.flamenco.R;
 import flamenco.flamenco.Song;
+import flamenco.flamenco.R;
 
 public class AddSongToPlaylist extends AppCompatActivity {
 
